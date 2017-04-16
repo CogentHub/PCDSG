@@ -1,0 +1,145 @@
+"vehicle_classes" : {
+  "description" : "All known vehicle classes",
+  "list" : [
+    {
+      "value" : -564539194,
+      "name" : "LMP2"
+    },
+    {
+      "value" : -1300724070,
+      "name" : "Road B"
+    },
+    {
+      "value" : 767810805,
+      "name" : "Road A"
+    },
+    {
+      "value" : 1553262379,
+      "name" : "GT4"
+    },
+    {
+      "value" : -112887377,
+      "name" : "GT3"
+    },
+    {
+      "value" : 99101703,
+      "name" : "Trans-Am"
+    },
+    {
+      "value" : -101706458,
+      "name" : "Road C1"
+    },
+    {
+      "value" : -1289517523,
+      "name" : "LMP1"
+    },
+    {
+      "value" : 1543160927,
+      "name" : "LMP900"
+    },
+    {
+      "value" : -1176205746,
+      "name" : "Historic Touring 2"
+    },
+    {
+      "value" : -1199540832,
+      "name" : "TC2"
+    },
+    {
+      "value" : -48135339,
+      "name" : "Group 5"
+    },
+    {
+      "value" : -718294614,
+      "name" : "Group 4"
+    },
+    {
+      "value" : -1270088329,
+      "name" : "Group A"
+    },
+    {
+      "value" : 298754909,
+      "name" : "Road D"
+    },
+    {
+      "value" : 974854672,
+      "name" : "LMP3"
+    },
+    {
+      "value" : -1811847806,
+      "name" : "Road C2"
+    },
+    {
+      "value" : -105273098,
+      "name" : "Vintage GT"
+    },
+    {
+      "value" : 2111151040,
+      "name" : "FA"
+    },
+    {
+      "value" : 1189178377,
+      "name" : "FB"
+    },
+    {
+      "value" : 1646832695,
+      "name" : "FC"
+    },
+    {
+      "value" : 1361234018,
+      "name" : "F5"
+    },
+    {
+      "value" : 529493584,
+      "name" : "F4"
+    },
+    {
+      "value" : -1358908608,
+      "name" : "GT5"
+    },
+    {
+      "value" : 2028372520,
+      "name" : "Kart1"
+    },
+    {
+      "value" : -1562493614,
+      "name" : "Kart3"
+    },
+    {
+      "value" : -541941989,
+      "name" : "Vintage F1 A"
+    },
+    {
+      "value" : 1153998110,
+      "name" : "Vintage F1 B"
+    },
+    {
+      "value" : -1741070546,
+      "name" : "Vintage F1 C"
+    },
+    {
+      "value" : 1323122160,
+      "name" : "GT1"
+    },
+    {
+      "value" : -1251471527,
+      "name" : "TC3"
+    },
+    {
+      "value" : -1206906486,
+      "name" : "GT1X"
+    },
+    {
+      "value" : -1529501352,
+      "name" : "TC1"
+    },
+    {
+      "value" : -1503297100,
+      "name" : "Group C1"
+    },
+    {
+      "value" : -880731824,
+      "name" : "Vintage Stockcar"
+    }
+  ]
+}

@@ -1,0 +1,508 @@
+{
+  "result" : "ok",
+  "response" : {
+    "description" : "All known track ids",
+    "list" : [
+      {
+        "id" : 328972919,
+        "name" : "Cadwell Club Circuit",
+        "gridsize" : 20
+      },
+      {
+        "id" : 354022214,
+        "name" : "Donington Park GP",
+        "gridsize" : 38
+      },
+      {
+        "id" : 368740158,
+        "name" : "Autodromo Nazionale Monza Short",
+        "gridsize" : 40
+      },
+      {
+        "id" : 521933422,
+        "name" : "Circuit de Barcelona-Catalunya GP",
+        "gridsize" : 36
+      },
+      {
+        "id" : 545979690,
+        "name" : "Oulton Park International",
+        "gridsize" : 26
+      },
+      {
+        "id" : 550129415,
+        "name" : "Azure Coast Stage 1",
+        "gridsize" : 32
+      },
+      {
+        "id" : 560711985,
+        "name" : "Azure Coast",
+        "gridsize" : 32
+      },
+      {
+        "id" : 619694160,
+        "name" : "Ruapuna Park A Circuit",
+        "gridsize" : 28
+      },
+      {
+        "id" : 697498609,
+        "name" : "Nordschleife",
+        "gridsize" : 32
+      },
+      {
+        "id" : 766599953,
+        "name" : "Glencairn East",
+        "gridsize" : 16
+      },
+      {
+        "id" : 816601966,
+        "name" : "Oschersleben National",
+        "gridsize" : 30
+      },
+      {
+        "id" : 832629329,
+        "name" : "Azure Circuit",
+        "gridsize" : 36
+      },
+      {
+        "id" : 850003838,
+        "name" : "Mojave Boa Ascent",
+        "gridsize" : 47
+      },
+      {
+        "id" : 904625875,
+        "name" : "Circuit de Spa-Francorchamps",
+        "gridsize" : 36
+      },
+      {
+        "id" : 920145926,
+        "name" : "Imola",
+        "gridsize" : 40
+      },
+      {
+        "id" : 921120824,
+        "name" : "Bathurst",
+        "gridsize" : 36
+      },
+      {
+        "id" : 928006536,
+        "name" : "California Highway Reverse",
+        "gridsize" : 32
+      },
+      {
+        "id" : 940391868,
+        "name" : "California Highway Stage 2",
+        "gridsize" : 36
+      },
+      {
+        "id" : 1035110721,
+        "name" : "Sonoma Raceway Short",
+        "gridsize" : 43
+      },
+      {
+        "id" : 1058872832,
+        "name" : "Snetterton 200",
+        "gridsize" : 26
+      },
+      {
+        "id" : 1101719627,
+        "name" : "Silverstone International",
+        "gridsize" : 32
+      },
+      {
+        "id" : 1128950148,
+        "name" : "Nordschleife Stage 3",
+        "gridsize" : 36
+      },
+      {
+        "id" : 1277693448,
+        "name" : "Ruapuna Park GP",
+        "gridsize" : 28
+      },
+      {
+        "id" : 1300627020,
+        "name" : "Brands Hatch Indy",
+        "gridsize" : 30
+      },
+      {
+        "id" : 1408845203,
+        "name" : "Summerton National",
+        "gridsize" : 28
+      },
+      {
+        "id" : 1446378877,
+        "name" : "Ruapuna Park Club",
+        "gridsize" : 28
+      },
+      {
+        "id" : 1459212514,
+        "name" : "Nordschleife Stage 1",
+        "gridsize" : 36
+      },
+      {
+        "id" : 1508903068,
+        "name" : "Snetterton 300",
+        "gridsize" : 26
+      },
+      {
+        "id" : 1552853772,
+        "name" : "Hockenheim Classic",
+        "gridsize" : 36
+      },
+      {
+        "id" : 1590386668,
+        "name" : "Watkins Glen Short",
+        "gridsize" : 43
+      },
+      {
+        "id" : 1600840139,
+        "name" : "Silverstone Stowe",
+        "gridsize" : 16
+      },
+      {
+        "id" : 1641471184,
+        "name" : "Silverstone GP",
+        "gridsize" : 32
+      },
+      {
+        "id" : 1676943041,
+        "name" : "California Highway Stage 1",
+        "gridsize" : 40
+      },
+      {
+        "id" : 1695182971,
+        "name" : "Hockenheim GP",
+        "gridsize" : 30
+      },
+      {
+        "id" : 1735854797,
+        "name" : "Dubai Autodrome Club",
+        "gridsize" : 36
+      },
+      {
+        "id" : 1740968730,
+        "name" : "Circuit des 24 Heures du Mans",
+        "gridsize" : 56
+      },
+      {
+        "id" : 1768660198,
+        "name" : "Hockenheim Short",
+        "gridsize" : 30
+      },
+      {
+        "id" : 1836888499,
+        "name" : "Zhuhai International Circuit",
+        "gridsize" : 42
+      },
+      {
+        "id" : 1876749797,
+        "name" : "Cadwell GP",
+        "gridsize" : 12
+      },
+      {
+        "id" : 1940584155,
+        "name" : "Ruapuna Park Outer Loop",
+        "gridsize" : 28
+      },
+      {
+        "id" : 1952936927,
+        "name" : "Silverstone National",
+        "gridsize" : 32
+      },
+      {
+        "id" : 1988984740,
+        "name" : "Brands Hatch GP",
+        "gridsize" : 30
+      },
+      {
+        "id" : 2089801285,
+        "name" : "Mojave Gila Crest",
+        "gridsize" : 47
+      },
+      {
+        "id" : -2125682335,
+        "name" : "Mojave Coyote Noose",
+        "gridsize" : 47
+      },
+      {
+        "id" : -2046633090,
+        "name" : "Ruapuna Park B Circuit",
+        "gridsize" : 28
+      },
+      {
+        "id" : -2021024495,
+        "name" : "Oulton Park Fosters",
+        "gridsize" : 26
+      },
+      {
+        "id" : -1977142985,
+        "name" : "Hockenheim National",
+        "gridsize" : 30
+      },
+      {
+        "id" : -1936790504,
+        "name" : "Azure Coast Westbound",
+        "gridsize" : 25
+      },
+      {
+        "id" : -1877699523,
+        "name" : "Oulton Park Island",
+        "gridsize" : 26
+      },
+      {
+        "id" : -1849531562,
+        "name" : "Willow Springs Horse Thief Mile",
+        "gridsize" : 24
+      },
+      {
+        "id" : -1785781495,
+        "name" : "Watkins Glen GP",
+        "gridsize" : 43
+      },
+      {
+        "id" : -1759743046,
+        "name" : "Sakitto GP",
+        "gridsize" : 54
+      },
+      {
+        "id" : -1737261125,
+        "name" : "Azure Coast Stage 3",
+        "gridsize" : 36
+      },
+      {
+        "id" : -1735912413,
+        "name" : "Chesterfield",
+        "gridsize" : 24
+      },
+      {
+        "id" : -1612023328,
+        "name" : "Mazda Raceway Laguna Seca",
+        "gridsize" : 26
+      },
+      {
+        "id" : -1605913568,
+        "name" : "Summerton Sprint",
+        "gridsize" : 28
+      },
+      {
+        "id" : -1593944167,
+        "name" : "California Highway Full",
+        "gridsize" : 36
+      },
+      {
+        "id" : -1520844580,
+        "name" : "Glencairn Reverse",
+        "gridsize" : 16
+      },
+      {
+        "id" : -1515473908,
+        "name" : "Rouen Les Essarts Short",
+        "gridsize" : 20
+      },
+      {
+        "id" : -1474170192,
+        "name" : "Sakitto International",
+        "gridsize" : 26
+      },
+      {
+        "id" : -1463443929,
+        "name" : "Mojave Sidewinder",
+        "gridsize" : 47
+      },
+      {
+        "id" : -1454279631,
+        "name" : "Sonoma Raceway GP",
+        "gridsize" : 43
+      },
+      {
+        "id" : -1408779593,
+        "name" : "Glencairn West",
+        "gridsize" : 16
+      },
+      {
+        "id" : -1408189041,
+        "name" : "Cadwell Woodland",
+        "gridsize" : 12
+      },
+      {
+        "id" : -1359299594,
+        "name" : "Oschersleben C Circuit",
+        "gridsize" : 23
+      },
+      {
+        "id" : -1260826266,
+        "name" : "Sakitto National",
+        "gridsize" : 26
+      },
+      {
+        "id" : -1194290828,
+        "name" : "Silverstone Classic",
+        "gridsize" : 18
+      },
+      {
+        "id" : -1194185720,
+        "name" : "Oschersleben GP",
+        "gridsize" : 30
+      },
+      {
+        "id" : -1194019375,
+        "name" : "Donington Park National",
+        "gridsize" : 38
+      },
+      {
+        "id" : -1160443077,
+        "name" : "Greenwood Karting Circuit",
+        "gridsize" : 22
+      },
+      {
+        "id" : -1066742780,
+        "name" : "Glencairn",
+        "gridsize" : 16
+      },
+      {
+        "id" : -1042928898,
+        "name" : "Circuit de Barcelona-Catalunya Club",
+        "gridsize" : 40
+      },
+      {
+        "id" : -1031249929,
+        "name" : "Rouen Les Essarts",
+        "gridsize" : 20
+      },
+      {
+        "id" : -1027934689,
+        "name" : "Le Circuit Bugatti",
+        "gridsize" : 40
+      },
+      {
+        "id" : -998191994,
+        "name" : "Circuit de Barcelona-Catalunya National",
+        "gridsize" : 36
+      },
+      {
+        "id" : -995202729,
+        "name" : "Sonoma Raceway National",
+        "gridsize" : 33
+      },
+      {
+        "id" : -945967394,
+        "name" : "Nürburgring GP",
+        "gridsize" : 30
+      },
+      {
+        "id" : -913625358,
+        "name" : "Glencairn West Reverse",
+        "gridsize" : 16
+      },
+      {
+        "id" : -907901266,
+        "name" : "Brno",
+        "gridsize" : 40
+      },
+      {
+        "id" : -891514248,
+        "name" : "Nürburgring Combined",
+        "gridsize" : 30
+      },
+      {
+        "id" : -879282119,
+        "name" : "Sakitto Sprint",
+        "gridsize" : 54
+      },
+      {
+        "id" : -867340010,
+        "name" : "Snetterton 100",
+        "gridsize" : 26
+      },
+      {
+        "id" : -810715843,
+        "name" : "Nürburgring Sprint Short",
+        "gridsize" : 30
+      },
+      {
+        "id" : -780879576,
+        "name" : "Azure Coast Stage 2",
+        "gridsize" : 32
+      },
+      {
+        "id" : -710712693,
+        "name" : "Dubai Autodrome International",
+        "gridsize" : 36
+      },
+      {
+        "id" : -709737101,
+        "name" : "Nürburgring Sprint",
+        "gridsize" : 30
+      },
+      {
+        "id" : -688586697,
+        "name" : "Mojave Cougar Ridge",
+        "gridsize" : 47
+      },
+      {
+        "id" : -661887517,
+        "name" : "Dubai Autodrome GP",
+        "gridsize" : 36
+      },
+      {
+        "id" : -660300766,
+        "name" : "Road America",
+        "gridsize" : 64
+      },
+      {
+        "id" : -602684269,
+        "name" : "Bannochbrae Road Circuit",
+        "gridsize" : 20
+      },
+      {
+        "id" : -446794969,
+        "name" : "Glencairn East Reverse",
+        "gridsize" : 16
+      },
+      {
+        "id" : -360711057,
+        "name" : "Zolder",
+        "gridsize" : 36
+      },
+      {
+        "id" : -331502851,
+        "name" : "California Highway Stage 3",
+        "gridsize" : 36
+      },
+      {
+        "id" : -300387291,
+        "name" : "Nordschleife Stage 2",
+        "gridsize" : 36
+      },
+      {
+        "id" : -246966400,
+        "name" : "Nürburgring Müllenbach",
+        "gridsize" : 36
+      },
+      {
+        "id" : -232513374,
+        "name" : "Dubai Kartdrome",
+        "gridsize" : 22
+      },
+      {
+        "id" : -103312908,
+        "name" : "Willow Springs International Raceway",
+        "gridsize" : 50
+      },
+      {
+        "id" : -52972612,
+        "name" : "Autodromo Nazionale Monza GP",
+        "gridsize" : 54
+      },
+      {
+        "id" : -44748320,
+        "name" : "Summerton",
+        "gridsize" : 28
+      },
+      {
+        "id" : -31727447,
+        "name" : "Dubai Autodrome National",
+        "gridsize" : 36
+      }
+    ]
+  }
+}
