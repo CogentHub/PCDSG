@@ -105,17 +105,17 @@ If $PCDSG_DS_Mode = "" Then
 EndIf
 
 If $Sprachdatei = "" Then
-	$Sprachdatei = $install_dir & "system\language\EN.ini"
+	$Sprachdatei = $install_dir & "system\language\EN - English.ini"
 	IniWrite($config_ini, "Einstellungen", "Sprachdatei", $Sprachdatei)
 EndIf
 
 If Not FileExists($Sprachdatei) Then
-	$Sprachdatei = $install_dir & "system\language\EN.ini"
+	$Sprachdatei = $install_dir & "system\language\EN - English.ini"
 	IniWrite($config_ini, "Einstellungen", "Sprachdatei", $Sprachdatei)
 EndIf
 
 IniWrite($config_ini, "Einstellungen", "Installations_Verzeichnis", @ScriptDir & "\")
-IniWrite($config_ini, "Einstellungen", "Version", "1.3 (beta)")
+IniWrite($config_ini, "Einstellungen", "Version", "1.4 (beta)")
 
 $install_dir = IniRead($config_ini,"Einstellungen", "Installations_Verzeichnis", "")
 $Aktuelle_Version = IniRead($config_ini, "Einstellungen", "Version", "")
@@ -179,7 +179,7 @@ Global $GUI_Name = "Project Cars - Dedicated Server GUI"
 
 $gfx = (@ScriptDir & "\" & "system\gfx\")
 
-$Label_GUI_Button1 = IniRead($Sprachdatei,"Language", "Label_GUI_Button1_1", "")
+$Label_GUI_Button1 = IniRead($Sprachdatei,"Language", "Label_GUI_Button1", "")
 $Label_GUI_Button2 = IniRead($Sprachdatei,"Language", "Label_GUI_Button2", "")
 $Label_GUI_Button3 = IniRead($Sprachdatei,"Language", "Label_GUI_Button3", "")
 $Label_GUI_Button4 = IniRead($Sprachdatei,"Language", "Label_GUI_Button4", "")
