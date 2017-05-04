@@ -1,6 +1,3 @@
-#Region ;**** Directives created by AutoIt3Wrapper_GUI ****
-#AutoIt3Wrapper_Icon=..\ICONS\AutoDataUpdate.ico
-#EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
 #include <GDIPlus.au3>
 #include <GuiConstantsEx.au3>
 #include <ScreenCapture.au3>
@@ -27,7 +24,6 @@ Save_TrackMap()
 
 Func Save_TrackMap()
 	$Check_WinExist = WinExists ("PCars: DS TrackMap")
-	;MsgBox(0, "", $Check_WinExist)
 
 	If $Check_WinExist = "1" Then
 
