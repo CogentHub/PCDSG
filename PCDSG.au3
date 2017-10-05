@@ -16,7 +16,7 @@
 #include <SQLite.au3>
 #include <SQLite.dll.au3>
 #include <Date.au3>
-#include <base64.au3>
+;#include <base64.au3>
 
 Global $config_ini, $install_dir, $Dedi_configCFG_sample
 Global $ListView, $ListView_Produktinformationen, $iMemo_unten, $idTreeView, $Statusbar, $GUI, $id_Projekt, $iwParam
@@ -2105,25 +2105,25 @@ Func _TAB_6_Button2()
 	Global $Read_Input_Name_1 = GUICtrlRead($Input_Name_1)
 	Global $Read_Input_password_Name_1 = GUICtrlRead($Input_password_Name_1)
 
-	$Encrypt_Name_1 = _Base64Encode($Read_Input_Name_1)
-	$Decrypt_Name_1 = _Base64Decode($Encrypt_Name_1)
-	$BinaryToString_Name_1 = BinaryToString($Decrypt_Name_1)
+	;$Encrypt_Name_1 = _Base64Encode($Read_Input_Name_1)
+	;$Decrypt_Name_1 = _Base64Decode($Encrypt_Name_1)
+	;$BinaryToString_Name_1 = BinaryToString($Decrypt_Name_1)
 
-	$Encrypt_password_Name_1 = _Base64Encode($Read_Input_password_Name_1)
-	$Decrypt_password_Name_1 = _Base64Decode($Encrypt_password_Name_1)
-	$BinaryToString_password_Name_1 = BinaryToString($Decrypt_password_Name_1)
+	;$Encrypt_password_Name_1 = _Base64Encode($Read_Input_password_Name_1)
+	;$Decrypt_password_Name_1 = _Base64Decode($Encrypt_password_Name_1)
+	;$BinaryToString_password_Name_1 = BinaryToString($Decrypt_password_Name_1)
 
-	MsgBox(0, "Test 1", "User: " & $Read_Input_Name_1 & @CRLF & "Password: " & $Read_Input_password_Name_1 & @CRLF & @CRLF & _
-							"User Encrypt: " & $Encrypt_Name_1 & @CRLF & "Password Encrypt: " & $Encrypt_password_Name_1 & @CRLF & @CRLF & _
-							"User Decrypt: " & $Decrypt_Name_1 & @CRLF & "Password Decrypt: " & $Decrypt_password_Name_1)
+	;MsgBox(0, "Test 1", "User: " & $Read_Input_Name_1 & @CRLF & "Password: " & $Read_Input_password_Name_1 & @CRLF & @CRLF & _
+							;"User Encrypt: " & $Encrypt_Name_1 & @CRLF & "Password Encrypt: " & $Encrypt_password_Name_1 & @CRLF & @CRLF & _
+							;"User Decrypt: " & $Decrypt_Name_1 & @CRLF & "Password Decrypt: " & $Decrypt_password_Name_1)
 
 
-	IniWrite(@ScriptDir & "\" & "base64.ini", "Base64", "Encode User", $Encrypt_Name_1)
-	IniWrite(@ScriptDir & "\" & "base64.ini", "Base64", "Decode User", $Decrypt_Name_1)
-	IniWrite(@ScriptDir & "\" & "base64.ini", "Base64", "BinaryToString User", $BinaryToString_Name_1)
-	IniWrite(@ScriptDir & "\" & "base64.ini", "Base64", "Encode Password", $Encrypt_password_Name_1)
-	IniWrite(@ScriptDir & "\" & "base64.ini", "Base64", "Decode Password", $Decrypt_password_Name_1)
-	IniWrite(@ScriptDir & "\" & "base64.ini", "Base64", "BinaryToString Password", $BinaryToString_password_Name_1)
+	;IniWrite(@ScriptDir & "\" & "base64.ini", "Base64", "Encode User", $Encrypt_Name_1)
+	;IniWrite(@ScriptDir & "\" & "base64.ini", "Base64", "Decode User", $Decrypt_Name_1)
+	;IniWrite(@ScriptDir & "\" & "base64.ini", "Base64", "BinaryToString User", $BinaryToString_Name_1)
+	;IniWrite(@ScriptDir & "\" & "base64.ini", "Base64", "Encode Password", $Encrypt_password_Name_1)
+	;IniWrite(@ScriptDir & "\" & "base64.ini", "Base64", "Decode Password", $Decrypt_password_Name_1)
+	;IniWrite(@ScriptDir & "\" & "base64.ini", "Base64", "BinaryToString Password", $BinaryToString_password_Name_1)
 EndFunc
 
 Func _TAB_6_Button3()
