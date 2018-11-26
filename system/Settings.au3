@@ -1,3 +1,4 @@
+
 #include <GuiConstantsEx.au3>
 #include <GuiComboBox.au3>
 #include <GuiButton.au3>
@@ -20,6 +21,11 @@ Func _Settings()
 	Global $PCDSG_Stats_path = IniRead($config_ini, "Einstellungen", "PCDSG_Stats_path", "")
 	Global $PCDSG_LOG_ini = $System_Dir & "PCDSG_LOG.ini"
 
+	If $Sprachdatei = "" Then
+		$Sprachdatei = $install_dir & "system\language\EN - English.ini"
+		IniWrite($config_ini, "Einstellungen", "Sprachdatei", $Sprachdatei)
+	EndIf
+
 	Global $Results_copy_2_folder = IniRead($config_ini, "Einstellungen", "PCDSG_Stats_path", "")
 
 	$Wert_Eingabe_Pfad_Dedi = IniRead($config_ini,"Einstellungen", "Dedi_Installations_Verzeichnis", "")
@@ -27,8 +33,9 @@ Func _Settings()
 	$Wert_Eingabe_Pfad_HTML_File = IniRead($config_ini,"Einstellungen", "HTML_File_Verzeichnis", "")
 	$Wert_Eingabe_Pfad_HTML_web = IniRead($config_ini,"Einstellungen", "HTML_web_Verzeichnis", "")
 	$Wert_Eingabe_Pfad_HTML_web_page = IniRead($config_ini,"Einstellungen", "HTML_Status_web_page", "")
-	$Wert_Eingabe_Pfad_FTP_CFG_Upload_path = IniRead($config_ini,"FTP", "FTP_CFG_folder", "")
-	$Wert_Eingabe_Pfad_FTP_Upload_Stats_Results = IniRead($config_ini,"FTP", "FTP_Stats_Results_folder", "")
+	$Wert_Eingabe_Pfad_FTP_DS_Path = IniRead($config_ini,"FTP", "FTP_DS_Path", "")
+	$Wert_Eingabe_Pfad_FTP_LUA_Config_Folder = IniRead($config_ini,"FTP", "FTP_LUA_Config_Folder", "")
+	;$Wert_Eingabe_Pfad_FTP_Stats_Results_Folder = IniRead($config_ini,"FTP", "FTP_Stats_Results_Folder", "")
 
 	Global $NowDate_Value = _NowDate()
 	Global $NowDate = StringReplace($NowDate_Value, "/", ".")
@@ -37,6 +44,8 @@ Func _Settings()
 	Global $NowTime = StringReplace($NowTime_Value, ":", "-")
 
 	#Region Sprachdatei Variablen
+	If Not FileExists($Sprachdatei) Then $Sprachdatei = $Sprachdatei_folder & "EN - English.ini"
+
 	$GUI_Label_Einstellungen = IniRead($Sprachdatei,"Language", "Einstellungen", "")
 
 	$Label_GUI_Group_1 = IniRead($Sprachdatei,"Language", "Label_E_GUI_Group_1", "PCDSG Language File")
@@ -202,25 +211,25 @@ Func _Settings()
 	GUICtrlSetFont(-1, 11, 400, 6, $font_arial)
 
 
-	$Label_Group_1_Label_10_1 = GUICtrlCreateLabel("'Statistics File' Upload path:", 285, 135, 200, 20) ;
+	$Label_Group_1_Label_10_1 = GUICtrlCreateLabel("'Dedicated Server' Folder Path:", 285, 135, 200, 20) ;
 	GUICtrlSetFont(-1, 11, 400, 1, $font_arial)
-	$Checkbox_FTP_Upload_sqlite = GUICtrlCreateCheckbox("", 265, 150, 20, 20)
-	If IniRead($config_ini,"PC_Server", "FTP_Upload_sqlite", "") = "true" Then GUICtrlSetState(-1, $GUI_CHECKED)
-	$Eingabe_Pfad_FTP_sqlite_Upload = GUICtrlCreateInput("Upload path", 285, 150, 200, 20)
+	$Checkbox_FTP_DS_Path = GUICtrlCreateCheckbox("", 265, 150, 20, 20)
+	If IniRead($config_ini,"FTP", "FTP_Upload_DS_Path", "") = "true" Then GUICtrlSetState(-1, $GUI_CHECKED)
+	$Eingabe_Pfad_DS_Path = GUICtrlCreateInput($Wert_Eingabe_Pfad_FTP_DS_Path, 285, 150, 200, 20)
 
 
-	$Label_Group_1_Label_10 = GUICtrlCreateLabel("'Server.cfg File' Upload path:", 285, 173, 200, 20) ;
+	$Label_Group_1_Label_10 = GUICtrlCreateLabel("'Lua_config' Folder Path:", 285, 173, 200, 20) ;
 	GUICtrlSetFont(-1, 11, 400, 1, $font_arial)
-	$Checkbox_FTP_Upload_CFG = GUICtrlCreateCheckbox("", 265, 190, 20, 20)
-	If IniRead($config_ini,"PC_Server", "FTP_Upload_CFG", "") = "true" Then GUICtrlSetState(-1, $GUI_CHECKED)
-	$Eingabe_Pfad_FTP_CFG_Upload = GUICtrlCreateInput($Wert_Eingabe_Pfad_FTP_CFG_Upload_path, 285, 190, 200, 20)
+	$Checkbox_FTP_LUA_Config_Folder = GUICtrlCreateCheckbox("", 265, 190, 20, 20)
+	If IniRead($config_ini,"FTP", "FTP_Upload_FTP_LUA_Config_Folder", "") = "true" Then GUICtrlSetState(-1, $GUI_CHECKED)
+	$Eingabe_Pfad_FTP_LUA_Config_Folder = GUICtrlCreateInput($Wert_Eingabe_Pfad_FTP_LUA_Config_Folder, 285, 190, 200, 20)
 
 
-	$Label_Group_1_Label_11 = GUICtrlCreateLabel("'Result Files' Upload path:", 285, 215, 200, 20) ;
-	GUICtrlSetFont(-1, 11, 400, 1, $font_arial)
-	$Checkbox_FTP_Stats_Results = GUICtrlCreateCheckbox("", 265, 230, 20, 20)
-	If IniRead($config_ini,"PC_Server", "FTP_Upload_Stats_Results", "") = "true" Then GUICtrlSetState(-1, $GUI_CHECKED)
-	$Eingabe_Pfad_FTP_Upload_Stats_Results = GUICtrlCreateInput($Wert_Eingabe_Pfad_FTP_Upload_Stats_Results, 285, 230, 200, 20)
+	;$Label_Group_1_Label_11 = GUICtrlCreateLabel("'Result Files' Folder Path:", 285, 215, 200, 20) ;
+	;GUICtrlSetFont(-1, 11, 400, 1, $font_arial)
+	;$Checkbox_FTP_Stats_Results_Folder = GUICtrlCreateCheckbox("", 265, 230, 20, 20)
+	;If IniRead($config_ini,"PC_Server", "FTP_Upload_Stats_Results", "") = "true" Then GUICtrlSetState(-1, $GUI_CHECKED)
+	;$Eingabe_Pfad_FTP_Stats_Results_Folder = GUICtrlCreateInput($Wert_Eingabe_Pfad_FTP_Stats_Results_Folder, 285, 230, 200, 20)
 
 	GUICtrlCreateGroup("", -99, -99, 1, 1)
 	#endregion
@@ -291,6 +300,7 @@ Func _Settings()
 			Case $Auswahl_Sprachdatei
 				$Auswahl_Einstellung_Sprachdatei = GUICtrlRead($Auswahl_Sprachdatei)
 				$Auswahl_Einstellung_Sprachdatei = @ScriptDir & "\language\" & $Auswahl_Einstellung_Sprachdatei & ".ini"
+				;MsgBox(0, "$Auswahl_Einstellung_Sprachdatei", $Auswahl_Einstellung_Sprachdatei)
 				IniWrite($config_ini, "Einstellungen", "Sprachdatei", $Auswahl_Einstellung_Sprachdatei)
 
 			Case $Checkbox_PCDSG_Stats_path
@@ -395,23 +405,31 @@ Func _Settings()
 				If $Data_Checkbox = "4" Then $Data_Checkbox = "false"
 				IniWrite($config_ini, "Einstellungen", "Force_Excel_ProcessClose", $Data_Checkbox)
 
-			Case $Checkbox_FTP_Upload_sqlite
-				$Data_Checkbox_FTP_Upload_sqlite = GUICtrlRead($Checkbox_FTP_Upload_sqlite)
-				If $Data_Checkbox_FTP_Upload_sqlite = "1" Then $Data_Checkbox_FTP_Upload_sqlite = "true"
-				If $Data_Checkbox_FTP_Upload_sqlite = "4" Then $Data_Checkbox_FTP_Upload_sqlite = "false"
-				IniWrite($config_ini, "PC_Server", "FTP_Upload_sqlite", $Data_Checkbox_FTP_Upload_sqlite)
+			Case $Checkbox_FTP_DS_Path
+				$Data_Checkbox_FTP_DS_Path = GUICtrlRead($Checkbox_FTP_DS_Path)
+				If $Data_Checkbox_FTP_DS_Path = "1" Then
+					$Data_Checkbox_FTP_DS_Path = "true"
+					IniWrite($config_ini, "FTP", "FTP_Upload_DS_Path", $Data_Checkbox_FTP_DS_Path)
+				Else
+					$Data_Checkbox_FTP_DS_Path = "false"
+					IniWrite($config_ini, "FTP", "FTP_Upload_DS_Path", $Data_Checkbox_FTP_DS_Path)
+				EndIf
 
-			Case $Checkbox_FTP_Stats_Results
-				$Data_Checkbox_FTP_Upload_Stats_Results = GUICtrlRead($Checkbox_FTP_Stats_Results)
-				If $Data_Checkbox_FTP_Upload_Stats_Results = "1" Then $Data_Checkbox_FTP_Upload_Stats_Results = "true"
-				If $Data_Checkbox_FTP_Upload_Stats_Results = "4" Then $Data_Checkbox_FTP_Upload_Stats_Results = "false"
-				IniWrite($config_ini, "PC_Server", "FTP_Upload_Stats_Results", $Data_Checkbox_FTP_Upload_Stats_Results)
+			Case $Checkbox_FTP_LUA_Config_Folder
+				$Data_Checkbox_FTP_LUA_Config_Folder = GUICtrlRead($Checkbox_FTP_LUA_Config_Folder )
+				If $Data_Checkbox_FTP_LUA_Config_Folder  = "1" Then
+					$Data_Checkbox_FTP_LUA_Config_Folder  = "true"
+					IniWrite($config_ini, "FTP", "FTP_Upload_FTP_LUA_Config_Folder", $Data_Checkbox_FTP_LUA_Config_Folder)
+				Else
+					$Data_Checkbox_FTP_LUA_Config_Folder  = "false"
+					IniWrite($config_ini, "FTP", "FTP_Upload_FTP_LUA_Config_Folder", $Data_Checkbox_FTP_LUA_Config_Folder)
+				EndIf
 
-			Case $Checkbox_FTP_Upload_CFG
-				$Data_Checkbox_FTP_Upload_CFG = GUICtrlRead($Checkbox_FTP_Upload_CFG )
-				If $Data_Checkbox_FTP_Upload_CFG  = "1" Then $Data_Checkbox_FTP_Upload_CFG  = "true"
-				If $Data_Checkbox_FTP_Upload_CFG  = "4" Then $Data_Checkbox_FTP_Upload_CFG  = "false"
-				IniWrite($config_ini, "PC_Server", "FTP_Upload_CFG", $Data_Checkbox_FTP_Upload_CFG)
+			;Case $Checkbox_FTP_Stats_Results_Folder
+				;$Data_Checkbox_FTP_Stats_Results_Folder = GUICtrlRead($Eingabe_Pfad_FTP_Stats_Results_Folder)
+				;If $Data_Checkbox_FTP_Stats_Results_Folder = "1" Then $Data_Checkbox_FTP_Stats_Results_Folder = "true"
+				;If $Data_Checkbox_FTP_Stats_Results_Folder = "4" Then $Data_Checkbox_FTP_Stats_Results_Folder = "false"
+				;IniWrite($config_ini, "FTP", "FTP_Upload_Stats_Results", $Data_Checkbox_FTP_Stats_Results_Folder)
 
 			Case $Checkbox_PCDSG_settings_1
 				$Data_Checkbox_1 = GUICtrlRead($Checkbox_PCDSG_settings_1)
@@ -503,28 +521,30 @@ Func _Settings()
 
 			Case $Button_Speichern_beenden
 				$Auswahl_Einstellung_Sprachdatei = GUICtrlRead($Auswahl_Sprachdatei)
-					If $Auswahl_Einstellung_Sprachdatei = "DE - German" Then $Auswahl_Einstellung_Sprachdatei = @ScriptDir & "\language\" & "DE.ini"
-					If $Auswahl_Einstellung_Sprachdatei = "EN - Englisch" Then $Auswahl_Einstellung_Sprachdatei = @ScriptDir & "\language\" & "EN.ini"
-					If $Auswahl_Einstellung_Sprachdatei = "FR - French" Then $Auswahl_Einstellung_Sprachdatei = @ScriptDir & "\language\" & "FR.ini"
+					$Auswahl_Einstellung_Sprachdatei = @ScriptDir & "\language\" & $Auswahl_Einstellung_Sprachdatei & ".ini"
 
 				$Auswahl_Einstellung_PCDSG_folder = GUICtrlRead($Eingabe_PCDSG_Install_path)
 				$Auswahl_Einstellung_DS_folder = GUICtrlRead($Eingabe_DS_Install_path)
 				$Auswahl_Einstellung_PCDSG_STATS_path = GUICtrlRead($Eingabe_PCDSG_Stats_path)
 
-				$Auswahl_Path_CFG_FTP_Upload_folder = GUICtrlRead($Eingabe_Pfad_FTP_CFG_Upload)
-					$String_Check_2 = StringRight($Auswahl_Path_CFG_FTP_Upload_folder, 1)
-					If StringRight($String_Check_2, 1 ) <> "/" Then $Auswahl_Path_CFG_FTP_Upload_folder = $Auswahl_Path_CFG_FTP_Upload_folder & "/"
-				$Auswahl_Path_FTP_Upload_Stats_Results_folder = GUICtrlRead($Eingabe_Pfad_FTP_Upload_Stats_Results)
-					$String_Check_2 = StringRight($Auswahl_Path_FTP_Upload_Stats_Results_folder, 1)
-					If StringRight($String_Check_2, 1 ) <> "/" Then $Auswahl_Path_FTP_Upload_Stats_Results_folder = $Auswahl_Path_FTP_Upload_Stats_Results_folder & "/"
+				$Auswahl_Path_FTP_DS_Path = GUICtrlRead($Eingabe_Pfad_DS_Path)
+					$String_Check_2 = StringRight($Auswahl_Path_FTP_DS_Path, 1)
+					If StringRight($String_Check_2, 1 ) <> "/" Then $Auswahl_Path_FTP_DS_Path = $Auswahl_Path_FTP_DS_Path & "/"
+				$Auswahl_Path_FTP_LUA_Config_Folder = GUICtrlRead($Eingabe_Pfad_FTP_LUA_Config_Folder)
+					$String_Check_2 = StringRight($Auswahl_Path_FTP_LUA_Config_Folder, 1)
+					If StringRight($String_Check_2, 1 ) <> "/" Then $Auswahl_Path_FTP_LUA_Config_Folder = $Auswahl_Path_FTP_LUA_Config_Folder & "/"
+				;$Auswahl_Path_FTP_Stats_Results_Folder = GUICtrlRead($Eingabe_Pfad_FTP_Stats_Results_Folder)
+					;$String_Check_2 = StringRight($Auswahl_Path_FTP_Stats_Results_Folder, 1)
+					;If StringRight($String_Check_2, 1 ) <> "/" Then $Auswahl_Path_FTP_Stats_Results_Folder = $Auswahl_Path_FTP_Stats_Results_Folder & "/"
 
 				IniWrite($config_ini, "Einstellungen", "Installations_Verzeichnis", $Auswahl_Einstellung_PCDSG_folder)
 				IniWrite($config_ini, "Einstellungen", "Dedi_Installations_Verzeichnis", $Auswahl_Einstellung_DS_folder)
 				IniWrite($config_ini, "Einstellungen", "PCDSG_Stats_path", $Auswahl_Einstellung_PCDSG_STATS_path)
-
 				IniWrite($config_ini, "Einstellungen", "Sprachdatei", $Auswahl_Einstellung_Sprachdatei)
-				IniWrite($config_ini, "FTP", "FTP_CFG_folder", $Auswahl_Path_CFG_FTP_Upload_folder)
-				IniWrite($config_ini, "FTP", "FTP_Stats_Results_folder", $Auswahl_Path_FTP_Upload_Stats_Results_folder)
+
+				IniWrite($config_ini, "FTP", "FTP_DS_Path", $Auswahl_Path_FTP_DS_Path)
+				IniWrite($config_ini, "FTP", "FTP_LUA_Config_Folder", $Auswahl_Path_FTP_LUA_Config_Folder)
+				;IniWrite($config_ini, "FTP", "FTP_Stats_Results_Folder", $Auswahl_Path_FTP_Stats_Results_Folder)
 
 				MsgBox(0, "Save", "Save complete.", 1)
 				FileWriteLine($PCDSG_LOG_ini, "PCDSG_Settings_saved" & $NowTime & "=" & "PCDSG settings from settings menu" & " | " & "Date - Time: " & $NowDate & " - " & $NowTime)

@@ -1,19 +1,15 @@
-#Region ;**** Directives created by AutoIt3Wrapper_GUI ****
-#AutoIt3Wrapper_Icon=..\ICONS\DataUpdate.ico
-#EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
 
 
 #include <InetConstants.au3>
 #include <MsgBoxConstants.au3>
-
 #include <WinAPIFiles.au3>
 #include <File.au3>
 #include <Date.au3>
-
 #include <SQLite.au3>
 #include <SQLite.dll.au3>
-
 #include <Excel.au3>
+;#include "E:\coding\PCDSG_1.5\PCDSG.au3"
+#include <Inet.au3>
 
 #Region Declare Variables/Const
 Global $config_ini = @ScriptDir & "\config.ini"
@@ -58,12 +54,49 @@ Global $EP_MAX_Points = IniRead($config_ini, "Race_Control", "Value_Checkbox_Exp
 Global $EP_Variant_Divider = IniRead($config_ini, "Race_Control", "Value_Checkbox_ExperiencePoints_2", "4")
 Global $EP_NR_Groups = IniRead($config_ini, "Race_Control", "Value_Checkbox_ExperiencePoints_3", "5")
 
-;Server http settings lesen
-Global $Lesen_Auswahl_httpApiInterface = IniRead($config_ini, "Server_Einstellungen", "httpApiInterface", "")
-Global $Lesen_Auswahl_httpApiPort = IniRead($config_ini, "Server_Einstellungen", "httpApiPort", "")
 
-If $Lesen_Auswahl_httpApiInterface = "" Then Global $Lesen_Auswahl_httpApiInterface = "127.0.0.1"
-If $Lesen_Auswahl_httpApiPort = "" Then Global $Lesen_Auswahl_httpApiPort = "9000"
+
+;Server http settings lesen
+Global $Name_Password = ""
+If IniRead($config_ini, "Server_Einstellungen", "Group_Admin_1", "") <> "" Then
+	Local $Name_User = IniRead($config_ini, "Server_Einstellungen", "Group_Admin_1", "")
+	Local $Password_User = IniRead($config_ini, "Server_Einstellungen", "password_User_1", "")
+	$Name_Password = $Name_User & ":" & $Password_User & "@"
+EndIf
+
+Local $DS_Mode_Temp = IniRead($config_ini, "PC_Server", "DS_Mode", "local")
+If $DS_Mode_Temp = "local" Then
+	If $Name_User <> "" And $Password_User <> "" Then
+		Global $Lesen_Auswahl_httpApiInterface = $Name_Password & IniRead($config_ini, "Server_Einstellungen", "httpApiInterface", "")
+		Global $Lesen_Auswahl_httpApiPort = IniRead($config_ini, "Server_Einstellungen", "httpApiPort", "")
+
+		If IniRead($config_ini, "Server_Einstellungen", "httpApiInterface", "") = "" Then Global $Lesen_Auswahl_httpApiInterface = $Name_Password & "localhost" ; "127.0.0.1"
+		If $Lesen_Auswahl_httpApiPort = "" Then Global $Lesen_Auswahl_httpApiPort = "9000"
+	Else
+		Global $Lesen_Auswahl_httpApiInterface = IniRead($config_ini, "Server_Einstellungen", "httpApiInterface", "")
+		Global $Lesen_Auswahl_httpApiPort = IniRead($config_ini, "Server_Einstellungen", "httpApiPort", "")
+
+		If IniRead($config_ini, "Server_Einstellungen", "httpApiInterface", "") = "" Then Global $Lesen_Auswahl_httpApiInterface = "localhost" ; "127.0.0.1"
+		If $Lesen_Auswahl_httpApiPort = "" Then Global $Lesen_Auswahl_httpApiPort = "9000"
+	EndIf
+EndIf
+If $DS_Mode_Temp = "remote" Then
+	If $Name_User <> "" And $Password_User <> "" Then
+		Global $Lesen_Auswahl_httpApiInterface = $Name_Password & IniRead($config_ini, "Server_Einstellungen", "DS_Domain_or_IP", "")
+		Global $Lesen_Auswahl_httpApiPort = IniRead($config_ini, "Server_Einstellungen", "httpApiPort", "")
+
+		;If IniRead($config_ini, "Server_Einstellungen", "DS_Domain_or_IP", "") = "" Then Global $Lesen_Auswahl_httpApiInterface = $Name_Password & "localhost" ; "127.0.0.1"
+		If $Lesen_Auswahl_httpApiPort = "" Then Global $Lesen_Auswahl_httpApiPort = "9000"
+	Else
+		Global $Lesen_Auswahl_httpApiInterface = IniRead($config_ini, "Server_Einstellungen", "DS_Domain_or_IP", "")
+		Global $Lesen_Auswahl_httpApiPort = IniRead($config_ini, "Server_Einstellungen", "httpApiPort", "")
+
+		;If IniRead($config_ini, "Server_Einstellungen", "DS_Domain_or_IP", "") = "" Then Global $Lesen_Auswahl_httpApiInterface = "localhost" ; "127.0.0.1"
+		If $Lesen_Auswahl_httpApiPort = "" Then Global $Lesen_Auswahl_httpApiPort = "9000"
+	EndIf
+EndIf
+
+
 
 Global $Wert_Track_ID, $Wert_Car, $Wert_Tack, $Wert_Wert
 Local $hQuery, $aRow, $aNames, $iRows, $iCols
@@ -73,6 +106,30 @@ Global $NowDate = StringReplace($NowDate_Value, "/", ".")
 Global $NowTime_Value = _NowTime()
 Global $NowTime_orig = $NowTime_Value
 Global $NowTime = StringReplace($NowTime_Value, ":", "-")
+
+
+
+
+$Sprachdatei = IniRead($config_ini,"Einstellungen", "Sprachdatei", "")
+$Dedi_Installations_Verzeichnis = IniRead($config_ini, "Einstellungen", "Dedi_Installations_Verzeichnis", "")
+$Dedi_Verzeichnis = $Dedi_Installations_Verzeichnis
+$Dedi_config_cfg = $Dedi_Installations_Verzeichnis & "server.cfg"
+$Dedi_configCFG_sample = $install_dir & "server_sample.cfg"
+Global $PCDSG_LOG_ini = $System_Dir & "PCDSG_LOG.ini"
+Global $DB_path = $System_Dir & "Database.sqlite"
+Global $PCDSG_Network_Card_IP= IniRead($config_ini, "Einstellungen", "Network_Card_IP", "")
+Global $NowDate_Value = _NowDate()
+Global $NowDate = StringReplace($NowDate_Value, "/", ".")
+Global $NowTime_Value = _NowTime()
+Global $NowTime_orig = $NowTime_Value
+Global $NowTime = StringReplace($NowTime_Value, ":", "-")
+
+Global $PCDSG_DS_Mode = IniRead($config_ini,"PC_Server", "DS_Mode", "")
+Global $DS_PublicIP = IniRead($config_ini,"PC_Server", "DS_PublicIP", "")
+Global $DS_API_Port = IniRead($config_ini,"PC_Server", "DS_API_Port", "")
+
+Global $Message_Lobby_1, $Message_Lobby_2, $Message_Lobby_3, $Message_Lobby_4, $Message_Lobby_5, $Message_Lobby_6, $Message_Lobby_7, $Message_Lobby_8
+Global $Message_Lobby_9, $Message_Lobby_10, $Message_Lobby_11, $Message_Lobby_12, $Message_Lobby_13, $Message_Lobby_14, $Message_Lobby_15
 #endregion Declare Variables/Const
 
 #Region Auto Lobby check
@@ -87,7 +144,7 @@ EndIf
 
 If $Auto_LobbyCheck = "Lobby" Then
 	IniWrite($config_ini, "PC_Server", "Session_Stage", "Lobby")
-	FileDelete($LOG_Data_INI)
+	;FileDelete($LOG_Data_INI)
 	;_Auto_LobbyAction()
 EndIf
 #EndRegion
@@ -257,8 +314,10 @@ Func _Server_Events_LOG()
 #Region Check = PlayerChat
 			$admin_commands_Status = IniRead($config_ini, "Race_Control", "Checkbox_Rules_8", "")
 
-			If $admin_commands_Status = "true" Then
+			;MsgBox(0, "", $config_ini)
 
+			If $admin_commands_Status = "true" Then
+				;MsgBox(0, "", $Wert_LA_3)
 				If $Wert_LA_3 = "PlayerChat" Then
 
 					Global $LOG_PlayerChat_attribute_attribute_refid = IniRead($LOG_Data_INI, $LOG_Index_Check, "attribute_refid", "") ; attribute_refid
@@ -280,6 +339,12 @@ Func _Server_Events_LOG()
 					$Admin_APP_3 = IniRead($config_ini, "Race_Control", "Admin_APP_3", "")
 					$Admin_APP_4 = IniRead($config_ini, "Race_Control", "Admin_APP_4", "")
 					$Admin_APP_5 = IniRead($config_ini, "Race_Control", "Admin_APP_5", "")
+
+					$MSG_Restart_Private1 = ">RestartPrivate0"
+					$MSG_Restart_Private2 = ">RestartPrivate1"
+
+					$MSG_CGS_1 = ">CGS0"
+					$MSG_CGS_2 = ">CGS1"
 
 					$MSG_SB = ">SB"
 					$MSG_PB = ">PB"
@@ -308,7 +373,137 @@ Func _Server_Events_LOG()
 					FileWriteLine($PCDSG_LOG_ini, "PlayerChat_Message_" & $NowTime & "=" & $PlayerChat_Message_Check)
 
 
-					;MsgBox(0, "", $PlayerChat_Message_Check, 3)
+					If $PlayerChat_Message_Check = $MSG_Restart_Private1 Then ; Restart_Private off
+						;MsgBox(0, "341", "Control Game Setup 0 [false]")
+						_config_cfg_erstellen_2()
+
+						$Nachricht_1 = "DS Settings changed:"
+						$Nachricht_2 = "--------------------"
+						$Nachricht_3 = "Private Mode be set to --> 'false'"
+						$Nachricht_4 = "DS will be restarted..."
+						$Nachricht_5 = "You need to exit and join the Server again"
+
+						$URL = "http://" & $Lesen_Auswahl_httpApiInterface & ":" & $Lesen_Auswahl_httpApiPort & "/api/session/send_chat?message=" & $Nachricht_1
+						$download = InetGet($URL, @ScriptDir & "\Message.txt", 16, 0)
+						Sleep(500)
+
+						$URL = "http://" & $Lesen_Auswahl_httpApiInterface & ":" & $Lesen_Auswahl_httpApiPort & "/api/session/send_chat?message=" & $Nachricht_2
+						$download = InetGet($URL, @ScriptDir & "\Message.txt", 16, 0)
+						Sleep(500)
+
+						$URL = "http://" & $Lesen_Auswahl_httpApiInterface & ":" & $Lesen_Auswahl_httpApiPort & "/api/session/send_chat?message=" & $Nachricht_3
+						$download = InetGet($URL, @ScriptDir & "\Message.txt", 16, 0)
+
+						$URL = "http://" & $Lesen_Auswahl_httpApiInterface & ":" & $Lesen_Auswahl_httpApiPort & "/api/session/send_chat?message=" & $Nachricht_4
+						$download = InetGet($URL, @ScriptDir & "\Message.txt", 16, 0)
+						Sleep(500)
+
+						$URL = "http://" & $Lesen_Auswahl_httpApiInterface & ":" & $Lesen_Auswahl_httpApiPort & "/api/session/send_chat?message=" & $Nachricht_5
+						$download = InetGet($URL, @ScriptDir & "\Message.txt", 16, 0)
+						Sleep(1000)
+
+						_Restart_DS()
+					EndIf
+
+					If $PlayerChat_Message_Check = $MSG_Restart_Private2 Then ; Restart_Private on
+						;MsgBox(0, "347", "Control Game Setup 1 [true]")
+						_config_cfg_erstellen_3()
+
+						$Nachricht_1 = "DS Settings changed:"
+						$Nachricht_2 = "--------------------"
+						$Nachricht_3 = "Private Mode will be set to --> 'true'"
+						$Nachricht_4 = "DS will be restarted..."
+						$Nachricht_5 = "You need to exit and join the Server again"
+
+						$URL = "http://" & $Lesen_Auswahl_httpApiInterface & ":" & $Lesen_Auswahl_httpApiPort & "/api/session/send_chat?message=" & $Nachricht_1
+						$download = InetGet($URL, @ScriptDir & "\Message.txt", 16, 0)
+						Sleep(500)
+
+						$URL = "http://" & $Lesen_Auswahl_httpApiInterface & ":" & $Lesen_Auswahl_httpApiPort & "/api/session/send_chat?message=" & $Nachricht_2
+						$download = InetGet($URL, @ScriptDir & "\Message.txt", 16, 0)
+						Sleep(500)
+
+						$URL = "http://" & $Lesen_Auswahl_httpApiInterface & ":" & $Lesen_Auswahl_httpApiPort & "/api/session/send_chat?message=" & $Nachricht_3
+						$download = InetGet($URL, @ScriptDir & "\Message.txt", 16, 0)
+
+						$URL = "http://" & $Lesen_Auswahl_httpApiInterface & ":" & $Lesen_Auswahl_httpApiPort & "/api/session/send_chat?message=" & $Nachricht_4
+						$download = InetGet($URL, @ScriptDir & "\Message.txt", 16, 0)
+						Sleep(500)
+
+						$URL = "http://" & $Lesen_Auswahl_httpApiInterface & ":" & $Lesen_Auswahl_httpApiPort & "/api/session/send_chat?message=" & $Nachricht_5
+						$download = InetGet($URL, @ScriptDir & "\Message.txt", 16, 0)
+						Sleep(1000)
+
+						_Restart_DS()
+					EndIf
+
+
+
+
+					If $PlayerChat_Message_Check = $MSG_CGS_1 Then ; Control Game Setup 1
+						;MsgBox(0, "341", "Control Game Setup 0 [false]")
+						_config_cfg_erstellen_0()
+
+						$Nachricht_1 = "DS Settings changed:"
+						$Nachricht_2 = "--------------------"
+						$Nachricht_3 = "controlGameSetup will be set to --> 'false'"
+						$Nachricht_4 = "DS will be restarted..."
+						$Nachricht_5 = "You need to exit and join the Server again"
+
+						$URL = "http://" & $Lesen_Auswahl_httpApiInterface & ":" & $Lesen_Auswahl_httpApiPort & "/api/session/send_chat?message=" & $Nachricht_1
+						$download = InetGet($URL, @ScriptDir & "\Message.txt", 16, 0)
+						Sleep(500)
+
+						$URL = "http://" & $Lesen_Auswahl_httpApiInterface & ":" & $Lesen_Auswahl_httpApiPort & "/api/session/send_chat?message=" & $Nachricht_2
+						$download = InetGet($URL, @ScriptDir & "\Message.txt", 16, 0)
+						Sleep(500)
+
+						$URL = "http://" & $Lesen_Auswahl_httpApiInterface & ":" & $Lesen_Auswahl_httpApiPort & "/api/session/send_chat?message=" & $Nachricht_3
+						$download = InetGet($URL, @ScriptDir & "\Message.txt", 16, 0)
+
+						$URL = "http://" & $Lesen_Auswahl_httpApiInterface & ":" & $Lesen_Auswahl_httpApiPort & "/api/session/send_chat?message=" & $Nachricht_4
+						$download = InetGet($URL, @ScriptDir & "\Message.txt", 16, 0)
+						Sleep(500)
+
+						$URL = "http://" & $Lesen_Auswahl_httpApiInterface & ":" & $Lesen_Auswahl_httpApiPort & "/api/session/send_chat?message=" & $Nachricht_5
+						$download = InetGet($URL, @ScriptDir & "\Message.txt", 16, 0)
+						Sleep(1000)
+
+						_Restart_DS()
+					EndIf
+
+					If $PlayerChat_Message_Check = $MSG_CGS_2 Then ; Control Game Setup 2
+						;MsgBox(0, "347", "Control Game Setup 1 [true]")
+						_config_cfg_erstellen_1()
+
+						$Nachricht_1 = "DS Settings changed:"
+						$Nachricht_2 = "--------------------"
+						$Nachricht_3 = "controlGameSetup will be set to --> 'true'"
+						$Nachricht_4 = "DS will be restarted..."
+						$Nachricht_5 = "You need to exit and join the Server again"
+
+						$URL = "http://" & $Lesen_Auswahl_httpApiInterface & ":" & $Lesen_Auswahl_httpApiPort & "/api/session/send_chat?message=" & $Nachricht_1
+						$download = InetGet($URL, @ScriptDir & "\Message.txt", 16, 0)
+						Sleep(500)
+
+						$URL = "http://" & $Lesen_Auswahl_httpApiInterface & ":" & $Lesen_Auswahl_httpApiPort & "/api/session/send_chat?message=" & $Nachricht_2
+						$download = InetGet($URL, @ScriptDir & "\Message.txt", 16, 0)
+						Sleep(500)
+
+						$URL = "http://" & $Lesen_Auswahl_httpApiInterface & ":" & $Lesen_Auswahl_httpApiPort & "/api/session/send_chat?message=" & $Nachricht_3
+						$download = InetGet($URL, @ScriptDir & "\Message.txt", 16, 0)
+
+						$URL = "http://" & $Lesen_Auswahl_httpApiInterface & ":" & $Lesen_Auswahl_httpApiPort & "/api/session/send_chat?message=" & $Nachricht_4
+						$download = InetGet($URL, @ScriptDir & "\Message.txt", 16, 0)
+						Sleep(500)
+
+						$URL = "http://" & $Lesen_Auswahl_httpApiInterface & ":" & $Lesen_Auswahl_httpApiPort & "/api/session/send_chat?message=" & $Nachricht_5
+						$download = InetGet($URL, @ScriptDir & "\Message.txt", 16, 0)
+						Sleep(1000)
+
+						_Restart_DS()
+					EndIf
+
 
 					If $PlayerChat_Message_Check = $MSG_SB Then ; SB Chat MSG
 
@@ -654,13 +849,6 @@ Func _Server_Events_LOG()
 
 							IniWrite($config_ini, "TEMP", "KICK_User", $Value_Name_AM1_MSG)
 
-							;Server http settings lesen
-							Global $Lesen_Auswahl_httpApiInterface = IniRead($config_ini, "Server_Einstellungen", "httpApiInterface", "")
-							Global $Lesen_Auswahl_httpApiPort = IniRead($config_ini, "Server_Einstellungen", "httpApiPort", "")
-
-							If $Lesen_Auswahl_httpApiInterface = "" Then Global $Lesen_Auswahl_httpApiInterface = "127.0.0.1"
-							If $Lesen_Auswahl_httpApiPort = "" Then Global $Lesen_Auswahl_httpApiPort = "9000"
-
 							$URL_Admin_MSG = "http://" & $Lesen_Auswahl_httpApiInterface & ":" & $Lesen_Auswahl_httpApiPort & "/api/session/send_chat?message=" & "     "
 							$download = InetGet($URL_Admin_MSG, @ScriptDir & "\Message.txt", 16, 0)
 							$URL_Admin_MSG = "http://" & $Lesen_Auswahl_httpApiInterface & ":" & $Lesen_Auswahl_httpApiPort & "/api/session/send_chat?message=" & "PCDSG: " & " <<< ADMIN >>>"
@@ -680,13 +868,6 @@ Func _Server_Events_LOG()
 							$Value_Name_AM1_MSG = StringReplace($PlayerChat_Message, ">BU>>", "")
 
 							IniWrite($config_ini, "TEMP", "BAN_User", $Value_Name_AM1_MSG)
-
-							;Server http settings lesen
-							Global $Lesen_Auswahl_httpApiInterface = IniRead($config_ini, "Server_Einstellungen", "httpApiInterface", "")
-							Global $Lesen_Auswahl_httpApiPort = IniRead($config_ini, "Server_Einstellungen", "httpApiPort", "")
-
-							If $Lesen_Auswahl_httpApiInterface = "" Then Global $Lesen_Auswahl_httpApiInterface = "127.0.0.1"
-							If $Lesen_Auswahl_httpApiPort = "" Then Global $Lesen_Auswahl_httpApiPort = "9000"
 
 							$URL_Admin_MSG = "http://" & $Lesen_Auswahl_httpApiInterface & ":" & $Lesen_Auswahl_httpApiPort & "/api/session/send_chat?message=" & "     "
 							$download = InetGet($URL_Admin_MSG, @ScriptDir & "\Message.txt", 16, 0)
@@ -911,13 +1092,6 @@ Func _Server_Events_LOG()
 
 					FileWriteLine($PCDSG_LOG_ini, "PitStop_detected_" & $NowTime & "=" & "PitStop detected" & " | " & "Name: " & $LOG_Name_value_4 & " | " & "Date - Time: " & $NowDate & " - " & $NowTime)
 
-					;Server http settings lesen
-					Global $Lesen_Auswahl_httpApiInterface = IniRead($config_ini, "Server_Einstellungen", "httpApiInterface", "")
-					Global $Lesen_Auswahl_httpApiPort = IniRead($config_ini, "Server_Einstellungen", "httpApiPort", "")
-
-					If $Lesen_Auswahl_httpApiInterface = "" Then Global $Lesen_Auswahl_httpApiInterface = "127.0.0.1"
-					If $Lesen_Auswahl_httpApiPort = "" Then Global $Lesen_Auswahl_httpApiPort = "9000"
-
 					If $LOG_Event_Check_auto_MSG = "true" Then
 						$URL_PS_MSG = "http://" & $Lesen_Auswahl_httpApiInterface & ":" & $Lesen_Auswahl_httpApiPort & "/api/session/send_chat?message=" & "PCDSG: " & $LOG_Name_value_4 & " makes a Pit Stop." & " NR PitStops = " & $Check_PitStops_PS + 1
 						$download = InetGet($URL_PS_MSG, @ScriptDir & "\Message.txt", 16, 0)
@@ -1019,14 +1193,6 @@ Func _Server_Events_LOG()
 							;IniWrite($Points_ini, $LOG_Name_value_4, "ExperiencePoints", $Wert_ExpiriencePoints - $Penalty_TrackCut_Value - $Penalty_TrackCut_Value)
 							IniWrite($Stats_INI, $Check_Name_Value_bea, "ExperiencePoints", $Wert_ExpiriencePoints - $Penalty_TrackCut_Value - $Penalty_TrackCut_Value)
 						;EndIf
-
-
-						;Server http settings lesen
-						Global $Lesen_Auswahl_httpApiInterface = IniRead($config_ini, "Server_Einstellungen", "httpApiInterface", "")
-						Global $Lesen_Auswahl_httpApiPort = IniRead($config_ini, "Server_Einstellungen", "httpApiPort", "")
-
-						If $Lesen_Auswahl_httpApiInterface = "" Then Global $Lesen_Auswahl_httpApiInterface = "127.0.0.1"
-						If $Lesen_Auswahl_httpApiPort = "" Then Global $Lesen_Auswahl_httpApiPort = "9000"
 
 
 						If $Wert_Check_Refid_Name <> "" Then
@@ -1170,14 +1336,6 @@ Func _Server_Events_LOG()
 											IniWrite($Stats_INI, $Check_Name_Value_bea, "ExperiencePoints", $Wert_ExpiriencePoints - $Penalty_Impact_Value - $Penalty_Impact_Value)
 										;EndIf
 
-
-										;Server http settings lesen
-										Global $Lesen_Auswahl_httpApiInterface = IniRead($config_ini, "Server_Einstellungen", "httpApiInterface", "")
-										Global $Lesen_Auswahl_httpApiPort = IniRead($config_ini, "Server_Einstellungen", "httpApiPort", "")
-
-										If $Lesen_Auswahl_httpApiInterface = "" Then Global $Lesen_Auswahl_httpApiInterface = "127.0.0.1"
-										If $Lesen_Auswahl_httpApiPort = "" Then Global $Lesen_Auswahl_httpApiPort = "9000"
-
 										If $Wert_Check_Refid_Name <> "" Then
 											$Wert_Check_Refid_Name = StringReplace($Wert_Check_Refid_Name, "<", "[")
 											$Wert_Check_Refid_Name = StringReplace($Wert_Check_Refid_Name, ">", "]")
@@ -1289,14 +1447,6 @@ Func _Server_Events_LOG()
 										IniWrite($Stats_INI, $Check_Name_Value_bea, "ExperiencePoints", $Wert_ExpiriencePoints - $Penalty_Impact_Value - $Penalty_Impact_Value)
 									;EndIf
 
-
-									;Server http settings lesen
-									Global $Lesen_Auswahl_httpApiInterface = IniRead($config_ini, "Server_Einstellungen", "httpApiInterface", "")
-									Global $Lesen_Auswahl_httpApiPort = IniRead($config_ini, "Server_Einstellungen", "httpApiPort", "")
-
-									If $Lesen_Auswahl_httpApiInterface = "" Then Global $Lesen_Auswahl_httpApiInterface = "127.0.0.1"
-									If $Lesen_Auswahl_httpApiPort = "" Then Global $Lesen_Auswahl_httpApiPort = "9000"
-
 									If $Wert_Check_Refid_Name <> "" Then
 										$Wert_Check_Refid_Name = StringReplace($Wert_Check_Refid_Name, "<", "[")
 										$Wert_Check_Refid_Name = StringReplace($Wert_Check_Refid_Name, ">", "]")
@@ -1404,14 +1554,6 @@ Func _Server_Events_LOG()
 				;If $LOG_Name_value_4 = "unknown" Then $Wert_EP_Points = "0"
 
 				;MsgBox(0, "PlayerJoined", "New Player Joined. Wellcome to PCDSG Server", 3)
-
-				;Server http settings lesen
-				Global $Lesen_Auswahl_httpApiInterface = IniRead($config_ini, "Server_Einstellungen", "httpApiInterface", "")
-				Global $Lesen_Auswahl_httpApiPort = IniRead($config_ini, "Server_Einstellungen", "httpApiPort", "")
-
-				If $Lesen_Auswahl_httpApiInterface = "" Then Global $Lesen_Auswahl_httpApiInterface = "127.0.0.1"
-				If $Lesen_Auswahl_httpApiPort = "" Then Global $Lesen_Auswahl_httpApiPort = "9000"
-
 
 				If $Wert_Check_Refid_Name_bea <> "" Then
 					$Wert_Check_Refid_Name_bea = StringReplace($Wert_Check_Refid_Name_bea, "<", "[")
@@ -1715,14 +1857,6 @@ Func _Server_Events_LOG()
 						$PB = "No recorded lap time available"
 					EndIf
 
-					;Server http settings lesen
-					Global $Lesen_Auswahl_httpApiInterface = IniRead($config_ini, "Server_Einstellungen", "httpApiInterface", "")
-					Global $Lesen_Auswahl_httpApiPort = IniRead($config_ini, "Server_Einstellungen", "httpApiPort", "")
-
-					If $Lesen_Auswahl_httpApiInterface = "" Then Global $Lesen_Auswahl_httpApiInterface = "127.0.0.1"
-					If $Lesen_Auswahl_httpApiPort = "" Then Global $Lesen_Auswahl_httpApiPort = "9000"
-
-
 					If $LOG_Name_value_4 <> "" Then
 						$LOG_Name_value_4 = StringReplace($LOG_Name_value_4, "<", "[")
 						$LOG_Name_value_4 = StringReplace($LOG_Name_value_4, ">", "]")
@@ -1897,7 +2031,6 @@ Func _Server_Events_LOG()
 
 #Region Check = Results 1
 			If $Wert_LA_3 = "Results" Then
-
 				Global $LOG_Results_attribute_refid = IniRead($LOG_Data_INI, $LOG_Index_Check, "attribute_refid", "") ; attribute_refid
 				Global $LOG_Results_attribute_participantid = IniRead($LOG_Data_INI, $LOG_Index_Check, "attribute_participantid", "") ; attribute_participantid
 				Global $LOG_Results_attribute_RacePosition = IniRead($LOG_Data_INI, $LOG_Index_Check, "attribute_RacePosition", "") ; attribute_RacePosition
@@ -1956,17 +2089,18 @@ Func _Server_Events_LOG()
 
 
 				If $Wert_LA_3_NEXT <> "Results" and $ResultsSaved = "true" Then
-
 					IniWrite($config_ini, "TEMP", "Race_Finished", "true")
 
 					$Check_Excel_Version = IniRead($config_ini, "Einstellungen", "Excel_version", "")
 
-					;If $Check_Excel_Version <> "" Then
+					If $Check_Excel_Version <> "" Then _Excel_Exists_Check()
 
 					$Status_Checkbox_Results_File_Format_TXT = IniRead($config_ini, "PC_Server", "Checkbox_Results_FileFormat_TXT", "")
 					$Status_Checkbox_Results_File_Format_INI = IniRead($config_ini, "PC_Server", "Checkbox_Results_FileFormat_INI", "")
 					$Status_Checkbox_Results_File_Format_XLS = IniRead($config_ini, "PC_Server", "Checkbox_Results_FileFormat_XLS", "")
 					$Status_Checkbox_Results_File_Format_HTM = IniRead($config_ini, "PC_Server", "Checkbox_Results_FileFormat_HTM", "")
+
+					$Status_Checkbox_Race_Results_Points = IniRead($config_ini, "PC_Server", "Checkbox_Race_Results_Points", "")
 
 					$Check_TrackId_Value = IniRead($Server_Data_INI, "DATA", "TrackId", "")
 					IniWrite($config_ini, "TEMP", "Check_Trackid", $Check_TrackId_Value)
@@ -1981,33 +2115,39 @@ Func _Server_Events_LOG()
 
 
 					If $Status_Checkbox_Results_File_Format_TXT = "true" Then _Write_Results_File_TXT()
-					Sleep(200)
+					Sleep(100)
 
 					If $Status_Checkbox_Results_File_Format_INI = "true" Then _Write_Results_File_INI()
-					Sleep(200)
+					Sleep(100)
+
+					If $Status_Checkbox_Race_Results_Points = "true" Then _Write_Race_Result_Points_File_INI()
+					Sleep(100)
 
 
 					If $Check_Excel_Version <> "" Then
-
 						If $Status_Checkbox_Results_File_Format_XLS = "true" Or $Status_Checkbox_Results_File_Format_HTM = "true" Then _Write_Results_File_XLS_HTM()
 						Sleep(200)
-
-						Sleep(200)
+						;If $Status_Checkbox_Results_File_Format_HTM = "true" Then _Write_Results_File_HTM_only()
+						;Sleep(200)
 
 						Global $Check_Checkbox_PCDSG_Stats_path = IniRead($config_ini, "Einstellungen", "Checkbox_PCDSG_Stats_path", "")
-
 						If $Check_Checkbox_PCDSG_Stats_path = "true" Then
 							_SyncFiles_Start()
 							IniWrite($config_ini, "TEMP", "Results_saved_TrackName", "")
 							Sleep(200)
 						EndIf
-
 					Else
-						;_Excel_Exists_Check()
+						;If $Status_Checkbox_Results_File_Format_HTM = "true" Then _Write_Results_File_HTM_only()
+						;Sleep(200)
+						;Global $Check_Checkbox_PCDSG_Stats_path = IniRead($config_ini, "Einstellungen", "Checkbox_PCDSG_Stats_path", "")
+						;If $Check_Checkbox_PCDSG_Stats_path = "true" Then
+							;_SyncFiles_Start()
+							;IniWrite($config_ini, "TEMP", "Results_saved_TrackName", "")
+							;Sleep(200)
+						;EndIf
 					EndIf
 
 					FileWriteLine($PCDSG_LOG_ini, "Results_saved_" & $NowTime & "=" & "Date: " & $NowDate & " | " & "Time: " & $NowTime)
-
 				EndIf
 
 				IniWrite($config_ini, "TEMP", "ResultsSaved", "")
@@ -2036,16 +2176,12 @@ Func _Server_Events_LOG()
 				EndIf
 
 				If $Value_SG_entry_Limit <> "ALL" Then
-
 					If $SessionStage_Check <> "Practice1" Then
-
 						If $SessionStage_Check <> "Practice2" Then
-
 							Global $Value_SG_entry_Limit = IniRead($config_ini, "Race_Control", "Value_SG_entry_Limit", "")
 							Global $Value_SG_entry_Limit_min = IniRead($config_ini, "Race_Control", "Value_" & $Value_SG_entry_Limit & "_min", "")
 
 							For $Schleife_Members_Check = 0 To 32
-
 								$Name_Member = IniRead($Members_Data_INI, $Schleife_Members_Check, "name", "")
 
 								If $Name_Member <> "" Then
@@ -2059,11 +2195,8 @@ Func _Server_Events_LOG()
 								If $Name_Member = "" Then $Schleife_Members_Check = 32
 							Next
 						EndIf
-
 					EndIf
-
 				EndIf
-
 			EndIf
 
 #EndRegion
@@ -2071,7 +2204,6 @@ Func _Server_Events_LOG()
 #Region Check = StateChanged 2
 
 			If $Wert_LA_3 = "StateChanged" Then
-
 				Global $LOG_StateChanged_attribute_PreviousState = IniRead($LOG_Data_INI, $LOG_Index_Check, "attribute_PreviousState", "") ; attribute_PreviousState
 				Global $LOG_StateChanged_attribute_attribute_NewState = IniRead($LOG_Data_INI, $LOG_Index_Check, "attribute_NewState", "") ; attribute_NewState
 
@@ -2222,11 +2354,6 @@ $PP_KICK_limit = Int($PP_KICK_limit)
 If $Status_Checkbox_Server_Penalties_1 = "true" Then
 
 	If $PP_Points > $PP_WARN_limit Then
-		$Lesen_Auswahl_httpApiInterface = IniRead($config_ini, "Server_Einstellungen", "httpApiInterface", "")
-		$Lesen_Auswahl_httpApiPort = IniRead($config_ini, "Server_Einstellungen", "httpApiPort", "")
-
-		If $Lesen_Auswahl_httpApiInterface = "" Then $Lesen_Auswahl_httpApiInterface = "127.0.0.1"
-		If $Lesen_Auswahl_httpApiPort = "" Then $Lesen_Auswahl_httpApiPort = "9000"
 
 		$Nachricht = IniRead($config_ini, "Race_Control", "PP_WARN_limit_MSG", "")
 
@@ -2252,11 +2379,6 @@ EndIf
 If $Status_Checkbox_Server_Penalties_2 = "true" Then
 
 	If $PP_Points > $PP_KICK_limit Then ; $PP_KICK_limit
-		$Lesen_Auswahl_httpApiInterface = IniRead($config_ini, "Server_Einstellungen", "httpApiInterface", "")
-		$Lesen_Auswahl_httpApiPort = IniRead($config_ini, "Server_Einstellungen", "httpApiPort", "")
-
-		If $Lesen_Auswahl_httpApiInterface = "" Then $Lesen_Auswahl_httpApiInterface = "127.0.0.1"
-		If $Lesen_Auswahl_httpApiPort = "" Then $Lesen_Auswahl_httpApiPort = "9000"
 
 		$Nachricht = IniRead($config_ini, "Race_Control", "PP_KICK_MSG", "")
 
@@ -2298,14 +2420,6 @@ Func _KICK_USER_universal() ; Kick User universal
 	$refid = IniRead($Members_Data_INI, $KICK_User, "refid", "")
 
 	If $refid <> "" Then
-
-		;URL erstellen
-		$Lesen_Auswahl_httpApiInterface = IniRead($config_ini, "Server_Einstellungen", "httpApiInterface", "")
-		$Lesen_Auswahl_httpApiPort = IniRead($config_ini, "Server_Einstellungen", "httpApiPort", "")
-
-		If $Lesen_Auswahl_httpApiInterface = "" Then $Lesen_Auswahl_httpApiInterface = "127.0.0.1"
-		If $Lesen_Auswahl_httpApiPort = "" Then $Lesen_Auswahl_httpApiPort = "9000"
-
 		$URL_KICK = "http://" & $Lesen_Auswahl_httpApiInterface & ":" & $Lesen_Auswahl_httpApiPort & "/api/session/kick?refid=" & $refid
 
 		$download = InetGet($URL_KICK, $KICK_BAN_TXT, 16, 0)
@@ -2333,13 +2447,6 @@ Func _BAN_USER_universal() ; Ban User universal
 	$index = IniRead($Members_Data_INI, $KICK_User, "index", "")
 	$refid = IniRead($Members_Data_INI, $KICK_User, "refid", "")
 	$steamid = IniRead($Members_Data_INI, $KICK_User, "steamid", "")
-
-	;URL erstellen
-	$Lesen_Auswahl_httpApiInterface = IniRead($config_ini, "Server_Einstellungen", "httpApiInterface", "")
-	$Lesen_Auswahl_httpApiPort = IniRead($config_ini, "Server_Einstellungen", "httpApiPort", "")
-
-	If $Lesen_Auswahl_httpApiInterface = "" Then $Lesen_Auswahl_httpApiInterface = "127.0.0.1"
-	If $Lesen_Auswahl_httpApiPort = "" Then $Lesen_Auswahl_httpApiPort = "9000"
 
 	$URL_KICK = "http://" & $Lesen_Auswahl_httpApiInterface & ":" & $Lesen_Auswahl_httpApiPort & "/api/session/kick?refid=" & $refid & "&ban=864000"
 	$download = InetGet($URL_KICK, $KICK_BAN_TXT, 16, 0)
@@ -2622,7 +2729,7 @@ $PingLimit_Value = IniRead($config_ini, "Race_Control", "PingLimit", "")
 $Admin_Chat_Message_Value = "true"
 $Auto_Kick_Parking_Value = IniRead($config_ini, "Race_Control", "Checkbox_Rules_1", "")
 
-
+;MsgBox(0, "", $LOG_Event_Check_auto_MSG)
 If $LOG_Event_Check_auto_MSG = "true" Then
 
 	$Message_Lobby_1 = "Welcome to PCDSG Server"
@@ -2640,6 +2747,7 @@ If $LOG_Event_Check_auto_MSG = "true" Then
 
 
 	$URL = "http://" & $Lesen_Auswahl_httpApiInterface & ":" & $Lesen_Auswahl_httpApiPort & "/api/session/send_chat?message=" & $Message_Lobby_1
+	;MsgBox(0, "", $URL)
 	$download = InetGet($URL, @ScriptDir & "\Message.txt", 16, 0)
 
 	$URL = "http://" & $Lesen_Auswahl_httpApiInterface & ":" & $Lesen_Auswahl_httpApiPort & "/api/session/send_chat?message=" & $Message_Lobby_2
@@ -2987,344 +3095,343 @@ EndFunc
 
 
 Func _Write_Results_File_TXT()
+	$ServerName = IniRead($Server_Data_INI, "DATA", "name", "")
 
-$ServerName = IniRead($Server_Data_INI, "DATA", "name", "")
+	$SessionStage_Check = IniRead($config_ini, "TEMP", "Results_saved_SessionStage", "")
+	$Check_TrackName_Value = IniRead($config_ini, "TEMP", "Results_saved_TrackName", "")
 
-$SessionStage_Check = IniRead($config_ini, "TEMP", "Results_saved_SessionStage", "")
-$Check_TrackName_Value = IniRead($config_ini, "TEMP", "Results_saved_TrackName", "")
+	$NowDate_Value = _NowDate()
+	$NowDate = StringReplace($NowDate_Value, "/", ".")
+	$NowTime_Value = _NowTime()
+	$NowTime_orig = $NowTime_Value
+	$NowTime = StringReplace($NowTime_Value, ":", "-")
 
-$NowDate_Value = _NowDate()
-$NowDate = StringReplace($NowDate_Value, "/", ".")
-$NowTime_Value = _NowTime()
-$NowTime_orig = $NowTime_Value
-$NowTime = StringReplace($NowTime_Value, ":", "-")
-
-$NowTime_saved_1 = StringTrimRight($NowTime, 3)
-$NowTime_saved_2 = StringTrimLeft($NowTime_saved_1, 3)
-$NowTime_saved_3 = StringTrimRight($NowTime, 5)
-
-
-$SessionStage_Check = IniRead($config_ini, "TEMP", "Results_saved_SessionStage", "")
-If $SessionStage_Check = "" Then $SessionStage_Check = IniRead($Server_Data_INI, "DATA", "SessionStage", "")
+	$NowTime_saved_1 = StringTrimRight($NowTime, 3)
+	$NowTime_saved_2 = StringTrimLeft($NowTime_saved_1, 3)
+	$NowTime_saved_3 = StringTrimRight($NowTime, 5)
 
 
-If Not FileExists($Data_Dir & "Results\" & $NowDate) Then
-	DirCreate($Data_Dir & "Results\" & $NowDate)
-EndIf
-
-$Results_File_1 = $Data_Dir & "Results\" & $NowDate & "\" & $SessionStage_Check & "_" & $NowTime & ".txt"
-
-FileWriteLine($Results_File_1,  "[--- RESULTS ---]" & $SessionStage_Check & " - " & $Check_TrackName_Value & " - " & $NowDate & " - " & $NowTime_orig)
-
-Global $ROW_1, $ROW_2, $ROW_3, $ROW_4, $ROW_5, $ROW_6, $ROW_7, $ROW_8, $ROW_9, $ROW_10, $ROW_11, $ROW_12, $ROW_13, $ROW_14, $ROW_15
-Global $ROW_16, $ROW_17, $ROW_18, $ROW_19, $ROW_20, $ROW_21, $ROW_22, $ROW_23, $ROW_24, $ROW_25, $ROW_26, $ROW_27, $ROW_28, $ROW_29
-Global $ROW_30, $ROW_31, $ROW_32
+	$SessionStage_Check = IniRead($config_ini, "TEMP", "Results_saved_SessionStage", "")
+	If $SessionStage_Check = "" Then $SessionStage_Check = IniRead($Server_Data_INI, "DATA", "SessionStage", "")
 
 
-For $Schleife_Results_1 = 1 To 32
-
-	$Check_refid_Value = IniRead($Participants_Data_INI, $Schleife_Results_1, "refid", "") ; refid
-	$Check_Name_Value = IniRead($Participants_Data_INI, $Schleife_Results_1, "name", "") ; Name
-		If $Check_Name_Value = "" Then
-			$Check_Name_Value = IniRead($Members_Data_INI, $Check_refid_Value, "name", "")
-		EndIf
-
-		$Check_Name_Value_bea = $Check_Name_Value
-
-		If $Check_Name_Value_bea <> "" Then
-			$Check_Name_Value_bea = StringReplace($Check_Name_Value_bea, "[", "<")
-			$Check_Name_Value_bea = StringReplace($Check_Name_Value_bea, "]", ">")
-		EndIf
-
-		If $Check_Name_Value_bea = "" Then $Check_Name_Value_bea = $Check_Name_Value
-
-		;MsgBox(0, "", $Check_Name_Value & @CRLF & $Check_Name_Value_bea, 10)
-
-	If $Check_Name_Value <> "" Then
-		$Check_IsPlayer_Value = IniRead($Participants_Data_INI, $Schleife_Results_1, "IsPlayer", "") ; IsPlayer
-		$Check_GridPosition_Value = IniRead($Participants_Data_INI, $Schleife_Results_1, "GridPosition", "-") ; GridPosition
-		$Check_VehicleId_Value = IniRead($Participants_Data_INI, $Schleife_Results_1, "VehicleId", "") ; VehicleId
-			IniWrite($config_ini, "TEMP", "Check_Carid", $Check_VehicleId_Value)
-			_CAR_NAME_from_ID()
-			$Check_VehicleIName_Value = IniRead($config_ini, "TEMP", "Check_CarName", "")
-			If $Check_VehicleIName_Value = "" Then $Check_VehicleIName_Value = $Check_VehicleId_Value
-		$Check_LiveryId_Value = IniRead($Participants_Data_INI, $Schleife_Results_1, "LiveryId", "") ; LiveryId
-		$Check_RacePosition_Value = IniRead($Participants_Data_INI, $Schleife_Results_1, "RacePosition", "") ; RacePosition
-		$Check_CurrentLap_Value = IniRead($Participants_Data_INI, $Schleife_Results_1, "CurrentLap", "-") ; CurrentLap
-		$Check_CurrentSector_Value = IniRead($Participants_Data_INI, $Schleife_Results_1, "CurrentSector", "-") ; CurrentSector
-		$Check_Sector1Time_Value = IniRead($Participants_Data_INI, $Schleife_Results_1, "Sector1Time", "-") ; Sector1Time
-		$Check_Sector2Time_Value = IniRead($Participants_Data_INI, $Schleife_Results_1, "Sector2Time", "-") ; Sector2Time
-		$Check_Sector3Time_Value = IniRead($Participants_Data_INI, $Schleife_Results_1, "Sector3Time", "-") ; Sector3Time
-		$Check_LastLapTime_Value = IniRead($Participants_Data_INI, $Schleife_Results_1, "LastLapTime", "-") ; LastLapTime
-		$Check_FastestLapTime_Value = IniRead($Participants_Data_INI, $Schleife_Results_1, "FastestLapTime", "-") ; FastestLapTime
-		$Check_State_Value = IniRead($Participants_Data_INI, $Schleife_Results_1, "State", "") ; State
-		$Check_HeadlightsOn_Value = IniRead($Participants_Data_INI, $Schleife_Results_1, "HeadlightsOn", "") ; HeadlightsOn
-		$Check_WipersOn_Value = IniRead($Participants_Data_INI, $Schleife_Results_1, "WipersOn", "") ; WipersOn
-		$Check_Speed_Value = IniRead($Participants_Data_INI, $Schleife_Results_1, "Speed", "") ; Speed
-		$Check_Gear_Value = IniRead($Participants_Data_INI, $Schleife_Results_1, "Gear", "") ; Gear
-		$Check_RPM_Value = IniRead($Participants_Data_INI, $Schleife_Results_1, "RPM", "") ; RPM
-		$Check_PositionX_Value = IniRead($Participants_Data_INI, $Schleife_Results_1, "PositionX", "") ; PositionX
-		$Check_PositionY_Value = IniRead($Participants_Data_INI, $Schleife_Results_1, "PositionY", "") ; PositionY
-		$Check_PositionZ_Value = IniRead($Participants_Data_INI, $Schleife_Results_1, "PositionZ", "") ; PositionZ
-		$Check_Orientation_Value = IniRead($Participants_Data_INI, $Schleife_Results_1, "Orientation", "") ; Orientation
-
-		$Check_PitStops_Value = IniRead($PitStops_INI, $Check_Name_Value_bea, "PitStops", "") ; PitStops
-		$Check_PenaltyPoints_Value = IniRead($Points_ini, $Check_Name_Value_bea, "PenaltyPoints", "") ; PenaltyPoints
-		$Check_ExperiencePoints_Value = IniRead($Stats_INI, $Check_Name_Value_bea, "ExperiencePoints", "") ; ExperiencePoints
-		$Check_DistanceTravelled_Value = IniRead($Stats_INI, $Check_Name_Value_bea, "DistanceTravelled", "") ; DistanceTravelled
-		$Check_SafetyGroup_Value = IniRead($Stats_INI, $Check_Name_Value_bea, "SafetyGroup", "") ; SafetyGroup
-
-
-		If $Check_RacePosition_Value = "1" Then
-			$ROW_1 = $Check_Name_Value & " | " & $Check_GridPosition_Value & " | " & $Check_VehicleIName_Value & " | " & $Check_RacePosition_Value & " | " & $Check_CurrentLap_Value & " | " & $Check_CurrentSector_Value & _
-						" | " & $Check_Sector1Time_Value & " | " & $Check_Sector2Time_Value & " | " & $Check_Sector3Time_Value & " | " & $Check_LastLapTime_Value & " | " & $Check_FastestLapTime_Value & _
-						" | " & $Check_State_Value & " | " & $Check_PitStops_Value & " | " & $Check_PenaltyPoints_Value & " | " & $Check_ExperiencePoints_Value & " | " & $Check_SafetyGroup_Value & " | " & $Check_DistanceTravelled_Value
-		EndIf
-
-		If $Check_RacePosition_Value = "2" Then
-			$ROW_2 = $Check_Name_Value & " | " & $Check_GridPosition_Value & " | " & $Check_VehicleIName_Value & " | " & $Check_RacePosition_Value & " | " & $Check_CurrentLap_Value & " | " & $Check_CurrentSector_Value & _
-						" | " & $Check_Sector1Time_Value & " | " & $Check_Sector2Time_Value & " | " & $Check_Sector3Time_Value & " | " & $Check_LastLapTime_Value & " | " & $Check_FastestLapTime_Value & _
-						" | " & $Check_State_Value & " | " & $Check_PitStops_Value & " | " & $Check_PenaltyPoints_Value & " | " & $Check_ExperiencePoints_Value & " | " & $Check_SafetyGroup_Value & " | " & $Check_DistanceTravelled_Value
-		EndIf
-
-		If $Check_RacePosition_Value = "3" Then
-			$ROW_3 = $Check_Name_Value & " | " & $Check_GridPosition_Value & " | " & $Check_VehicleIName_Value & " | " & $Check_RacePosition_Value & " | " & $Check_CurrentLap_Value & " | " & $Check_CurrentSector_Value & _
-						" | " & $Check_Sector1Time_Value & " | " & $Check_Sector2Time_Value & " | " & $Check_Sector3Time_Value & " | " & $Check_LastLapTime_Value & " | " & $Check_FastestLapTime_Value & _
-						" | " & $Check_State_Value & " | " & $Check_PitStops_Value & " | " & $Check_PenaltyPoints_Value & " | " & $Check_ExperiencePoints_Value & " | " & $Check_SafetyGroup_Value & " | " & $Check_DistanceTravelled_Value
-		EndIf
-
-		If $Check_RacePosition_Value = "4" Then
-			$ROW_4 = $Check_Name_Value & " | " & $Check_GridPosition_Value & " | " & $Check_VehicleIName_Value & " | " & $Check_RacePosition_Value & " | " & $Check_CurrentLap_Value & " | " & $Check_CurrentSector_Value & _
-						" | " & $Check_Sector1Time_Value & " | " & $Check_Sector2Time_Value & " | " & $Check_Sector3Time_Value & " | " & $Check_LastLapTime_Value & " | " & $Check_FastestLapTime_Value & _
-						" | " & $Check_State_Value & " | " & $Check_PitStops_Value & " | " & $Check_PenaltyPoints_Value & " | " & $Check_ExperiencePoints_Value & " | " & $Check_SafetyGroup_Value & " | " & $Check_DistanceTravelled_Value
-		EndIf
-
-		If $Check_RacePosition_Value = "5" Then
-			$ROW_5 = $Check_Name_Value & " | " & $Check_GridPosition_Value & " | " & $Check_VehicleIName_Value & " | " & $Check_RacePosition_Value & " | " & $Check_CurrentLap_Value & " | " & $Check_CurrentSector_Value & _
-						" | " & $Check_Sector1Time_Value & " | " & $Check_Sector2Time_Value & " | " & $Check_Sector3Time_Value & " | " & $Check_LastLapTime_Value & " | " & $Check_FastestLapTime_Value & _
-						" | " & $Check_State_Value & " | " & $Check_PitStops_Value & " | " & $Check_PenaltyPoints_Value & " | " & $Check_ExperiencePoints_Value & " | " & $Check_SafetyGroup_Value & " | " & $Check_DistanceTravelled_Value
-		EndIf
-
-		If $Check_RacePosition_Value = "6" Then
-			$ROW_6 = $Check_Name_Value & " | " & $Check_GridPosition_Value & " | " & $Check_VehicleIName_Value & " | " & $Check_RacePosition_Value & " | " & $Check_CurrentLap_Value & " | " & $Check_CurrentSector_Value & _
-						" | " & $Check_Sector1Time_Value & " | " & $Check_Sector2Time_Value & " | " & $Check_Sector3Time_Value & " | " & $Check_LastLapTime_Value & " | " & $Check_FastestLapTime_Value & _
-						" | " & $Check_State_Value & " | " & $Check_PitStops_Value & " | " & $Check_PenaltyPoints_Value & " | " & $Check_ExperiencePoints_Value & " | " & $Check_SafetyGroup_Value & " | " & $Check_DistanceTravelled_Value
-		EndIf
-
-		If $Check_RacePosition_Value = "7" Then
-			$ROW_7 = $Check_Name_Value & " | " & $Check_GridPosition_Value & " | " & $Check_VehicleIName_Value & " | " & $Check_RacePosition_Value & " | " & $Check_CurrentLap_Value & " | " & $Check_CurrentSector_Value & _
-						" | " & $Check_Sector1Time_Value & " | " & $Check_Sector2Time_Value & " | " & $Check_Sector3Time_Value & " | " & $Check_LastLapTime_Value & " | " & $Check_FastestLapTime_Value & _
-						" | " & $Check_State_Value & " | " & $Check_PitStops_Value & " | " & $Check_PenaltyPoints_Value & " | " & $Check_ExperiencePoints_Value & " | " & $Check_SafetyGroup_Value & " | " & $Check_DistanceTravelled_Value
-		EndIf
-
-		If $Check_RacePosition_Value = "8" Then
-			$ROW_8 = $Check_Name_Value & " | " & $Check_GridPosition_Value & " | " & $Check_VehicleIName_Value & " | " & $Check_RacePosition_Value & " | " & $Check_CurrentLap_Value & " | " & $Check_CurrentSector_Value & _
-						" | " & $Check_Sector1Time_Value & " | " & $Check_Sector2Time_Value & " | " & $Check_Sector3Time_Value & " | " & $Check_LastLapTime_Value & " | " & $Check_FastestLapTime_Value & _
-						" | " & $Check_State_Value & " | " & $Check_PitStops_Value & " | " & $Check_PenaltyPoints_Value & " | " & $Check_ExperiencePoints_Value & " | " & $Check_SafetyGroup_Value & " | " & $Check_DistanceTravelled_Value
-		EndIf
-
-		If $Check_RacePosition_Value = "9" Then
-			$ROW_9 = $Check_Name_Value & " | " & $Check_GridPosition_Value & " | " & $Check_VehicleIName_Value & " | " & $Check_RacePosition_Value & " | " & $Check_CurrentLap_Value & " | " & $Check_CurrentSector_Value & _
-						" | " & $Check_Sector1Time_Value & " | " & $Check_Sector2Time_Value & " | " & $Check_Sector3Time_Value & " | " & $Check_LastLapTime_Value & " | " & $Check_FastestLapTime_Value & _
-						" | " & $Check_State_Value & " | " & $Check_PitStops_Value & " | " & $Check_PenaltyPoints_Value & " | " & $Check_ExperiencePoints_Value & " | " & $Check_SafetyGroup_Value & " | " & $Check_DistanceTravelled_Value
-		EndIf
-
-		If $Check_RacePosition_Value = "10" Then
-			$ROW_10 = $Check_Name_Value & " | " & $Check_GridPosition_Value & " | " & $Check_VehicleIName_Value & " | " & $Check_RacePosition_Value & " | " & $Check_CurrentLap_Value & " | " & $Check_CurrentSector_Value & _
-						" | " & $Check_Sector1Time_Value & " | " & $Check_Sector2Time_Value & " | " & $Check_Sector3Time_Value & " | " & $Check_LastLapTime_Value & " | " & $Check_FastestLapTime_Value & _
-						" | " & $Check_State_Value & " | " & $Check_PitStops_Value & " | " & $Check_PenaltyPoints_Value & " | " & $Check_ExperiencePoints_Value & " | " & $Check_SafetyGroup_Value & " | " & $Check_DistanceTravelled_Value
-		EndIf
-
-		If $Check_RacePosition_Value = "11" Then
-			$ROW_11 = $Check_Name_Value & " | " & $Check_GridPosition_Value & " | " & $Check_VehicleIName_Value & " | " & $Check_RacePosition_Value & " | " & $Check_CurrentLap_Value & " | " & $Check_CurrentSector_Value & _
-						" | " & $Check_Sector1Time_Value & " | " & $Check_Sector2Time_Value & " | " & $Check_Sector3Time_Value & " | " & $Check_LastLapTime_Value & " | " & $Check_FastestLapTime_Value & _
-						" | " & $Check_State_Value & " | " & $Check_PitStops_Value & " | " & $Check_PenaltyPoints_Value & " | " & $Check_ExperiencePoints_Value & " | " & $Check_SafetyGroup_Value & " | " & $Check_DistanceTravelled_Value
-		EndIf
-
-		If $Check_RacePosition_Value = "12" Then
-			$ROW_12 = $Check_Name_Value & " | " & $Check_GridPosition_Value & " | " & $Check_VehicleIName_Value & " | " & $Check_RacePosition_Value & " | " & $Check_CurrentLap_Value & " | " & $Check_CurrentSector_Value & _
-						" | " & $Check_Sector1Time_Value & " | " & $Check_Sector2Time_Value & " | " & $Check_Sector3Time_Value & " | " & $Check_LastLapTime_Value & " | " & $Check_FastestLapTime_Value & _
-						" | " & $Check_State_Value & " | " & $Check_PitStops_Value & " | " & $Check_PenaltyPoints_Value & " | " & $Check_ExperiencePoints_Value & " | " & $Check_SafetyGroup_Value & " | " & $Check_DistanceTravelled_Value
-		EndIf
-
-		If $Check_RacePosition_Value = "13" Then
-			$ROW_13 = $Check_Name_Value & " | " & $Check_GridPosition_Value & " | " & $Check_VehicleIName_Value & " | " & $Check_RacePosition_Value & " | " & $Check_CurrentLap_Value & " | " & $Check_CurrentSector_Value & _
-						" | " & $Check_Sector1Time_Value & " | " & $Check_Sector2Time_Value & " | " & $Check_Sector3Time_Value & " | " & $Check_LastLapTime_Value & " | " & $Check_FastestLapTime_Value & _
-						" | " & $Check_State_Value & " | " & $Check_PitStops_Value & " | " & $Check_PenaltyPoints_Value & " | " & $Check_ExperiencePoints_Value & " | " & $Check_SafetyGroup_Value & " | " & $Check_DistanceTravelled_Value
-		EndIf
-
-		If $Check_RacePosition_Value = "14" Then
-			$ROW_14 = $Check_Name_Value & " | " & $Check_GridPosition_Value & " | " & $Check_VehicleIName_Value & " | " & $Check_RacePosition_Value & " | " & $Check_CurrentLap_Value & " | " & $Check_CurrentSector_Value & _
-						" | " & $Check_Sector1Time_Value & " | " & $Check_Sector2Time_Value & " | " & $Check_Sector3Time_Value & " | " & $Check_LastLapTime_Value & " | " & $Check_FastestLapTime_Value & _
-						" | " & $Check_State_Value & " | " & $Check_PitStops_Value & " | " & $Check_PenaltyPoints_Value & " | " & $Check_ExperiencePoints_Value & " | " & $Check_SafetyGroup_Value & " | " & $Check_DistanceTravelled_Value
-		EndIf
-
-		If $Check_RacePosition_Value = "15" Then
-			$ROW_15 = $Check_Name_Value & " | " & $Check_GridPosition_Value & " | " & $Check_VehicleIName_Value & " | " & $Check_RacePosition_Value & " | " & $Check_CurrentLap_Value & " | " & $Check_CurrentSector_Value & _
-						" | " & $Check_Sector1Time_Value & " | " & $Check_Sector2Time_Value & " | " & $Check_Sector3Time_Value & " | " & $Check_LastLapTime_Value & " | " & $Check_FastestLapTime_Value & _
-						" | " & $Check_State_Value & " | " & $Check_PitStops_Value & " | " & $Check_PenaltyPoints_Value & " | " & $Check_ExperiencePoints_Value & " | " & $Check_SafetyGroup_Value & " | " & $Check_DistanceTravelled_Value
-		EndIf
-
-		If $Check_RacePosition_Value = "16" Then
-			$ROW_16 = $Check_Name_Value & " | " & $Check_GridPosition_Value & " | " & $Check_VehicleIName_Value & " | " & $Check_RacePosition_Value & " | " & $Check_CurrentLap_Value & " | " & $Check_CurrentSector_Value & _
-						" | " & $Check_Sector1Time_Value & " | " & $Check_Sector2Time_Value & " | " & $Check_Sector3Time_Value & " | " & $Check_LastLapTime_Value & " | " & $Check_FastestLapTime_Value & _
-						" | " & $Check_State_Value & " | " & $Check_PitStops_Value & " | " & $Check_PenaltyPoints_Value & " | " & $Check_ExperiencePoints_Value & " | " & $Check_SafetyGroup_Value & " | " & $Check_DistanceTravelled_Value
-		EndIf
-
-		If $Check_RacePosition_Value = "17" Then
-			$ROW_17 = $Check_Name_Value & " | " & $Check_GridPosition_Value & " | " & $Check_VehicleIName_Value & " | " & $Check_RacePosition_Value & " | " & $Check_CurrentLap_Value & " | " & $Check_CurrentSector_Value & _
-						" | " & $Check_Sector1Time_Value & " | " & $Check_Sector2Time_Value & " | " & $Check_Sector3Time_Value & " | " & $Check_LastLapTime_Value & " | " & $Check_FastestLapTime_Value & _
-						" | " & $Check_State_Value & " | " & $Check_PitStops_Value & " | " & $Check_PenaltyPoints_Value & " | " & $Check_ExperiencePoints_Value & " | " & $Check_SafetyGroup_Value & " | " & $Check_DistanceTravelled_Value
-		EndIf
-
-		If $Check_RacePosition_Value = "18" Then
-			$ROW_18 = $Check_Name_Value & " | " & $Check_GridPosition_Value & " | " & $Check_VehicleIName_Value & " | " & $Check_RacePosition_Value & " | " & $Check_CurrentLap_Value & " | " & $Check_CurrentSector_Value & _
-						" | " & $Check_Sector1Time_Value & " | " & $Check_Sector2Time_Value & " | " & $Check_Sector3Time_Value & " | " & $Check_LastLapTime_Value & " | " & $Check_FastestLapTime_Value & _
-						" | " & $Check_State_Value & " | " & $Check_PitStops_Value & " | " & $Check_PenaltyPoints_Value & " | " & $Check_ExperiencePoints_Value & " | " & $Check_SafetyGroup_Value & " | " & $Check_DistanceTravelled_Value
-		EndIf
-
-		If $Check_RacePosition_Value = "19" Then
-			$ROW_19 = $Check_Name_Value & " | " & $Check_GridPosition_Value & " | " & $Check_VehicleIName_Value & " | " & $Check_RacePosition_Value & " | " & $Check_CurrentLap_Value & " | " & $Check_CurrentSector_Value & _
-						" | " & $Check_Sector1Time_Value & " | " & $Check_Sector2Time_Value & " | " & $Check_Sector3Time_Value & " | " & $Check_LastLapTime_Value & " | " & $Check_FastestLapTime_Value & _
-						" | " & $Check_State_Value & " | " & $Check_PitStops_Value & " | " & $Check_PenaltyPoints_Value & " | " & $Check_ExperiencePoints_Value & " | " & $Check_SafetyGroup_Value & " | " & $Check_DistanceTravelled_Value
-		EndIf
-
-		If $Check_RacePosition_Value = "20" Then
-			$ROW_20 = $Check_Name_Value & " | " & $Check_GridPosition_Value & " | " & $Check_VehicleIName_Value & " | " & $Check_RacePosition_Value & " | " & $Check_CurrentLap_Value & " | " & $Check_CurrentSector_Value & _
-						" | " & $Check_Sector1Time_Value & " | " & $Check_Sector2Time_Value & " | " & $Check_Sector3Time_Value & " | " & $Check_LastLapTime_Value & " | " & $Check_FastestLapTime_Value & _
-						" | " & $Check_State_Value & " | " & $Check_PitStops_Value & " | " & $Check_PenaltyPoints_Value & " | " & $Check_ExperiencePoints_Value & " | " & $Check_SafetyGroup_Value & " | " & $Check_DistanceTravelled_Value
-		EndIf
-
-		If $Check_RacePosition_Value = "21" Then
-			$ROW_21 = $Check_Name_Value & " | " & $Check_GridPosition_Value & " | " & $Check_VehicleIName_Value & " | " & $Check_RacePosition_Value & " | " & $Check_CurrentLap_Value & " | " & $Check_CurrentSector_Value & _
-						" | " & $Check_Sector1Time_Value & " | " & $Check_Sector2Time_Value & " | " & $Check_Sector3Time_Value & " | " & $Check_LastLapTime_Value & " | " & $Check_FastestLapTime_Value & _
-						" | " & $Check_State_Value & " | " & $Check_PitStops_Value & " | " & $Check_PenaltyPoints_Value & " | " & $Check_ExperiencePoints_Value & " | " & $Check_SafetyGroup_Value & " | " & $Check_DistanceTravelled_Value
-		EndIf
-
-		If $Check_RacePosition_Value = "22" Then
-			$ROW_22 = $Check_Name_Value & " | " & $Check_GridPosition_Value & " | " & $Check_VehicleIName_Value & " | " & $Check_RacePosition_Value & " | " & $Check_CurrentLap_Value & " | " & $Check_CurrentSector_Value & _
-						" | " & $Check_Sector1Time_Value & " | " & $Check_Sector2Time_Value & " | " & $Check_Sector3Time_Value & " | " & $Check_LastLapTime_Value & " | " & $Check_FastestLapTime_Value & _
-						" | " & $Check_State_Value & " | " & $Check_PitStops_Value & " | " & $Check_PenaltyPoints_Value & " | " & $Check_ExperiencePoints_Value & " | " & $Check_SafetyGroup_Value & " | " & $Check_DistanceTravelled_Value
-		EndIf
-
-		If $Check_RacePosition_Value = "23" Then
-			$ROW_23 = $Check_Name_Value & " | " & $Check_GridPosition_Value & " | " & $Check_VehicleIName_Value & " | " & $Check_RacePosition_Value & " | " & $Check_CurrentLap_Value & " | " & $Check_CurrentSector_Value & _
-						" | " & $Check_Sector1Time_Value & " | " & $Check_Sector2Time_Value & " | " & $Check_Sector3Time_Value & " | " & $Check_LastLapTime_Value & " | " & $Check_FastestLapTime_Value & _
-						" | " & $Check_State_Value & " | " & $Check_PitStops_Value & " | " & $Check_PenaltyPoints_Value & " | " & $Check_ExperiencePoints_Value & " | " & $Check_SafetyGroup_Value & " | " & $Check_DistanceTravelled_Value
-		EndIf
-
-		If $Check_RacePosition_Value = "24" Then
-			$ROW_24 = $Check_Name_Value & " | " & $Check_GridPosition_Value & " | " & $Check_VehicleIName_Value & " | " & $Check_RacePosition_Value & " | " & $Check_CurrentLap_Value & " | " & $Check_CurrentSector_Value & _
-						" | " & $Check_Sector1Time_Value & " | " & $Check_Sector2Time_Value & " | " & $Check_Sector3Time_Value & " | " & $Check_LastLapTime_Value & " | " & $Check_FastestLapTime_Value & _
-						" | " & $Check_State_Value & " | " & $Check_PitStops_Value & " | " & $Check_PenaltyPoints_Value & " | " & $Check_ExperiencePoints_Value & " | " & $Check_SafetyGroup_Value & " | " & $Check_DistanceTravelled_Value
-		EndIf
-
-		If $Check_RacePosition_Value = "25" Then
-			$ROW_25 = $Check_Name_Value & " | " & $Check_GridPosition_Value & " | " & $Check_VehicleIName_Value & " | " & $Check_RacePosition_Value & " | " & $Check_CurrentLap_Value & " | " & $Check_CurrentSector_Value & _
-						" | " & $Check_Sector1Time_Value & " | " & $Check_Sector2Time_Value & " | " & $Check_Sector3Time_Value & " | " & $Check_LastLapTime_Value & " | " & $Check_FastestLapTime_Value & _
-						" | " & $Check_State_Value & " | " & $Check_PitStops_Value & " | " & $Check_PenaltyPoints_Value & " | " & $Check_ExperiencePoints_Value & " | " & $Check_SafetyGroup_Value & " | " & $Check_DistanceTravelled_Value
-		EndIf
-
-		If $Check_RacePosition_Value = "26" Then
-			$ROW_26 = $Check_Name_Value & " | " & $Check_GridPosition_Value & " | " & $Check_VehicleIName_Value & " | " & $Check_RacePosition_Value & " | " & $Check_CurrentLap_Value & " | " & $Check_CurrentSector_Value & _
-						" | " & $Check_Sector1Time_Value & " | " & $Check_Sector2Time_Value & " | " & $Check_Sector3Time_Value & " | " & $Check_LastLapTime_Value & " | " & $Check_FastestLapTime_Value & _
-						" | " & $Check_State_Value & " | " & $Check_PitStops_Value & " | " & $Check_PenaltyPoints_Value & " | " & $Check_ExperiencePoints_Value & " | " & $Check_SafetyGroup_Value & " | " & $Check_DistanceTravelled_Value
-		EndIf
-
-		If $Check_RacePosition_Value = "27" Then
-			$ROW_27 = $Check_Name_Value & " | " & $Check_GridPosition_Value & " | " & $Check_VehicleIName_Value & " | " & $Check_RacePosition_Value & " | " & $Check_CurrentLap_Value & " | " & $Check_CurrentSector_Value & _
-						" | " & $Check_Sector1Time_Value & " | " & $Check_Sector2Time_Value & " | " & $Check_Sector3Time_Value & " | " & $Check_LastLapTime_Value & " | " & $Check_FastestLapTime_Value & _
-						" | " & $Check_State_Value & " | " & $Check_PitStops_Value & " | " & $Check_PenaltyPoints_Value & " | " & $Check_ExperiencePoints_Value & " | " & $Check_SafetyGroup_Value & " | " & $Check_DistanceTravelled_Value
-		EndIf
-
-		If $Check_RacePosition_Value = "28" Then
-			$ROW_28 = $Check_Name_Value & " | " & $Check_GridPosition_Value & " | " & $Check_VehicleIName_Value & " | " & $Check_RacePosition_Value & " | " & $Check_CurrentLap_Value & " | " & $Check_CurrentSector_Value & _
-						" | " & $Check_Sector1Time_Value & " | " & $Check_Sector2Time_Value & " | " & $Check_Sector3Time_Value & " | " & $Check_LastLapTime_Value & " | " & $Check_FastestLapTime_Value & _
-						" | " & $Check_State_Value & " | " & $Check_PitStops_Value & " | " & $Check_PenaltyPoints_Value & " | " & $Check_ExperiencePoints_Value & " | " & $Check_SafetyGroup_Value & " | " & $Check_DistanceTravelled_Value
-		EndIf
-
-		If $Check_RacePosition_Value = "29" Then
-			$ROW_29 = $Check_Name_Value & " | " & $Check_GridPosition_Value & " | " & $Check_VehicleIName_Value & " | " & $Check_RacePosition_Value & " | " & $Check_CurrentLap_Value & " | " & $Check_CurrentSector_Value & _
-						" | " & $Check_Sector1Time_Value & " | " & $Check_Sector2Time_Value & " | " & $Check_Sector3Time_Value & " | " & $Check_LastLapTime_Value & " | " & $Check_FastestLapTime_Value & _
-						" | " & $Check_State_Value & " | " & $Check_PitStops_Value & " | " & $Check_PenaltyPoints_Value & " | " & $Check_ExperiencePoints_Value & " | " & $Check_SafetyGroup_Value & " | " & $Check_DistanceTravelled_Value
-		EndIf
-
-		If $Check_RacePosition_Value = "30" Then
-			$ROW_30 = $Check_Name_Value & " | " & $Check_GridPosition_Value & " | " & $Check_VehicleIName_Value & " | " & $Check_RacePosition_Value & " | " & $Check_CurrentLap_Value & " | " & $Check_CurrentSector_Value & _
-						" | " & $Check_Sector1Time_Value & " | " & $Check_Sector2Time_Value & " | " & $Check_Sector3Time_Value & " | " & $Check_LastLapTime_Value & " | " & $Check_FastestLapTime_Value & _
-						" | " & $Check_State_Value & " | " & $Check_PitStops_Value & " | " & $Check_PenaltyPoints_Value & " | " & $Check_ExperiencePoints_Value & " | " & $Check_SafetyGroup_Value & " | " & $Check_DistanceTravelled_Value
-		EndIf
-
-		If $Check_RacePosition_Value = "31" Then
-			$ROW_31 = $Check_Name_Value & " | " & $Check_GridPosition_Value & " | " & $Check_VehicleIName_Value & " | " & $Check_RacePosition_Value & " | " & $Check_CurrentLap_Value & " | " & $Check_CurrentSector_Value & _
-						" | " & $Check_Sector1Time_Value & " | " & $Check_Sector2Time_Value & " | " & $Check_Sector3Time_Value & " | " & $Check_LastLapTime_Value & " | " & $Check_FastestLapTime_Value & _
-						" | " & $Check_State_Value & " | " & $Check_PitStops_Value & " | " & $Check_PenaltyPoints_Value & " | " & $Check_ExperiencePoints_Value & " | " & $Check_SafetyGroup_Value & " | " & $Check_DistanceTravelled_Value
-		EndIf
-
-		If $Check_RacePosition_Value = "32" Then
-			$ROW_32 = $Check_Name_Value & " | " & $Check_GridPosition_Value & " | " & $Check_VehicleIName_Value & " | " & $Check_RacePosition_Value & " | " & $Check_CurrentLap_Value & " | " & $Check_CurrentSector_Value & _
-						" | " & $Check_Sector1Time_Value & " | " & $Check_Sector2Time_Value & " | " & $Check_Sector3Time_Value & " | " & $Check_LastLapTime_Value & " | " & $Check_FastestLapTime_Value & _
-						" | " & $Check_State_Value & " | " & $Check_PitStops_Value & " | " & $Check_PenaltyPoints_Value & " | " & $Check_ExperiencePoints_Value & " | " & $Check_SafetyGroup_Value & " | " & $Check_DistanceTravelled_Value
-		EndIf
-
-	Else
-		$Schleife_Results_1 = 32
+	If Not FileExists($Data_Dir & "Results\" & $NowDate) Then
+		DirCreate($Data_Dir & "Results\" & $NowDate)
 	EndIf
 
-Next
+	$Results_File_1 = $Data_Dir & "Results\" & $NowDate & "\" & $SessionStage_Check & "_" & $NowTime & ".txt"
 
-FileWriteLine($Results_File_1, "-----" & @CRLF)
-If $ROW_1 <> "" Then FileWriteLine($Results_File_1, $ROW_1)
-If $ROW_2 <> "" Then FileWriteLine($Results_File_1, $ROW_2)
-If $ROW_3 <> "" Then FileWriteLine($Results_File_1, $ROW_3)
-If $ROW_4 <> "" Then FileWriteLine($Results_File_1, $ROW_4)
-If $ROW_5 <> "" Then FileWriteLine($Results_File_1, $ROW_5)
-If $ROW_6 <> "" Then FileWriteLine($Results_File_1, $ROW_6)
-If $ROW_7 <> "" Then FileWriteLine($Results_File_1, $ROW_7)
-If $ROW_8 <> "" Then FileWriteLine($Results_File_1, $ROW_8)
-If $ROW_9 <> "" Then FileWriteLine($Results_File_1, $ROW_9)
-If $ROW_10 <> "" Then FileWriteLine($Results_File_1, $ROW_10)
-If $ROW_11 <> "" Then FileWriteLine($Results_File_1, $ROW_11)
-If $ROW_12 <> "" Then FileWriteLine($Results_File_1, $ROW_12)
-If $ROW_13 <> "" Then FileWriteLine($Results_File_1, $ROW_13)
-If $ROW_14 <> "" Then FileWriteLine($Results_File_1, $ROW_14)
-If $ROW_15 <> "" Then FileWriteLine($Results_File_1, $ROW_15)
-If $ROW_16 <> "" Then FileWriteLine($Results_File_1, $ROW_16)
-If $ROW_17 <> "" Then FileWriteLine($Results_File_1, $ROW_17)
-If $ROW_18 <> "" Then FileWriteLine($Results_File_1, $ROW_18)
-If $ROW_19 <> "" Then FileWriteLine($Results_File_1, $ROW_19)
-If $ROW_20 <> "" Then FileWriteLine($Results_File_1, $ROW_20)
-If $ROW_21 <> "" Then FileWriteLine($Results_File_1, $ROW_21)
-If $ROW_22 <> "" Then FileWriteLine($Results_File_1, $ROW_22)
-If $ROW_23 <> "" Then FileWriteLine($Results_File_1, $ROW_23)
-If $ROW_24 <> "" Then FileWriteLine($Results_File_1, $ROW_24)
-If $ROW_25 <> "" Then FileWriteLine($Results_File_1, $ROW_25)
-If $ROW_26 <> "" Then FileWriteLine($Results_File_1, $ROW_26)
-If $ROW_27 <> "" Then FileWriteLine($Results_File_1, $ROW_27)
-If $ROW_28 <> "" Then FileWriteLine($Results_File_1, $ROW_28)
-If $ROW_29 <> "" Then FileWriteLine($Results_File_1, $ROW_29)
-If $ROW_30 <> "" Then FileWriteLine($Results_File_1, $ROW_30)
-If $ROW_31 <> "" Then FileWriteLine($Results_File_1, $ROW_31)
-If $ROW_32 <> "" Then FileWriteLine($Results_File_1, $ROW_32)
-FileWriteLine($Results_File_1, "[-----]" & " - " & $SessionStage_Check & " - " & $Check_TrackName_Value & " - " & $NowDate & " - " & $NowTime_orig)
+	FileWriteLine($Results_File_1,  "[--- RESULTS ---]" & $SessionStage_Check & " - " & $Check_TrackName_Value & " - " & $NowDate & " - " & $NowTime_orig)
+
+	Global $ROW_1, $ROW_2, $ROW_3, $ROW_4, $ROW_5, $ROW_6, $ROW_7, $ROW_8, $ROW_9, $ROW_10, $ROW_11, $ROW_12, $ROW_13, $ROW_14, $ROW_15
+	Global $ROW_16, $ROW_17, $ROW_18, $ROW_19, $ROW_20, $ROW_21, $ROW_22, $ROW_23, $ROW_24, $ROW_25, $ROW_26, $ROW_27, $ROW_28, $ROW_29
+	Global $ROW_30, $ROW_31, $ROW_32
 
 
-If $LOG_Event_Check_auto_MSG = "true" Then
-	$Message_1 = "Event Finished"
-	$Message_2 = "Results saved to:"
-	$Message_3 = $NowDate & "\" & $SessionStage_Check & "_" & $NowTime & ".txt"
-	$URL = "http://" & $Lesen_Auswahl_httpApiInterface & ":" & $Lesen_Auswahl_httpApiPort & "/api/session/send_chat?message=" & $Message_1
-	$download = InetGet($URL, @ScriptDir & "\Message.txt", 16, 0)
-	$URL = "http://" & $Lesen_Auswahl_httpApiInterface & ":" & $Lesen_Auswahl_httpApiPort & "/api/session/send_chat?message=" & $Message_2
-	$download = InetGet($URL, @ScriptDir & "\Message.txt", 16, 0)
-	$URL = "http://" & $Lesen_Auswahl_httpApiInterface & ":" & $Lesen_Auswahl_httpApiPort & "/api/session/send_chat?message=" & $Message_3
-	$download = InetGet($URL, @ScriptDir & "\Message.txt", 16, 0)
-EndIf
+	For $Schleife_Results_1 = 1 To 32
 
-Global $Results_copy_2_folder = IniRead($config_ini, "Einstellungen", "PCDSG_Stats_path", "")
-Global $Results_File_1_HTM_copy_2 = $Results_copy_2_folder & "PCDSG - Results\"
-Global $Results_NowDate_Folder = $Data_Dir & "Results\" & $NowDate
-DirCopy($Results_NowDate_Folder & "\", $Results_File_1_HTM_copy_2 & $NowDate & "\", $FC_OVERWRITE)
+		$Check_refid_Value = IniRead($Participants_Data_INI, $Schleife_Results_1, "refid", "") ; refid
+		$Check_Name_Value = IniRead($Participants_Data_INI, $Schleife_Results_1, "name", "") ; Name
+			If $Check_Name_Value = "" Then
+				$Check_Name_Value = IniRead($Members_Data_INI, $Check_refid_Value, "name", "")
+			EndIf
+
+			$Check_Name_Value_bea = $Check_Name_Value
+
+			If $Check_Name_Value_bea <> "" Then
+				$Check_Name_Value_bea = StringReplace($Check_Name_Value_bea, "[", "<")
+				$Check_Name_Value_bea = StringReplace($Check_Name_Value_bea, "]", ">")
+			EndIf
+
+			If $Check_Name_Value_bea = "" Then $Check_Name_Value_bea = $Check_Name_Value
+
+			;MsgBox(0, "", $Check_Name_Value & @CRLF & $Check_Name_Value_bea, 10)
+
+		If $Check_Name_Value <> "" Then
+			$Check_IsPlayer_Value = IniRead($Participants_Data_INI, $Schleife_Results_1, "IsPlayer", "") ; IsPlayer
+			$Check_GridPosition_Value = IniRead($Participants_Data_INI, $Schleife_Results_1, "GridPosition", "-") ; GridPosition
+			$Check_VehicleId_Value = IniRead($Participants_Data_INI, $Schleife_Results_1, "VehicleId", "") ; VehicleId
+				IniWrite($config_ini, "TEMP", "Check_Carid", $Check_VehicleId_Value)
+				_CAR_NAME_from_ID()
+				$Check_VehicleIName_Value = IniRead($config_ini, "TEMP", "Check_CarName", "")
+				If $Check_VehicleIName_Value = "" Then $Check_VehicleIName_Value = $Check_VehicleId_Value
+			$Check_LiveryId_Value = IniRead($Participants_Data_INI, $Schleife_Results_1, "LiveryId", "") ; LiveryId
+			$Check_RacePosition_Value = IniRead($Participants_Data_INI, $Schleife_Results_1, "RacePosition", "") ; RacePosition
+			$Check_CurrentLap_Value = IniRead($Participants_Data_INI, $Schleife_Results_1, "CurrentLap", "-") ; CurrentLap
+			$Check_CurrentSector_Value = IniRead($Participants_Data_INI, $Schleife_Results_1, "CurrentSector", "-") ; CurrentSector
+			$Check_Sector1Time_Value = IniRead($Participants_Data_INI, $Schleife_Results_1, "Sector1Time", "-") ; Sector1Time
+			$Check_Sector2Time_Value = IniRead($Participants_Data_INI, $Schleife_Results_1, "Sector2Time", "-") ; Sector2Time
+			$Check_Sector3Time_Value = IniRead($Participants_Data_INI, $Schleife_Results_1, "Sector3Time", "-") ; Sector3Time
+			$Check_LastLapTime_Value = IniRead($Participants_Data_INI, $Schleife_Results_1, "LastLapTime", "-") ; LastLapTime
+			$Check_FastestLapTime_Value = IniRead($Participants_Data_INI, $Schleife_Results_1, "FastestLapTime", "-") ; FastestLapTime
+			$Check_State_Value = IniRead($Participants_Data_INI, $Schleife_Results_1, "State", "") ; State
+			$Check_HeadlightsOn_Value = IniRead($Participants_Data_INI, $Schleife_Results_1, "HeadlightsOn", "") ; HeadlightsOn
+			$Check_WipersOn_Value = IniRead($Participants_Data_INI, $Schleife_Results_1, "WipersOn", "") ; WipersOn
+			$Check_Speed_Value = IniRead($Participants_Data_INI, $Schleife_Results_1, "Speed", "") ; Speed
+			$Check_Gear_Value = IniRead($Participants_Data_INI, $Schleife_Results_1, "Gear", "") ; Gear
+			$Check_RPM_Value = IniRead($Participants_Data_INI, $Schleife_Results_1, "RPM", "") ; RPM
+			$Check_PositionX_Value = IniRead($Participants_Data_INI, $Schleife_Results_1, "PositionX", "") ; PositionX
+			$Check_PositionY_Value = IniRead($Participants_Data_INI, $Schleife_Results_1, "PositionY", "") ; PositionY
+			$Check_PositionZ_Value = IniRead($Participants_Data_INI, $Schleife_Results_1, "PositionZ", "") ; PositionZ
+			$Check_Orientation_Value = IniRead($Participants_Data_INI, $Schleife_Results_1, "Orientation", "") ; Orientation
+
+			$Check_PitStops_Value = IniRead($PitStops_INI, $Check_Name_Value_bea, "PitStops", "") ; PitStops
+			$Check_PenaltyPoints_Value = IniRead($Points_ini, $Check_Name_Value_bea, "PenaltyPoints", "") ; PenaltyPoints
+			$Check_ExperiencePoints_Value = IniRead($Stats_INI, $Check_Name_Value_bea, "ExperiencePoints", "") ; ExperiencePoints
+			$Check_DistanceTravelled_Value = IniRead($Stats_INI, $Check_Name_Value_bea, "DistanceTravelled", "") ; DistanceTravelled
+			$Check_SafetyGroup_Value = IniRead($Stats_INI, $Check_Name_Value_bea, "SafetyGroup", "") ; SafetyGroup
+
+
+			If $Check_RacePosition_Value = "1" Then
+				$ROW_1 = $Check_Name_Value & " | " & $Check_GridPosition_Value & " | " & $Check_VehicleIName_Value & " | " & $Check_RacePosition_Value & " | " & $Check_CurrentLap_Value & " | " & $Check_CurrentSector_Value & _
+							" | " & $Check_Sector1Time_Value & " | " & $Check_Sector2Time_Value & " | " & $Check_Sector3Time_Value & " | " & $Check_LastLapTime_Value & " | " & $Check_FastestLapTime_Value & _
+							" | " & $Check_State_Value & " | " & $Check_PitStops_Value & " | " & $Check_PenaltyPoints_Value & " | " & $Check_ExperiencePoints_Value & " | " & $Check_SafetyGroup_Value & " | " & $Check_DistanceTravelled_Value
+			EndIf
+
+			If $Check_RacePosition_Value = "2" Then
+				$ROW_2 = $Check_Name_Value & " | " & $Check_GridPosition_Value & " | " & $Check_VehicleIName_Value & " | " & $Check_RacePosition_Value & " | " & $Check_CurrentLap_Value & " | " & $Check_CurrentSector_Value & _
+							" | " & $Check_Sector1Time_Value & " | " & $Check_Sector2Time_Value & " | " & $Check_Sector3Time_Value & " | " & $Check_LastLapTime_Value & " | " & $Check_FastestLapTime_Value & _
+							" | " & $Check_State_Value & " | " & $Check_PitStops_Value & " | " & $Check_PenaltyPoints_Value & " | " & $Check_ExperiencePoints_Value & " | " & $Check_SafetyGroup_Value & " | " & $Check_DistanceTravelled_Value
+			EndIf
+
+			If $Check_RacePosition_Value = "3" Then
+				$ROW_3 = $Check_Name_Value & " | " & $Check_GridPosition_Value & " | " & $Check_VehicleIName_Value & " | " & $Check_RacePosition_Value & " | " & $Check_CurrentLap_Value & " | " & $Check_CurrentSector_Value & _
+							" | " & $Check_Sector1Time_Value & " | " & $Check_Sector2Time_Value & " | " & $Check_Sector3Time_Value & " | " & $Check_LastLapTime_Value & " | " & $Check_FastestLapTime_Value & _
+							" | " & $Check_State_Value & " | " & $Check_PitStops_Value & " | " & $Check_PenaltyPoints_Value & " | " & $Check_ExperiencePoints_Value & " | " & $Check_SafetyGroup_Value & " | " & $Check_DistanceTravelled_Value
+			EndIf
+
+			If $Check_RacePosition_Value = "4" Then
+				$ROW_4 = $Check_Name_Value & " | " & $Check_GridPosition_Value & " | " & $Check_VehicleIName_Value & " | " & $Check_RacePosition_Value & " | " & $Check_CurrentLap_Value & " | " & $Check_CurrentSector_Value & _
+							" | " & $Check_Sector1Time_Value & " | " & $Check_Sector2Time_Value & " | " & $Check_Sector3Time_Value & " | " & $Check_LastLapTime_Value & " | " & $Check_FastestLapTime_Value & _
+							" | " & $Check_State_Value & " | " & $Check_PitStops_Value & " | " & $Check_PenaltyPoints_Value & " | " & $Check_ExperiencePoints_Value & " | " & $Check_SafetyGroup_Value & " | " & $Check_DistanceTravelled_Value
+			EndIf
+
+			If $Check_RacePosition_Value = "5" Then
+				$ROW_5 = $Check_Name_Value & " | " & $Check_GridPosition_Value & " | " & $Check_VehicleIName_Value & " | " & $Check_RacePosition_Value & " | " & $Check_CurrentLap_Value & " | " & $Check_CurrentSector_Value & _
+							" | " & $Check_Sector1Time_Value & " | " & $Check_Sector2Time_Value & " | " & $Check_Sector3Time_Value & " | " & $Check_LastLapTime_Value & " | " & $Check_FastestLapTime_Value & _
+							" | " & $Check_State_Value & " | " & $Check_PitStops_Value & " | " & $Check_PenaltyPoints_Value & " | " & $Check_ExperiencePoints_Value & " | " & $Check_SafetyGroup_Value & " | " & $Check_DistanceTravelled_Value
+			EndIf
+
+			If $Check_RacePosition_Value = "6" Then
+				$ROW_6 = $Check_Name_Value & " | " & $Check_GridPosition_Value & " | " & $Check_VehicleIName_Value & " | " & $Check_RacePosition_Value & " | " & $Check_CurrentLap_Value & " | " & $Check_CurrentSector_Value & _
+							" | " & $Check_Sector1Time_Value & " | " & $Check_Sector2Time_Value & " | " & $Check_Sector3Time_Value & " | " & $Check_LastLapTime_Value & " | " & $Check_FastestLapTime_Value & _
+							" | " & $Check_State_Value & " | " & $Check_PitStops_Value & " | " & $Check_PenaltyPoints_Value & " | " & $Check_ExperiencePoints_Value & " | " & $Check_SafetyGroup_Value & " | " & $Check_DistanceTravelled_Value
+			EndIf
+
+			If $Check_RacePosition_Value = "7" Then
+				$ROW_7 = $Check_Name_Value & " | " & $Check_GridPosition_Value & " | " & $Check_VehicleIName_Value & " | " & $Check_RacePosition_Value & " | " & $Check_CurrentLap_Value & " | " & $Check_CurrentSector_Value & _
+							" | " & $Check_Sector1Time_Value & " | " & $Check_Sector2Time_Value & " | " & $Check_Sector3Time_Value & " | " & $Check_LastLapTime_Value & " | " & $Check_FastestLapTime_Value & _
+							" | " & $Check_State_Value & " | " & $Check_PitStops_Value & " | " & $Check_PenaltyPoints_Value & " | " & $Check_ExperiencePoints_Value & " | " & $Check_SafetyGroup_Value & " | " & $Check_DistanceTravelled_Value
+			EndIf
+
+			If $Check_RacePosition_Value = "8" Then
+				$ROW_8 = $Check_Name_Value & " | " & $Check_GridPosition_Value & " | " & $Check_VehicleIName_Value & " | " & $Check_RacePosition_Value & " | " & $Check_CurrentLap_Value & " | " & $Check_CurrentSector_Value & _
+							" | " & $Check_Sector1Time_Value & " | " & $Check_Sector2Time_Value & " | " & $Check_Sector3Time_Value & " | " & $Check_LastLapTime_Value & " | " & $Check_FastestLapTime_Value & _
+							" | " & $Check_State_Value & " | " & $Check_PitStops_Value & " | " & $Check_PenaltyPoints_Value & " | " & $Check_ExperiencePoints_Value & " | " & $Check_SafetyGroup_Value & " | " & $Check_DistanceTravelled_Value
+			EndIf
+
+			If $Check_RacePosition_Value = "9" Then
+				$ROW_9 = $Check_Name_Value & " | " & $Check_GridPosition_Value & " | " & $Check_VehicleIName_Value & " | " & $Check_RacePosition_Value & " | " & $Check_CurrentLap_Value & " | " & $Check_CurrentSector_Value & _
+							" | " & $Check_Sector1Time_Value & " | " & $Check_Sector2Time_Value & " | " & $Check_Sector3Time_Value & " | " & $Check_LastLapTime_Value & " | " & $Check_FastestLapTime_Value & _
+							" | " & $Check_State_Value & " | " & $Check_PitStops_Value & " | " & $Check_PenaltyPoints_Value & " | " & $Check_ExperiencePoints_Value & " | " & $Check_SafetyGroup_Value & " | " & $Check_DistanceTravelled_Value
+			EndIf
+
+			If $Check_RacePosition_Value = "10" Then
+				$ROW_10 = $Check_Name_Value & " | " & $Check_GridPosition_Value & " | " & $Check_VehicleIName_Value & " | " & $Check_RacePosition_Value & " | " & $Check_CurrentLap_Value & " | " & $Check_CurrentSector_Value & _
+							" | " & $Check_Sector1Time_Value & " | " & $Check_Sector2Time_Value & " | " & $Check_Sector3Time_Value & " | " & $Check_LastLapTime_Value & " | " & $Check_FastestLapTime_Value & _
+							" | " & $Check_State_Value & " | " & $Check_PitStops_Value & " | " & $Check_PenaltyPoints_Value & " | " & $Check_ExperiencePoints_Value & " | " & $Check_SafetyGroup_Value & " | " & $Check_DistanceTravelled_Value
+			EndIf
+
+			If $Check_RacePosition_Value = "11" Then
+				$ROW_11 = $Check_Name_Value & " | " & $Check_GridPosition_Value & " | " & $Check_VehicleIName_Value & " | " & $Check_RacePosition_Value & " | " & $Check_CurrentLap_Value & " | " & $Check_CurrentSector_Value & _
+							" | " & $Check_Sector1Time_Value & " | " & $Check_Sector2Time_Value & " | " & $Check_Sector3Time_Value & " | " & $Check_LastLapTime_Value & " | " & $Check_FastestLapTime_Value & _
+							" | " & $Check_State_Value & " | " & $Check_PitStops_Value & " | " & $Check_PenaltyPoints_Value & " | " & $Check_ExperiencePoints_Value & " | " & $Check_SafetyGroup_Value & " | " & $Check_DistanceTravelled_Value
+			EndIf
+
+			If $Check_RacePosition_Value = "12" Then
+				$ROW_12 = $Check_Name_Value & " | " & $Check_GridPosition_Value & " | " & $Check_VehicleIName_Value & " | " & $Check_RacePosition_Value & " | " & $Check_CurrentLap_Value & " | " & $Check_CurrentSector_Value & _
+							" | " & $Check_Sector1Time_Value & " | " & $Check_Sector2Time_Value & " | " & $Check_Sector3Time_Value & " | " & $Check_LastLapTime_Value & " | " & $Check_FastestLapTime_Value & _
+							" | " & $Check_State_Value & " | " & $Check_PitStops_Value & " | " & $Check_PenaltyPoints_Value & " | " & $Check_ExperiencePoints_Value & " | " & $Check_SafetyGroup_Value & " | " & $Check_DistanceTravelled_Value
+			EndIf
+
+			If $Check_RacePosition_Value = "13" Then
+				$ROW_13 = $Check_Name_Value & " | " & $Check_GridPosition_Value & " | " & $Check_VehicleIName_Value & " | " & $Check_RacePosition_Value & " | " & $Check_CurrentLap_Value & " | " & $Check_CurrentSector_Value & _
+							" | " & $Check_Sector1Time_Value & " | " & $Check_Sector2Time_Value & " | " & $Check_Sector3Time_Value & " | " & $Check_LastLapTime_Value & " | " & $Check_FastestLapTime_Value & _
+							" | " & $Check_State_Value & " | " & $Check_PitStops_Value & " | " & $Check_PenaltyPoints_Value & " | " & $Check_ExperiencePoints_Value & " | " & $Check_SafetyGroup_Value & " | " & $Check_DistanceTravelled_Value
+			EndIf
+
+			If $Check_RacePosition_Value = "14" Then
+				$ROW_14 = $Check_Name_Value & " | " & $Check_GridPosition_Value & " | " & $Check_VehicleIName_Value & " | " & $Check_RacePosition_Value & " | " & $Check_CurrentLap_Value & " | " & $Check_CurrentSector_Value & _
+							" | " & $Check_Sector1Time_Value & " | " & $Check_Sector2Time_Value & " | " & $Check_Sector3Time_Value & " | " & $Check_LastLapTime_Value & " | " & $Check_FastestLapTime_Value & _
+							" | " & $Check_State_Value & " | " & $Check_PitStops_Value & " | " & $Check_PenaltyPoints_Value & " | " & $Check_ExperiencePoints_Value & " | " & $Check_SafetyGroup_Value & " | " & $Check_DistanceTravelled_Value
+			EndIf
+
+			If $Check_RacePosition_Value = "15" Then
+				$ROW_15 = $Check_Name_Value & " | " & $Check_GridPosition_Value & " | " & $Check_VehicleIName_Value & " | " & $Check_RacePosition_Value & " | " & $Check_CurrentLap_Value & " | " & $Check_CurrentSector_Value & _
+							" | " & $Check_Sector1Time_Value & " | " & $Check_Sector2Time_Value & " | " & $Check_Sector3Time_Value & " | " & $Check_LastLapTime_Value & " | " & $Check_FastestLapTime_Value & _
+							" | " & $Check_State_Value & " | " & $Check_PitStops_Value & " | " & $Check_PenaltyPoints_Value & " | " & $Check_ExperiencePoints_Value & " | " & $Check_SafetyGroup_Value & " | " & $Check_DistanceTravelled_Value
+			EndIf
+
+			If $Check_RacePosition_Value = "16" Then
+				$ROW_16 = $Check_Name_Value & " | " & $Check_GridPosition_Value & " | " & $Check_VehicleIName_Value & " | " & $Check_RacePosition_Value & " | " & $Check_CurrentLap_Value & " | " & $Check_CurrentSector_Value & _
+							" | " & $Check_Sector1Time_Value & " | " & $Check_Sector2Time_Value & " | " & $Check_Sector3Time_Value & " | " & $Check_LastLapTime_Value & " | " & $Check_FastestLapTime_Value & _
+							" | " & $Check_State_Value & " | " & $Check_PitStops_Value & " | " & $Check_PenaltyPoints_Value & " | " & $Check_ExperiencePoints_Value & " | " & $Check_SafetyGroup_Value & " | " & $Check_DistanceTravelled_Value
+			EndIf
+
+			If $Check_RacePosition_Value = "17" Then
+				$ROW_17 = $Check_Name_Value & " | " & $Check_GridPosition_Value & " | " & $Check_VehicleIName_Value & " | " & $Check_RacePosition_Value & " | " & $Check_CurrentLap_Value & " | " & $Check_CurrentSector_Value & _
+							" | " & $Check_Sector1Time_Value & " | " & $Check_Sector2Time_Value & " | " & $Check_Sector3Time_Value & " | " & $Check_LastLapTime_Value & " | " & $Check_FastestLapTime_Value & _
+							" | " & $Check_State_Value & " | " & $Check_PitStops_Value & " | " & $Check_PenaltyPoints_Value & " | " & $Check_ExperiencePoints_Value & " | " & $Check_SafetyGroup_Value & " | " & $Check_DistanceTravelled_Value
+			EndIf
+
+			If $Check_RacePosition_Value = "18" Then
+				$ROW_18 = $Check_Name_Value & " | " & $Check_GridPosition_Value & " | " & $Check_VehicleIName_Value & " | " & $Check_RacePosition_Value & " | " & $Check_CurrentLap_Value & " | " & $Check_CurrentSector_Value & _
+							" | " & $Check_Sector1Time_Value & " | " & $Check_Sector2Time_Value & " | " & $Check_Sector3Time_Value & " | " & $Check_LastLapTime_Value & " | " & $Check_FastestLapTime_Value & _
+							" | " & $Check_State_Value & " | " & $Check_PitStops_Value & " | " & $Check_PenaltyPoints_Value & " | " & $Check_ExperiencePoints_Value & " | " & $Check_SafetyGroup_Value & " | " & $Check_DistanceTravelled_Value
+			EndIf
+
+			If $Check_RacePosition_Value = "19" Then
+				$ROW_19 = $Check_Name_Value & " | " & $Check_GridPosition_Value & " | " & $Check_VehicleIName_Value & " | " & $Check_RacePosition_Value & " | " & $Check_CurrentLap_Value & " | " & $Check_CurrentSector_Value & _
+							" | " & $Check_Sector1Time_Value & " | " & $Check_Sector2Time_Value & " | " & $Check_Sector3Time_Value & " | " & $Check_LastLapTime_Value & " | " & $Check_FastestLapTime_Value & _
+							" | " & $Check_State_Value & " | " & $Check_PitStops_Value & " | " & $Check_PenaltyPoints_Value & " | " & $Check_ExperiencePoints_Value & " | " & $Check_SafetyGroup_Value & " | " & $Check_DistanceTravelled_Value
+			EndIf
+
+			If $Check_RacePosition_Value = "20" Then
+				$ROW_20 = $Check_Name_Value & " | " & $Check_GridPosition_Value & " | " & $Check_VehicleIName_Value & " | " & $Check_RacePosition_Value & " | " & $Check_CurrentLap_Value & " | " & $Check_CurrentSector_Value & _
+							" | " & $Check_Sector1Time_Value & " | " & $Check_Sector2Time_Value & " | " & $Check_Sector3Time_Value & " | " & $Check_LastLapTime_Value & " | " & $Check_FastestLapTime_Value & _
+							" | " & $Check_State_Value & " | " & $Check_PitStops_Value & " | " & $Check_PenaltyPoints_Value & " | " & $Check_ExperiencePoints_Value & " | " & $Check_SafetyGroup_Value & " | " & $Check_DistanceTravelled_Value
+			EndIf
+
+			If $Check_RacePosition_Value = "21" Then
+				$ROW_21 = $Check_Name_Value & " | " & $Check_GridPosition_Value & " | " & $Check_VehicleIName_Value & " | " & $Check_RacePosition_Value & " | " & $Check_CurrentLap_Value & " | " & $Check_CurrentSector_Value & _
+							" | " & $Check_Sector1Time_Value & " | " & $Check_Sector2Time_Value & " | " & $Check_Sector3Time_Value & " | " & $Check_LastLapTime_Value & " | " & $Check_FastestLapTime_Value & _
+							" | " & $Check_State_Value & " | " & $Check_PitStops_Value & " | " & $Check_PenaltyPoints_Value & " | " & $Check_ExperiencePoints_Value & " | " & $Check_SafetyGroup_Value & " | " & $Check_DistanceTravelled_Value
+			EndIf
+
+			If $Check_RacePosition_Value = "22" Then
+				$ROW_22 = $Check_Name_Value & " | " & $Check_GridPosition_Value & " | " & $Check_VehicleIName_Value & " | " & $Check_RacePosition_Value & " | " & $Check_CurrentLap_Value & " | " & $Check_CurrentSector_Value & _
+							" | " & $Check_Sector1Time_Value & " | " & $Check_Sector2Time_Value & " | " & $Check_Sector3Time_Value & " | " & $Check_LastLapTime_Value & " | " & $Check_FastestLapTime_Value & _
+							" | " & $Check_State_Value & " | " & $Check_PitStops_Value & " | " & $Check_PenaltyPoints_Value & " | " & $Check_ExperiencePoints_Value & " | " & $Check_SafetyGroup_Value & " | " & $Check_DistanceTravelled_Value
+			EndIf
+
+			If $Check_RacePosition_Value = "23" Then
+				$ROW_23 = $Check_Name_Value & " | " & $Check_GridPosition_Value & " | " & $Check_VehicleIName_Value & " | " & $Check_RacePosition_Value & " | " & $Check_CurrentLap_Value & " | " & $Check_CurrentSector_Value & _
+							" | " & $Check_Sector1Time_Value & " | " & $Check_Sector2Time_Value & " | " & $Check_Sector3Time_Value & " | " & $Check_LastLapTime_Value & " | " & $Check_FastestLapTime_Value & _
+							" | " & $Check_State_Value & " | " & $Check_PitStops_Value & " | " & $Check_PenaltyPoints_Value & " | " & $Check_ExperiencePoints_Value & " | " & $Check_SafetyGroup_Value & " | " & $Check_DistanceTravelled_Value
+			EndIf
+
+			If $Check_RacePosition_Value = "24" Then
+				$ROW_24 = $Check_Name_Value & " | " & $Check_GridPosition_Value & " | " & $Check_VehicleIName_Value & " | " & $Check_RacePosition_Value & " | " & $Check_CurrentLap_Value & " | " & $Check_CurrentSector_Value & _
+							" | " & $Check_Sector1Time_Value & " | " & $Check_Sector2Time_Value & " | " & $Check_Sector3Time_Value & " | " & $Check_LastLapTime_Value & " | " & $Check_FastestLapTime_Value & _
+							" | " & $Check_State_Value & " | " & $Check_PitStops_Value & " | " & $Check_PenaltyPoints_Value & " | " & $Check_ExperiencePoints_Value & " | " & $Check_SafetyGroup_Value & " | " & $Check_DistanceTravelled_Value
+			EndIf
+
+			If $Check_RacePosition_Value = "25" Then
+				$ROW_25 = $Check_Name_Value & " | " & $Check_GridPosition_Value & " | " & $Check_VehicleIName_Value & " | " & $Check_RacePosition_Value & " | " & $Check_CurrentLap_Value & " | " & $Check_CurrentSector_Value & _
+							" | " & $Check_Sector1Time_Value & " | " & $Check_Sector2Time_Value & " | " & $Check_Sector3Time_Value & " | " & $Check_LastLapTime_Value & " | " & $Check_FastestLapTime_Value & _
+							" | " & $Check_State_Value & " | " & $Check_PitStops_Value & " | " & $Check_PenaltyPoints_Value & " | " & $Check_ExperiencePoints_Value & " | " & $Check_SafetyGroup_Value & " | " & $Check_DistanceTravelled_Value
+			EndIf
+
+			If $Check_RacePosition_Value = "26" Then
+				$ROW_26 = $Check_Name_Value & " | " & $Check_GridPosition_Value & " | " & $Check_VehicleIName_Value & " | " & $Check_RacePosition_Value & " | " & $Check_CurrentLap_Value & " | " & $Check_CurrentSector_Value & _
+							" | " & $Check_Sector1Time_Value & " | " & $Check_Sector2Time_Value & " | " & $Check_Sector3Time_Value & " | " & $Check_LastLapTime_Value & " | " & $Check_FastestLapTime_Value & _
+							" | " & $Check_State_Value & " | " & $Check_PitStops_Value & " | " & $Check_PenaltyPoints_Value & " | " & $Check_ExperiencePoints_Value & " | " & $Check_SafetyGroup_Value & " | " & $Check_DistanceTravelled_Value
+			EndIf
+
+			If $Check_RacePosition_Value = "27" Then
+				$ROW_27 = $Check_Name_Value & " | " & $Check_GridPosition_Value & " | " & $Check_VehicleIName_Value & " | " & $Check_RacePosition_Value & " | " & $Check_CurrentLap_Value & " | " & $Check_CurrentSector_Value & _
+							" | " & $Check_Sector1Time_Value & " | " & $Check_Sector2Time_Value & " | " & $Check_Sector3Time_Value & " | " & $Check_LastLapTime_Value & " | " & $Check_FastestLapTime_Value & _
+							" | " & $Check_State_Value & " | " & $Check_PitStops_Value & " | " & $Check_PenaltyPoints_Value & " | " & $Check_ExperiencePoints_Value & " | " & $Check_SafetyGroup_Value & " | " & $Check_DistanceTravelled_Value
+			EndIf
+
+			If $Check_RacePosition_Value = "28" Then
+				$ROW_28 = $Check_Name_Value & " | " & $Check_GridPosition_Value & " | " & $Check_VehicleIName_Value & " | " & $Check_RacePosition_Value & " | " & $Check_CurrentLap_Value & " | " & $Check_CurrentSector_Value & _
+							" | " & $Check_Sector1Time_Value & " | " & $Check_Sector2Time_Value & " | " & $Check_Sector3Time_Value & " | " & $Check_LastLapTime_Value & " | " & $Check_FastestLapTime_Value & _
+							" | " & $Check_State_Value & " | " & $Check_PitStops_Value & " | " & $Check_PenaltyPoints_Value & " | " & $Check_ExperiencePoints_Value & " | " & $Check_SafetyGroup_Value & " | " & $Check_DistanceTravelled_Value
+			EndIf
+
+			If $Check_RacePosition_Value = "29" Then
+				$ROW_29 = $Check_Name_Value & " | " & $Check_GridPosition_Value & " | " & $Check_VehicleIName_Value & " | " & $Check_RacePosition_Value & " | " & $Check_CurrentLap_Value & " | " & $Check_CurrentSector_Value & _
+							" | " & $Check_Sector1Time_Value & " | " & $Check_Sector2Time_Value & " | " & $Check_Sector3Time_Value & " | " & $Check_LastLapTime_Value & " | " & $Check_FastestLapTime_Value & _
+							" | " & $Check_State_Value & " | " & $Check_PitStops_Value & " | " & $Check_PenaltyPoints_Value & " | " & $Check_ExperiencePoints_Value & " | " & $Check_SafetyGroup_Value & " | " & $Check_DistanceTravelled_Value
+			EndIf
+
+			If $Check_RacePosition_Value = "30" Then
+				$ROW_30 = $Check_Name_Value & " | " & $Check_GridPosition_Value & " | " & $Check_VehicleIName_Value & " | " & $Check_RacePosition_Value & " | " & $Check_CurrentLap_Value & " | " & $Check_CurrentSector_Value & _
+							" | " & $Check_Sector1Time_Value & " | " & $Check_Sector2Time_Value & " | " & $Check_Sector3Time_Value & " | " & $Check_LastLapTime_Value & " | " & $Check_FastestLapTime_Value & _
+							" | " & $Check_State_Value & " | " & $Check_PitStops_Value & " | " & $Check_PenaltyPoints_Value & " | " & $Check_ExperiencePoints_Value & " | " & $Check_SafetyGroup_Value & " | " & $Check_DistanceTravelled_Value
+			EndIf
+
+			If $Check_RacePosition_Value = "31" Then
+				$ROW_31 = $Check_Name_Value & " | " & $Check_GridPosition_Value & " | " & $Check_VehicleIName_Value & " | " & $Check_RacePosition_Value & " | " & $Check_CurrentLap_Value & " | " & $Check_CurrentSector_Value & _
+							" | " & $Check_Sector1Time_Value & " | " & $Check_Sector2Time_Value & " | " & $Check_Sector3Time_Value & " | " & $Check_LastLapTime_Value & " | " & $Check_FastestLapTime_Value & _
+							" | " & $Check_State_Value & " | " & $Check_PitStops_Value & " | " & $Check_PenaltyPoints_Value & " | " & $Check_ExperiencePoints_Value & " | " & $Check_SafetyGroup_Value & " | " & $Check_DistanceTravelled_Value
+			EndIf
+
+			If $Check_RacePosition_Value = "32" Then
+				$ROW_32 = $Check_Name_Value & " | " & $Check_GridPosition_Value & " | " & $Check_VehicleIName_Value & " | " & $Check_RacePosition_Value & " | " & $Check_CurrentLap_Value & " | " & $Check_CurrentSector_Value & _
+							" | " & $Check_Sector1Time_Value & " | " & $Check_Sector2Time_Value & " | " & $Check_Sector3Time_Value & " | " & $Check_LastLapTime_Value & " | " & $Check_FastestLapTime_Value & _
+							" | " & $Check_State_Value & " | " & $Check_PitStops_Value & " | " & $Check_PenaltyPoints_Value & " | " & $Check_ExperiencePoints_Value & " | " & $Check_SafetyGroup_Value & " | " & $Check_DistanceTravelled_Value
+			EndIf
+
+		Else
+			$Schleife_Results_1 = 32
+		EndIf
+
+	Next
+
+	FileWriteLine($Results_File_1, "-----" & @CRLF)
+	If $ROW_1 <> "" Then FileWriteLine($Results_File_1, $ROW_1)
+	If $ROW_2 <> "" Then FileWriteLine($Results_File_1, $ROW_2)
+	If $ROW_3 <> "" Then FileWriteLine($Results_File_1, $ROW_3)
+	If $ROW_4 <> "" Then FileWriteLine($Results_File_1, $ROW_4)
+	If $ROW_5 <> "" Then FileWriteLine($Results_File_1, $ROW_5)
+	If $ROW_6 <> "" Then FileWriteLine($Results_File_1, $ROW_6)
+	If $ROW_7 <> "" Then FileWriteLine($Results_File_1, $ROW_7)
+	If $ROW_8 <> "" Then FileWriteLine($Results_File_1, $ROW_8)
+	If $ROW_9 <> "" Then FileWriteLine($Results_File_1, $ROW_9)
+	If $ROW_10 <> "" Then FileWriteLine($Results_File_1, $ROW_10)
+	If $ROW_11 <> "" Then FileWriteLine($Results_File_1, $ROW_11)
+	If $ROW_12 <> "" Then FileWriteLine($Results_File_1, $ROW_12)
+	If $ROW_13 <> "" Then FileWriteLine($Results_File_1, $ROW_13)
+	If $ROW_14 <> "" Then FileWriteLine($Results_File_1, $ROW_14)
+	If $ROW_15 <> "" Then FileWriteLine($Results_File_1, $ROW_15)
+	If $ROW_16 <> "" Then FileWriteLine($Results_File_1, $ROW_16)
+	If $ROW_17 <> "" Then FileWriteLine($Results_File_1, $ROW_17)
+	If $ROW_18 <> "" Then FileWriteLine($Results_File_1, $ROW_18)
+	If $ROW_19 <> "" Then FileWriteLine($Results_File_1, $ROW_19)
+	If $ROW_20 <> "" Then FileWriteLine($Results_File_1, $ROW_20)
+	If $ROW_21 <> "" Then FileWriteLine($Results_File_1, $ROW_21)
+	If $ROW_22 <> "" Then FileWriteLine($Results_File_1, $ROW_22)
+	If $ROW_23 <> "" Then FileWriteLine($Results_File_1, $ROW_23)
+	If $ROW_24 <> "" Then FileWriteLine($Results_File_1, $ROW_24)
+	If $ROW_25 <> "" Then FileWriteLine($Results_File_1, $ROW_25)
+	If $ROW_26 <> "" Then FileWriteLine($Results_File_1, $ROW_26)
+	If $ROW_27 <> "" Then FileWriteLine($Results_File_1, $ROW_27)
+	If $ROW_28 <> "" Then FileWriteLine($Results_File_1, $ROW_28)
+	If $ROW_29 <> "" Then FileWriteLine($Results_File_1, $ROW_29)
+	If $ROW_30 <> "" Then FileWriteLine($Results_File_1, $ROW_30)
+	If $ROW_31 <> "" Then FileWriteLine($Results_File_1, $ROW_31)
+	If $ROW_32 <> "" Then FileWriteLine($Results_File_1, $ROW_32)
+	FileWriteLine($Results_File_1, "[-----]" & " - " & $SessionStage_Check & " - " & $Check_TrackName_Value & " - " & $NowDate & " - " & $NowTime_orig)
+
+
+	If $LOG_Event_Check_auto_MSG = "true" Then
+		$Message_1 = "Event Finished"
+		$Message_2 = "Results saved to:"
+		$Message_3 = $NowDate & "\" & $SessionStage_Check & "_" & $NowTime & ".txt"
+		$URL = "http://" & $Lesen_Auswahl_httpApiInterface & ":" & $Lesen_Auswahl_httpApiPort & "/api/session/send_chat?message=" & $Message_1
+		$download = InetGet($URL, @ScriptDir & "\Message.txt", 16, 0)
+		$URL = "http://" & $Lesen_Auswahl_httpApiInterface & ":" & $Lesen_Auswahl_httpApiPort & "/api/session/send_chat?message=" & $Message_2
+		$download = InetGet($URL, @ScriptDir & "\Message.txt", 16, 0)
+		$URL = "http://" & $Lesen_Auswahl_httpApiInterface & ":" & $Lesen_Auswahl_httpApiPort & "/api/session/send_chat?message=" & $Message_3
+		$download = InetGet($URL, @ScriptDir & "\Message.txt", 16, 0)
+	EndIf
+
+	Global $Results_copy_2_folder = IniRead($config_ini, "Einstellungen", "PCDSG_Stats_path", "")
+	Global $Results_File_1_HTM_copy_2 = $Results_copy_2_folder & "PCDSG - Results\"
+	Global $Results_NowDate_Folder = $Data_Dir & "Results\" & $NowDate
+	DirCopy($Results_NowDate_Folder & "\", $Results_File_1_HTM_copy_2 & $NowDate & "\", $FC_OVERWRITE)
 
 EndFunc
 
@@ -4064,6 +4171,322 @@ EndIf
 
 EndFunc
 
+Func _Write_Results_File_HTM_only_preparing() ; No Excel preparing
+
+	Global $Content_Sheet001_Array
+	Local $sTitle, $sArrayRange, $iFlags, $vUser_Separator, $sHeader, $iMax_ColWidth
+
+	Local $Results_File = @ScriptDir & "\Session-Dateien\sheet001.htm"
+	Local $Results_File_Content = StringReplace(FileRead($Results_File), "Session_Name_Value", "Replaced_Session_Name_Value")
+	Local $Delete_File_Content = FileOpen($Results_File, 2)
+	FileClose($Results_File)
+	FileWrite($Results_File, $Results_File_Content)
+
+	;MsgBox(0, "$Txt", $Txt)
+
+EndFunc
+
+Func _Write_Results_File_HTM_only() ; No Excel
+
+	Global $Content_Sheet001_Array
+	Local $sTitle, $sArrayRange, $iFlags, $vUser_Separator, $sHeader, $iMax_ColWidth
+
+	$ServerName = IniRead($Server_Data_INI, "DATA", "name", "")
+
+	$SessionStage_Check = IniRead($config_ini, "TEMP", "Results_saved_SessionStage", "")
+	$Check_TrackName_Value = IniRead($config_ini, "TEMP", "Results_saved_TrackName", "")
+
+	$NowDate_Value = _NowDate()
+	$NowDate = StringReplace($NowDate_Value, "/", ".")
+	$NowTime_Value = _NowTime()
+	$NowTime_orig = $NowTime_Value
+	$NowTime = StringReplace($NowTime_Value, ":", "-")
+
+	$NowTime_saved_1 = StringTrimRight($NowTime, 3)
+	$NowTime_saved_2 = StringTrimLeft($NowTime_saved_1, 3)
+	$NowTime_saved_3 = StringTrimRight($NowTime, 5)
+
+	$Results_NowDate_Folder = $Data_Dir & "Results\" & $NowDate
+	$Results_File_1_HTM = $Results_NowDate_Folder & "\" & $SessionStage_Check & "_" & $NowTime_saved_1 & ".htm" ; $NowTime
+	$Check_Results_File_1_HTM = $SessionStage_Check & "_" & $NowTime_saved_1 & ".htm" ; $NowTime
+
+	Global $SessionStage_Check = IniRead($config_ini, "TEMP", "Results_saved_SessionStage", "")
+	If $SessionStage_Check = "" Then $SessionStage_Check = IniRead($Server_Data_INI, "DATA", "SessionStage", "")
+
+	Global $Session_Duration = ""
+
+	If $SessionStage_Check = "Practice1" Then $Session_Duration = IniRead($Server_Data_INI, "DATA", "Practice1Length", "")
+	If $SessionStage_Check = "Practice2" Then $Session_Duration = IniRead($Server_Data_INI, "DATA", "Practice2Length", "")
+	If $SessionStage_Check = "Qualifying" Then $Session_Duration = IniRead($Server_Data_INI, "DATA", "QualifyLength", "")
+	If $SessionStage_Check = "Warmup" Then $Session_Duration = IniRead($Server_Data_INI, "DATA", "WarmupLength", "")
+	If $SessionStage_Check = "Race1" Then $Session_Duration = IniRead($Server_Data_INI, "DATA", "Race1Length", "")
+	If $SessionStage_Check = "Race1" Then $Session_Duration = IniRead($Server_Data_INI, "DATA", "Race2Length", "")
+
+
+	If Not FileExists($Data_Dir & "Results\" & $NowDate) Then
+		DirCreate($Data_Dir & "Results\" & $NowDate)
+	EndIf
+
+	$Results_File_Template = $System_Dir & "ServerEvents\Template.xlsm"
+	$Results_File_ServerEvents_XLS = $System_Dir & "ServerEvents\Results.xls"
+	$Results_File_ServerEvents_HTM = $System_Dir & "ServerEvents\Results.htm"
+	$Results_File_1 = $Data_Dir & "Results\" & $NowDate & "\" & $SessionStage_Check & "_" & $NowTime_saved_1 & ".xls" ; $NowTime
+	$Results_File_1_HTM = $Data_Dir & "Results\" & $NowDate & "\" & $SessionStage_Check & "_" & $NowTime_saved_1 & ".htm" ; $NowTime
+	$Results_File_Dateien_HTM = $Data_Dir & "Results\" & $NowDate & "\" & $SessionStage_Check & "_" & $NowTime_saved_1 & "-Dateien\"
+	$Results_File_Files_HTM = $Data_Dir & "Results\" & $NowDate & "\" & $SessionStage_Check & "_" & $NowTime_saved_1 & "-Files\"
+	$Results_File_Fichiers_HTM = $Data_Dir & "Results\" & $NowDate & "\" & $SessionStage_Check & "_" & $NowTime_saved_1 & "-Fichiers\"
+
+	Local $Results_File_Template_Sheet001 = @ScriptDir & "\Session1-Dateien\sheet001.htm"
+
+	Global $CurrentSessionStage = IniRead($Server_Data_INI, "DATA", "SessionStage", "")
+	If $CurrentSessionStage = "" Then $CurrentSessionStage = IniRead($config_ini, "PC_Server", "SessionStage", "")
+
+	;Kopfzeile schreiben
+	Local $Results_File_Content = StringReplace(FileRead($Results_File_Template_Sheet001), "Session_Name_Value", $ServerName)
+	$Results_File_Content = StringReplace($Results_File_Content, "Session_Stage_Value", $SessionStage_Check)
+	$Results_File_Content = StringReplace($Results_File_Content, "Session_Duration_Value", $Session_Duration)
+	$Results_File_Content = StringReplace($Results_File_Content, "Track_Value", $Check_TrackName_Value)
+	$Results_File_Content = StringReplace($Results_File_Content, "Date_Value", $NowDate)
+	$Results_File_Content = StringReplace($Results_File_Content, "Time_Value", $NowTime_orig)
+	$Results_File_Content = StringReplace($Results_File_Content, "Fastest_Lap_Value", $ServerName)
+	$Results_File_Content = StringReplace($Results_File_Content, "Server_Best_Value", $ServerName)
+	$Results_File_Content = StringReplace($Results_File_Content, "Server_Best_By_Value", $ServerName)
+	$Results_File_Content = StringReplace($Results_File_Content, "Session_Stage_Value", $ServerName)
+	$Results_File_Content = StringReplace($Results_File_Content, "Session_Stage_Value", $ServerName)
+
+	Local $Delete_File_Content = FileOpen($Results_File_Template_Sheet001, 2)
+	FileClose($Results_File_Template_Sheet001)
+	FileWrite($Results_File_Template_Sheet001, $Results_File_Content)
+
+	For $Schleife_Results_1 = 1 To 32
+
+		$Check_attribute_name_Value = IniRead($Results_INI, $Schleife_Results_1, "attribute_name", "")
+		$Check_attribute_refid_Value = IniRead($Results_INI, $Schleife_Results_1, "attribute_refid", "")
+		$Check_attribute_participantid_Value = IniRead($Results_INI, $Schleife_Results_1, "attribute_participantid", "")
+		$Check_attribute_RacePosition_Value = IniRead($Results_INI, $Schleife_Results_1, "attribute_RacePosition", "")
+		$Check_attribute_Lap_Value = IniRead($Results_INI, $Schleife_Results_1, "attribute_Lap", "")
+		$Check_attribute_VehicleId_Value = IniRead($Results_INI, $Schleife_Results_1, "attribute_VehicleId", "")
+		$Check_attribute_State_Value = IniRead($Results_INI, $Schleife_Results_1, "attribute_State", "")
+		$Check_attribute_TotalTime_Value = IniRead($Results_INI, $Schleife_Results_1, "attribute_TotalTime", "")
+		$Check_attribute_FastestLapTime_Value = IniRead($Results_INI, $Schleife_Results_1, "attribute_FastestLapTime", "")
+
+
+		$Check_refid_Value = $Check_attribute_refid_Value ; refid
+
+		$Check_Name_Value = $Check_attribute_name_Value ; Name
+			If $Check_Name_Value = "" Then $Check_Name_Value = IniRead($Members_Data_INI, $Check_refid_Value, "name", "")
+
+
+			$Check_Name_Value_bea = $Check_Name_Value
+
+			If $Check_Name_Value_bea <> "" Then
+				$Check_Name_Value_bea = StringReplace($Check_Name_Value_bea, "[", "<")
+				$Check_Name_Value_bea = StringReplace($Check_Name_Value_bea, "]", ">")
+			EndIf
+
+			If $Check_Name_Value_bea = "" Then $Check_Name_Value_bea = $Check_Name_Value
+
+
+		If $Check_Name_Value_bea <> "" Then
+
+			$Check_GridPosition_Value = IniRead($Participants_Data_INI_TEMP, $Schleife_Results_1, "GridPosition", "-") ; GridPosition
+			$Check_VehicleId_Value = $Check_attribute_VehicleId_Value ; VehicleId
+				IniWrite($config_ini, "TEMP", "Check_Carid", $Check_VehicleId_Value)
+				_CAR_NAME_from_ID()
+				$Check_VehicleIName_Value = IniRead($config_ini, "TEMP", "Check_CarName", "")
+			$Check_RacePosition_Value = $Check_attribute_RacePosition_Value
+			$Check_RacePosition_Value_bea = $Check_attribute_RacePosition_Value
+			$Check_CurrentLap_Value = $Check_attribute_Lap_Value
+			$Check_FastestLapTime_Value = $Check_attribute_FastestLapTime_Value
+			$Check_State_Value = $Check_attribute_State_Value
+			$Check_TotalTime_Value = $Check_attribute_TotalTime_Value
+			If $Check_TotalTime_Value = "" Then $Check_TotalTime_Value = $Check_CurrentLap_Value & " Laps"
+
+			$Check_PitStops_Value = IniRead($PitStops_INI, $Check_Name_Value_bea, "PitStops", "") ; PitStops
+			$Check_PenaltyPoints_Value = IniRead($Points_ini, $Check_Name_Value_bea, "PenaltyPoints", "") ; PenaltyPoints
+			$Check_ExperiencePoints_Value = IniRead($Stats_INI, $Check_Name_Value_bea, "ExperiencePoints", "") ; ExperiencePoints
+			$Check_DistanceTravelled_Value = IniRead($Stats_INI, $Check_Name_Value_bea, "DistanceTravelled", "") ; DistanceTravelled
+			$Check_SafetyGroup_Value = IniRead($Stats_INI, $Check_Name_Value_bea, "SafetyGroup", "") ; SafetyGroup
+
+
+			;Werte
+			Local $Results_File_Content = StringReplace(FileRead($Results_File_Template_Sheet001), "RacePosition_" & $Schleife_Results_1, $Check_RacePosition_Value)
+			$Results_File_Content = StringReplace($Results_File_Content, "Name_" & $Schleife_Results_1, $Check_Name_Value)
+			$Results_File_Content = StringReplace($Results_File_Content, "TotalTime_" & $Schleife_Results_1, $Check_TotalTime_Value)
+			$Results_File_Content = StringReplace($Results_File_Content, "FastestLapTime_" & $Schleife_Results_1, $Check_FastestLapTime_Value)
+			$Results_File_Content = StringReplace($Results_File_Content, "State_" & $Schleife_Results_1, $Check_State_Value)
+			$Results_File_Content = StringReplace($Results_File_Content, "PitStops_" & $Schleife_Results_1, $Check_PitStops_Value)
+			$Results_File_Content = StringReplace($Results_File_Content, "PenaltyPoints_" & $Schleife_Results_1, $Check_PenaltyPoints_Value)
+			$Results_File_Content = StringReplace($Results_File_Content, "ExperiencePoints_" & $Schleife_Results_1, $Check_ExperiencePoints_Value)
+			$Results_File_Content = StringReplace($Results_File_Content, "DistanceTravelled_" & $Schleife_Results_1, $Check_DistanceTravelled_Value)
+			$Results_File_Content = StringReplace($Results_File_Content, "SafetyGroup_" & $Schleife_Results_1, $Check_SafetyGroup_Value)
+			$Results_File_Content = StringReplace($Results_File_Content, "Vehicle_" & $Schleife_Results_1, $Check_VehicleIName_Value)
+
+			Local $Delete_File_Content = FileOpen($Results_File_Template_Sheet001, 2)
+			FileClose($Results_File_Template_Sheet001)
+			FileWrite($Results_File_Template_Sheet001, $Results_File_Content)
+
+		Else
+			$Schleife_Results_1 = 32
+		EndIf
+
+	Next
+
+
+	For $Schleife_Results_1_1 = 1 To 32
+		;Leeren
+		Local $Results_File_Content = StringReplace(FileRead($Results_File_Template_Sheet001), "RacePosition_" & $Schleife_Results_1_1, "")
+		$Results_File_Content = StringReplace($Results_File_Content, "Name_" & $Schleife_Results_1_1, "")
+		$Results_File_Content = StringReplace($Results_File_Content, "TotalTime_" & $Schleife_Results_1_1, "")
+		$Results_File_Content = StringReplace($Results_File_Content, "FastestLapTime_" & $Schleife_Results_1_1, "")
+		$Results_File_Content = StringReplace($Results_File_Content, "State_" & $Schleife_Results_1_1, "")
+		$Results_File_Content = StringReplace($Results_File_Content, "PitStops_" & $Schleife_Results_1_1, "")
+		$Results_File_Content = StringReplace($Results_File_Content, "PenaltyPoints_" & $Schleife_Results_1_1, "")
+		$Results_File_Content = StringReplace($Results_File_Content, "ExperiencePoints_" & $Schleife_Results_1_1, "")
+		$Results_File_Content = StringReplace($Results_File_Content, "DistanceTravelled_" & $Schleife_Results_1_1, "")
+		$Results_File_Content = StringReplace($Results_File_Content, "SafetyGroup_" & $Schleife_Results_1_1, "")
+		$Results_File_Content = StringReplace($Results_File_Content, "Vehicle_" & $Schleife_Results_1_1, "")
+
+		Local $Delete_File_Content = FileOpen($Results_File_Template_Sheet001, 2)
+		FileClose($Results_File_Template_Sheet001)
+		FileWrite($Results_File_Template_Sheet001, $Results_File_Content)
+	Next
+
+
+
+;;;;;;;;;;;;;
+;;;;;;;;;;;;;
+;;;;;;;;;;;;;;
+
+
+	#Region Save HTML
+	$Status_Checkbox_Results_File_Format_HTM = IniRead($config_ini, "PC_Server", "Checkbox_Results_FileFormat_HTM", "")
+
+	Global $Results_copy_2_folder = IniRead($config_ini, "Einstellungen", "PCDSG_Stats_path", "")
+	Global $Results_File_1_HTM_copy_2 = $Results_copy_2_folder & "PCDSG - Results\"
+
+	If $Status_Checkbox_Results_File_Format_HTM = "true" Then
+		If $LOG_Event_Check_auto_MSG = "true" Then
+			$Message_1 = "Event Finished"
+			$Message_2 = "Results saved to:"
+			$Message_3 = $NowDate & "\" & $SessionStage_Check & "_" & $NowTime & ".htm"
+			$URL = "http://" & $Lesen_Auswahl_httpApiInterface & ":" & $Lesen_Auswahl_httpApiPort & "/api/session/send_chat?message=" & $Message_1
+			$download = InetGet($URL, @ScriptDir & "\Message.txt", 16, 0)
+			$URL = "http://" & $Lesen_Auswahl_httpApiInterface & ":" & $Lesen_Auswahl_httpApiPort & "/api/session/send_chat?message=" & $Message_2
+			$download = InetGet($URL, @ScriptDir & "\Message.txt", 16, 0)
+			$URL = "http://" & $Lesen_Auswahl_httpApiInterface & ":" & $Lesen_Auswahl_httpApiPort & "/api/session/send_chat?message=" & $Message_3
+			$download = InetGet($URL, @ScriptDir & "\Message.txt", 16, 0)
+		EndIf
+
+		$NowTime_saved = StringTrimRight( $NowTime, 3)
+		FileWriteLine($PCDSG_LOG_ini, "Results_saved_XLS_HTM" & "=" & $SessionStage_Check & "_" & $NowTime_saved_1 & ".htm") ; LOG
+
+		Local $TemplatePath_Results_File = $install_dir & "Templates\HTM\Session1.htm"
+		Local $TemplatePath_Results_Folder = $install_dir & "Templates\HTM\Session1-Dateien\"
+
+		$date = @MON & "/" & @MDAY & "/" & @YEAR
+		Local $ResultsPath_1 = $install_dir & "data\Results\" & @YEAR & "-" & @MON & "-" & @MDAY & "\" & $SessionStage_Check & "_" & $NowTime_saved_1 & ".htm"
+		Local $ResultsPath_2 = $Results_File_1_HTM_copy_2 & @YEAR & "-" & @MON & "-" & @MDAY & "\" & $SessionStage_Check & "_" & $NowTime_saved_1 & ".htm"
+
+		MsgBox(0, "$ResultsPath_1", $ResultsPath_1)
+		MsgBox(0, "$ResultsPath_2", $ResultsPath_2)
+		MsgBox(0, "DirCopy", $TemplatePath_Results_Folder & @CRLF & @CRLF & $Results_File_1_HTM_copy_2 & $SessionStage_Check & "_" & $NowTime_saved_1)
+
+		FileCopy($TemplatePath_Results_File, $ResultsPath_1, $FC_OVERWRITE + $FC_CREATEPATH)
+		FileCopy($TemplatePath_Results_File, $ResultsPath_2, $FC_OVERWRITE + $FC_CREATEPATH)
+		DirCopy($TemplatePath_Results_Folder, $install_dir & "data\Results\"  & @YEAR & "-" & @MON & "-" & @MDAY & "\" & $SessionStage_Check & "_" & $NowTime_saved_1 & "-Dateien", $FC_OVERWRITE)
+		DirCopy($TemplatePath_Results_Folder, $Results_File_1_HTM_copy_2  & @YEAR & "-" & @MON & "-" & @MDAY & "\" & $SessionStage_Check & "_" & $NowTime_saved_1 & "-Dateien", $FC_OVERWRITE)
+	EndIf
+
+	$Status_Checkbox_ProcessClose = IniRead($config_ini,"Einstellungen", "Force_Excel_ProcessClose", "")
+
+#EndRegion Save XLS/HTML
+
+EndFunc
+
+
+
+Func _Write_Race_Result_Points_File_INI()
+	Local $RRP_Race_NR = IniRead($config_ini, "Race_Result_Points", "RRP_Race_NR", "")
+	Local $RRP_Season_NR = IniRead($config_ini, "Race_Result_Points", "RRP_Season_NR", "")
+	$Check_TrackName_Value = IniRead($config_ini, "TEMP", "Results_saved_TrackName", "")
+
+	$NowDate_Value = _NowDate()
+	$NowDate = StringReplace($NowDate_Value, "/", ".")
+	$NowTime_Value = _NowTime()
+	$NowTime_orig = $NowTime_Value
+	$NowTime = StringReplace($NowTime_Value, ":", "-")
+
+	$NowTime_saved_1 = StringTrimRight($NowTime, 3)
+	$NowTime_saved_2 = StringTrimLeft($NowTime_saved_1, 3)
+	$NowTime_saved_3 = StringTrimRight($NowTime, 5)
+
+	$SessionStage_Check = IniRead($config_ini, "TEMP", "Results_saved_SessionStage", "")
+	If $SessionStage_Check = "" Then $SessionStage_Check = IniRead($Server_Data_INI, "DATA", "SessionStage", "")
+
+	Local $RRP_PointsTable = $System_Dir & "RaceControl\RaceResultsPoints\" & "PointsTable.ini"
+	;$Results_File_1 = $Data_Dir & "Results\" & $NowDate & "\" & $SessionStage_Check & "_" & $NowTime & ".ini"
+	$Results_File_1 = $System_Dir & "RaceControl\RaceResultsPoints\" & "DriverStats.ini"
+
+	For $Schleife_Results_1 = 1 To 32
+
+		$Check_refid_Value = IniRead($Participants_Data_INI, $Schleife_Results_1, "refid", "") ; refid
+		$Check_Name_Value = IniRead($Participants_Data_INI, $Schleife_Results_1, "name", "") ; Name
+			If $Check_Name_Value = "" Then
+				$Check_Name_Value = IniRead($Members_Data_INI, $Check_refid_Value, "name", "")
+			EndIf
+
+			$Check_Name_Value_bea = $Check_Name_Value
+
+			If $Check_Name_Value_bea <> "" Then
+				$Check_Name_Value_bea = StringReplace($Check_Name_Value_bea, "[", "<")
+				$Check_Name_Value_bea = StringReplace($Check_Name_Value_bea, "]", ">")
+			EndIf
+
+			If $Check_Name_Value_bea = "" Then $Check_Name_Value_bea = $Check_Name_Value
+
+		If $Check_Name_Value <> "" Then
+			Local $Check_RacePosition_Value = IniRead($Participants_Data_INI, $Schleife_Results_1, "RacePosition", "")
+			Local $RRP_NR_Races_Value = IniRead($Results_File_1, $Check_Name_Value_bea, "NR_Races", "")
+			Local $RRP_RacePosition_Value = IniRead($Results_File_1, "RacePosition", "RacePosition", "")
+			Local $Points_for_Current_Result = IniRead($RRP_PointsTable, "PointsTable", "POS_" & $Check_RacePosition_Value, "")
+			Local $Old_Points = IniRead($Results_File_1, $Check_Name_Value_bea, "RR_Points", "")
+			Local $New_Points = $Points_for_Current_Result + $Old_Points
+
+			IniWrite($Results_File_1, $Schleife_Results_1, "Name", $Check_Name_Value_bea)
+			IniWrite($Results_File_1, $Schleife_Results_1, "Ranking", "")
+			IniWrite($Results_File_1, $Schleife_Results_1, "RR_Points", $New_Points)
+			IniWrite($Results_File_1, $Schleife_Results_1, "NR_Races", $RRP_NR_Races_Value + 1)
+			IniWrite($Results_File_1, $Schleife_Results_1, "RacePosition", $RRP_RacePosition_Value & "|" & $Check_RacePosition_Value)
+
+			IniWrite($Results_File_1, $Check_Name_Value_bea, "Name", $Check_Name_Value_bea)
+			IniWrite($Results_File_1, $Check_Name_Value_bea, "Ranking", "")
+			IniWrite($Results_File_1, $Check_Name_Value_bea, "RR_Points", $New_Points)
+			IniWrite($Results_File_1, $Check_Name_Value_bea, "NR_Races", $RRP_NR_Races_Value + 1)
+			IniWrite($Results_File_1, $Check_Name_Value_bea, "RacePosition", $RRP_RacePosition_Value & "|" & $Check_RacePosition_Value)
+
+			FileWriteLine($Results_File_1, "" & @CRLF)
+		Else
+			$Schleife_Results_1 = 32
+			ExitLoop
+		EndIf
+	Next
+
+	If $LOG_Event_Check_auto_MSG = "true" Then
+		$Message_1 = "Event Finished"
+		$Message_2 = "Race Result Points saved to:"
+		$Message_3 = $NowDate & "\" & $SessionStage_Check & "_" & $NowTime & ".ini"
+		$URL = "http://" & $Lesen_Auswahl_httpApiInterface & ":" & $Lesen_Auswahl_httpApiPort & "/api/session/send_chat?message=" & $Message_1
+		$download = InetGet($URL, @ScriptDir & "\Message.txt", 16, 0)
+		$URL = "http://" & $Lesen_Auswahl_httpApiInterface & ":" & $Lesen_Auswahl_httpApiPort & "/api/session/send_chat?message=" & $Message_2
+		$download = InetGet($URL, @ScriptDir & "\Message.txt", 16, 0)
+		$URL = "http://" & $Lesen_Auswahl_httpApiInterface & ":" & $Lesen_Auswahl_httpApiPort & "/api/session/send_chat?message=" & $Message_3
+		$download = InetGet($URL, @ScriptDir & "\Message.txt", 16, 0)
+	EndIf
+EndFunc
+
+
+
 Func _SyncFiles_Start()
 If FileExists($System_Dir & "SyncFiles.exe") Then
 	ShellExecute($System_Dir & "SyncFiles.exe")
@@ -4404,31 +4827,31 @@ FileDelete($Participants_Data_INI_CR_2)
 EndFunc
 
 Func _Excel_Exists_Check()
+	$Check_Excel_Version = IniRead($config_ini, "Einstellungen", "Excel_version", "")
 
-$Check_Excel_Version = IniRead($config_ini, "Einstellungen", "Excel_version", "")
+	If $Check_Excel_Version = "" Then
+		$Exce_2003_Exist = RegRead('HKEY_CURRENT_USER\Software\Microsoft\Office\11.0\Excel\', "ExcelName")
+		$Exce_2007_Exist = RegRead('HKEY_CURRENT_USER\Software\Microsoft\Office\12.0\Excel\', "ExcelName")
+		$Exce_2010_Exist = RegRead('HKEY_CURRENT_USER\Software\Microsoft\Office\14.0\Excel\', "ExcelName")
+		$Exce_2013_Exist = RegRead('HKEY_CURRENT_USER\Software\Microsoft\Office\15.0\Excel\', "ExcelName")
+		$Exce_2016_Exist = RegRead('HKEY_CURRENT_USER\Software\Microsoft\Office\16.0\Excel\', "ExcelName")
 
-If $Check_Excel_Version = "" Then
-	$Exce_2003_Exist = RegRead('HKEY_CURRENT_USER\Software\Microsoft\Office\11.0\Excel\', "ExcelName")
-	$Exce_2007_Exist = RegRead('HKEY_CURRENT_USER\Software\Microsoft\Office\12.0\Excel\', "ExcelName")
-	$Exce_2010_Exist = RegRead('HKEY_CURRENT_USER\Software\Microsoft\Office\14.0\Excel\', "ExcelName")
-	$Exce_2013_Exist = RegRead('HKEY_CURRENT_USER\Software\Microsoft\Office\15.0\Excel\', "ExcelName")
-	$Exce_2016_Exist = RegRead('HKEY_CURRENT_USER\Software\Microsoft\Office\16.0\Excel\', "ExcelName")
+		$Installierte_Excel_Version = ""
 
-	$Installierte_Excel_Version = ""
+		If $Exce_2003_Exist <> "" Then $Installierte_Excel_Version = "Excel 2003"
+		If $Exce_2007_Exist <> "" Then $Installierte_Excel_Version = "Excel 2007"
+		If $Exce_2010_Exist <> "" Then $Installierte_Excel_Version = "Excel 2010"
+		If $Exce_2013_Exist <> "" Then $Installierte_Excel_Version = "Excel 2013"
+		If $Exce_2016_Exist <> "" Then $Installierte_Excel_Version = "Excel 2016"
 
-	If $Exce_2003_Exist <> "" Then $Installierte_Excel_Version = "Excel 2003"
-	If $Exce_2007_Exist <> "" Then $Installierte_Excel_Version = "Excel 2007"
-	If $Exce_2010_Exist <> "" Then $Installierte_Excel_Version = "Excel 2010"
-	If $Exce_2013_Exist <> "" Then $Installierte_Excel_Version = "Excel 2013"
-	If $Exce_2016_Exist <> "" Then $Installierte_Excel_Version = "Excel 2016"
+		If $Installierte_Excel_Version = "" Then MsgBox(4144, "", "Could not found MS Excel Installation." & @CRLF & @CRLF & _
+																	"MS Excel needs to be installed to be able to use XLS or HTML File creation function." & @CRLF & @CRLF & _
+																	"Use TXT or INI File instead of XLS and HTML if you don't have MS Excel.")
 
-	If $Installierte_Excel_Version = "" Then MsgBox(4144, "", "Could not found MS Excel Installation." & @CRLF & @CRLF & _
-																"MS Excel needs to be installed to be able to use XLS or HTML File creation function." & @CRLF & @CRLF & _
-																"Use TXT or INI File instead of XLS and HTML if you don't have MS Excel.")
-
-	IniWrite($config_ini, "Einstellungen", "Excel_version", $Installierte_Excel_Version)
-	;Exit
-EndIf
+		IniWrite($config_ini, "Einstellungen", "Excel_version", $Installierte_Excel_Version)
+		IniWrite($config_ini, "Einstellungen", "Excel_version", "")
+		;Exit
+	EndIf
 EndFunc
 
 Func _Lap_Time_convert()
@@ -4456,5 +4879,614 @@ Func _Lap_Time_convert()
 	IniWrite($config_ini, "TEMP", "Seconds_to_Time", $Value_LapByLap_Time)
 EndFunc
 
+
+Func _config_cfg_erstellen_0()
+	$Dedi_config_whiteList_cfg = $Dedi_Verzeichnis & "\whiteList.cfg"
+	$Dedi_config_blackList_cfg = $Dedi_Verzeichnis & "\blackList.cfg"
+
+	Local $Auswahl_Sprachdatei, $Auswaehlen_eventsLogSize, $Eingabe_name, $Auswahl_secure, $Eingabe_password, $Auswaehlen_maxPlayerCount, $Eingabe_bindIP
+	Local $Auswaehlen_steamPort, $Auswaehlen_hostPort, $Auswaehlen_queryPort, $Auswahl_enableHttpApi, $Auswahl_httpApiLogLevel, $Eingabe_httpApiInterface
+	Local $Auswaehlen_httpApiPort, $Auswahl_Whitelist, $Auswahl_Blacklist, $Auswahl_allowEmptyJoin, $Auswahl_ServerControlsTrack, $Auswahl_ServerControlsVehicleClass
+	Local $Lesen_Auswahl_sleepWaiting, $Lesen_Auswahl_sleepActive
+
+	$Lesen_Auswahl_loglevel = IniRead($config_ini, "Server_Einstellungen", "loglevel", "")
+	$Lesen_Auswahl_eventsLogSize = IniRead($config_ini, "Server_Einstellungen", "eventsLogSize", "")
+	$Lesen_Auswahl_name = IniRead($config_ini, "Server_Einstellungen", "name", "")
+	$Lesen_Auswahl_secure = IniRead($config_ini, "Server_Einstellungen", "secure", "")
+	$Lesen_Auswahl_password = IniRead($config_ini, "Server_Einstellungen", "password", "")
+	$Lesen_Auswahl_maxPlayerCount = IniRead($config_ini, "Server_Einstellungen", "maxPlayerCount", "")
+	$Lesen_Auswahl_bindIP = IniRead($config_ini, "Server_Einstellungen", "bindIP", "")
+	$Lesen_Auswahl_steamPort = IniRead($config_ini, "Server_Einstellungen", "steamPort", "8766")
+	$Lesen_Auswahl_hostPort = IniRead($config_ini, "Server_Einstellungen", "hostPort", "27015")
+	$Lesen_Auswahl_queryPort = IniRead($config_ini, "Server_Einstellungen", "queryPort", "27016")
+	$Lesen_Auswahl_enableHttpApi = IniRead($config_ini, "Server_Einstellungen", "enableHttpApi", "")
+	$Lesen_Auswahl_httpApiLogLevel = IniRead($config_ini, "Server_Einstellungen", "httpApiLogLevel", "")
+	$Lesen_Auswahl_httpApiInterface = IniRead($config_ini, "Server_Einstellungen", "httpApiInterface", "")
+	$Lesen_Auswahl_httpApiPort = IniRead($config_ini, "Server_Einstellungen", "httpApiPort", "")
+	$Lesen_Auswahl_whitelist = IniRead($config_ini, "Server_Einstellungen", "Whitelist", "")
+	$Lesen_Auswahl_blacklist = IniRead($config_ini, "Server_Einstellungen", "Blacklist", "")
+
+	$Lesen_Auswahl_allowEmptyJoin = IniRead($config_ini, "Server_Einstellungen", "allowEmptyJoin", "")
+	$Lesen_Auswahl_controlGameSetup = "false"
+
+	$Lesen_Auswahl_ServerControlsTrack = IniRead($config_ini, "Server_Einstellungen", "ServerControlsTrack", "0")
+		If $Lesen_Auswahl_ServerControlsTrack = "true" Then $Lesen_Auswahl_ServerControlsTrack = "1"
+		If $Lesen_Auswahl_ServerControlsTrack <> "true" Then $Lesen_Auswahl_ServerControlsTrack = "0"
+	$Lesen_Auswahl_ServerControlsVehicleClass = IniRead($config_ini, "Server_Einstellungen", "ServerControlsVehicleClass", "0")
+		If $Lesen_Auswahl_ServerControlsVehicleClass = "true" Then $Lesen_Auswahl_ServerControlsVehicleClass = "1"
+		If $Lesen_Auswahl_ServerControlsVehicleClass <> "true" Then $Lesen_Auswahl_ServerControlsVehicleClass = "0"
+
+	Global $FirstLine_Check
+
+	Global $Write_FirstLine = "false"
+
+	If FileExists($Dedi_config_cfg) Then
+		$Server_CFG_Array = FileReadToArray($Dedi_config_cfg)
+		$NR_Lines_config_cfg = _FileCountLines($Dedi_config_cfg) - 1
+		$FirstLine_Check = FileReadLine($Dedi_config_cfg, 1)
+		If $FirstLine_Check = "eventsLogSize : 10000" Then $Write_FirstLine = "true"
+	EndIf
+
+	If FileExists($Dedi_config_cfg) Then
+		$EmptyFile = FileOpen($Dedi_config_cfg, 2)
+		FileWrite($EmptyFile, "")
+		FileClose($EmptyFile)
+	EndIf
+
+	If $Write_FirstLine = "true" Then
+		FileWriteLine($Dedi_config_cfg, "// : You can use dummy entries like this to write comments into the config. " & '"rem"' & ' and ' & '"#"' & " are also supported as comment entries.")
+		FileWriteLine($Dedi_config_cfg, "// But in recent version of the server, standard C++ like one-liner comments are supported as well.")
+		FileWriteLine($Dedi_config_cfg, " ")
+		FileWriteLine($Dedi_config_cfg, "//////////////////////////")
+		FileWriteLine($Dedi_config_cfg, "// Basic server options //")
+		FileWriteLine($Dedi_config_cfg, "//////////////////////////")
+		FileWriteLine($Dedi_config_cfg, " ")
+		FileWriteLine($Dedi_config_cfg, "// Logging level of the server. Messages of this severity and more important will be logged. Can be any of debug/info/warning/error.")
+		FileWriteLine($Dedi_config_cfg, 'logLevel : "info"')
+		FileWriteLine($Dedi_config_cfg, " ")
+		FileWriteLine($Dedi_config_cfg, "// Number of gameplay events stored on the server. Oldest ones will be discarded once the game logs more.")
+	EndIf
+
+	$Status_Checkbox_PCDSG_settings_8 = IniRead($config_ini,"PC_Server", "Checkbox_PCDSG_settings_8", "")
+	$Status_Checkbox_PCDSG_settings_9 = IniRead($config_ini,"PC_Server", "Checkbox_PCDSG_settings_9", "")
+
+	Local $PCDSG_IP = @IPAddress1
+
+	If $Status_Checkbox_PCDSG_settings_8 = "true" Then
+		$PCDSG_IP = @IPAddress1
+		If $PCDSG_IP = "0.0.0.0" Then $PCDSG_IP = @IPAddress2
+		If $PCDSG_IP = "0.0.0.0" Then $PCDSG_IP = @IPAddress3
+		If $PCDSG_IP = "0.0.0.0" Then $PCDSG_IP = @IPAddress4
+
+		If $PCDSG_Network_Card_IP <> "" Then
+			If $PCDSG_Network_Card_IP = "1" Then $PCDSG_IP = @IPAddress1
+			If $PCDSG_Network_Card_IP = "2" Then $PCDSG_IP = @IPAddress2
+			If $PCDSG_Network_Card_IP = "3" Then $PCDSG_IP = @IPAddress3
+			If $PCDSG_Network_Card_IP = "4" Then $PCDSG_IP = @IPAddress4
+			If $PCDSG_Network_Card_IP = "" Then $PCDSG_IP = @IPAddress1
+		EndIf
+	EndIf
+
+	If $Status_Checkbox_PCDSG_settings_9 = "true" Then
+			$PCDSG_IP = _GetIP()
+	EndIf
+
+	For $Schleife_2 = 0 To $NR_Lines_config_cfg ; 55
+		If $Server_CFG_Array[$Schleife_2] <> 'blackList : [ "blackList.cfg" ]' Then
+			If $Server_CFG_Array[$Schleife_2] <> 'whiteList : [ "whitelist.cfg" ]' Then
+				$Wert_Line = $Server_CFG_Array[$Schleife_2]
+				$Check_Line = StringSplit($Wert_Line, ':', $Server_CFG_Array[$Schleife_2])
+				If IsArray($Check_Line) Then $Check_Line_1 = $Check_Line[1]
+
+				If $Check_Line_1 = 'logLevel ' Then $Wert_Line = 'logLevel : ' & '"' & $Lesen_Auswahl_loglevel & '"'
+				If $Check_Line_1 = 'eventsLogSize ' Then $Wert_Line = 'eventsLogSize : ' & $Lesen_Auswahl_eventsLogSize
+				If $Check_Line_1 = 'name ' Then $Wert_Line = 'name : ' & '"' & $Lesen_Auswahl_name & '"'
+				If $Check_Line_1 = 'secure ' Then $Wert_Line = 'secure : ' & $Lesen_Auswahl_secure
+				If $Check_Line_1 = 'password ' Then $Wert_Line = 'password : ' & '"' & $Lesen_Auswahl_password & '"'
+				If $Check_Line_1 = 'maxPlayerCount ' Then $Wert_Line = 'maxPlayerCount : ' & $Lesen_Auswahl_maxPlayerCount
+				If $Check_Line_1 = 'bindIP ' Then $Wert_Line = 'bindIP : ' & '"' & $Lesen_Auswahl_bindIP & '"'
+				If $Check_Line_1 = 'steamPort ' Then $Wert_Line = 'steamPort : ' & $Lesen_Auswahl_steamPort
+				If $Check_Line_1 = 'hostPort ' Then $Wert_Line = 'hostPort : ' & $Lesen_Auswahl_hostPort
+				If $Check_Line_1 = 'queryPort ' Then $Wert_Line = 'queryPort : ' & $Lesen_Auswahl_queryPort
+				If $Check_Line_1 = 'sleepWaiting ' Then $Wert_Line = 'sleepWaiting : ' & $Lesen_Auswahl_sleepWaiting
+				If $Check_Line_1 = 'sleepWaiting ' Then $Wert_Line = 'sleepWaiting : ' & $Lesen_Auswahl_sleepWaiting
+				If $Check_Line_1 = 'sleepActive ' Then $Wert_Line = 'sleepActive : ' & $Lesen_Auswahl_sleepActive
+				If $Check_Line_1 = 'enableHttpApi ' Then $Wert_Line = 'enableHttpApi : ' & $Lesen_Auswahl_enableHttpApi
+				If $Check_Line_1 = 'httpApiLogLevel ' Then $Wert_Line = 'httpApiLogLevel : ' & '"' & $Lesen_Auswahl_httpApiLogLevel & '"'
+				If $Check_Line_1 = 'httpApiInterface ' Then $Wert_Line = 'httpApiInterface : ' & '"' & $Lesen_Auswahl_httpApiInterface & '"'
+				If $Check_Line_1 = 'httpApiPort ' Then $Wert_Line = 'httpApiPort : ' & $Lesen_Auswahl_httpApiPort
+				If $Check_Line_1 = 'allowEmptyJoin ' Then $Wert_Line = 'allowEmptyJoin : ' & $Lesen_Auswahl_allowEmptyJoin
+				If $Check_Line_1 = 'controlGameSetup ' Then $Wert_Line = 'controlGameSetup : ' & $Lesen_Auswahl_controlGameSetup
+
+				If $Check_Line_1 = '    "ServerControlsTrack" ' Then $Wert_Line = '    "ServerControlsTrack" : ' & $Lesen_Auswahl_ServerControlsTrack & ','
+				If $Check_Line_1 = '    "ServerControlsVehicleClass" ' Then $Wert_Line = '    "ServerControlsVehicleClass" : ' & $Lesen_Auswahl_ServerControlsVehicleClass & ','
+
+				If $Check_Line_1 = '        { "type" ' Then
+					If $Check_Line[2] = ' "ip-accept", "ip" ' Then $Wert_Line = $Check_Line[1] & ':' & ' "ip-accept", "ip" : "' & $PCDSG_IP & '/32" ' & '}' & ','
+				EndIf
+
+				If $Schleife_2 <> $NR_Lines_config_cfg - 1 Then
+					FileWriteLine($Dedi_config_cfg, $Wert_Line)
+				EndIf
+			EndIf
+		EndIf
+	Next
+
+	FileWriteLine($Dedi_config_cfg, "")
+
+	If $Lesen_Auswahl_whitelist = "true" Then FileWriteLine($Dedi_config_cfg, 'whiteList : [ "whiteList.cfg" ]')
+	If $Lesen_Auswahl_blacklist = "true" Then FileWriteLine($Dedi_config_cfg, 'blackList : [ "blackList.cfg" ]')
+
+	$Dedi_config_whiteList_cfg = @ScriptDir & "\whiteList.cfg"
+	$Dedi_config_blackList_cfg = @ScriptDir & "\blackList.cfg"
+
+	;FileCopy($Dedi_Installations_Verzeichnis & "server.cfg", $install_dir & "server.cfg", $FC_OVERWRITE)
+	FileCopy($Dedi_config_whiteList_cfg, $Dedi_Verzeichnis & "whiteList.cfg", $FC_OVERWRITE)
+	FileCopy($Dedi_config_blackList_cfg, $Dedi_Verzeichnis & "blackList.cfg", $FC_OVERWRITE)
+
+	FileWriteLine($PCDSG_LOG_ini, "Server_cfg_created_" & $NowTime & "=" & "New Server.cfg File created and saved to: " & $Dedi_Installations_Verzeichnis & "server.cfg" & " | " & "Date - Time: " & $NowDate & " - " & $NowTime)
+	FileWriteLine($PCDSG_LOG_ini, "Server_cfg_copied_" & $NowTime & "=" & "Server.cfg File copied to: " & $install_dir & "server.cfg" & " | " & "Date - Time: " & $NowDate & " - " & $NowTime)
+	FileWriteLine($PCDSG_LOG_ini, "whiteList_copied_" & $NowTime & "=" & "WhiteList File copied to: " & $Dedi_Verzeichnis & "whiteList.cfg" & " | " & "Date - Time: " & $NowDate & " - " & $NowTime)
+	FileWriteLine($PCDSG_LOG_ini, "BlackList_cfg_copied_" & $NowTime & "=" & "BlackList File copied to: " & $Dedi_Verzeichnis & "blackList.cfg" & " | " & "Date - Time: " & $NowDate & " - " & $NowTime)
+EndFunc
+
+Func _config_cfg_erstellen_1()
+	$Dedi_config_whiteList_cfg = $Dedi_Verzeichnis & "\whiteList.cfg"
+	$Dedi_config_blackList_cfg = $Dedi_Verzeichnis & "\blackList.cfg"
+
+	Local $Auswahl_Sprachdatei, $Auswaehlen_eventsLogSize, $Eingabe_name, $Auswahl_secure, $Eingabe_password, $Auswaehlen_maxPlayerCount, $Eingabe_bindIP
+	Local $Auswaehlen_steamPort, $Auswaehlen_hostPort, $Auswaehlen_queryPort, $Auswahl_enableHttpApi, $Auswahl_httpApiLogLevel, $Eingabe_httpApiInterface
+	Local $Auswaehlen_httpApiPort, $Auswahl_Whitelist, $Auswahl_Blacklist, $Auswahl_allowEmptyJoin, $Auswahl_ServerControlsTrack, $Auswahl_ServerControlsVehicleClass
+	Local $Lesen_Auswahl_sleepWaiting, $Lesen_Auswahl_sleepActive
+
+	$Lesen_Auswahl_loglevel = IniRead($config_ini, "Server_Einstellungen", "loglevel", "")
+	$Lesen_Auswahl_eventsLogSize = IniRead($config_ini, "Server_Einstellungen", "eventsLogSize", "")
+	$Lesen_Auswahl_name = IniRead($config_ini, "Server_Einstellungen", "name", "")
+	$Lesen_Auswahl_secure = IniRead($config_ini, "Server_Einstellungen", "secure", "")
+	$Lesen_Auswahl_password = IniRead($config_ini, "Server_Einstellungen", "password", "")
+	$Lesen_Auswahl_maxPlayerCount = IniRead($config_ini, "Server_Einstellungen", "maxPlayerCount", "")
+	$Lesen_Auswahl_bindIP = IniRead($config_ini, "Server_Einstellungen", "bindIP", "")
+	$Lesen_Auswahl_steamPort = IniRead($config_ini, "Server_Einstellungen", "steamPort", "8766")
+	$Lesen_Auswahl_hostPort = IniRead($config_ini, "Server_Einstellungen", "hostPort", "27015")
+	$Lesen_Auswahl_queryPort = IniRead($config_ini, "Server_Einstellungen", "queryPort", "27016")
+	$Lesen_Auswahl_enableHttpApi = IniRead($config_ini, "Server_Einstellungen", "enableHttpApi", "")
+	$Lesen_Auswahl_httpApiLogLevel = IniRead($config_ini, "Server_Einstellungen", "httpApiLogLevel", "")
+	$Lesen_Auswahl_httpApiInterface = IniRead($config_ini, "Server_Einstellungen", "httpApiInterface", "")
+	$Lesen_Auswahl_httpApiPort = IniRead($config_ini, "Server_Einstellungen", "httpApiPort", "")
+	$Lesen_Auswahl_whitelist = IniRead($config_ini, "Server_Einstellungen", "Whitelist", "")
+	$Lesen_Auswahl_blacklist = IniRead($config_ini, "Server_Einstellungen", "Blacklist", "")
+
+	$Lesen_Auswahl_allowEmptyJoin = IniRead($config_ini, "Server_Einstellungen", "allowEmptyJoin", "")
+	$Lesen_Auswahl_controlGameSetup = "true"
+
+	$Lesen_Auswahl_ServerControlsTrack = IniRead($config_ini, "Server_Einstellungen", "ServerControlsTrack", "0")
+		If $Lesen_Auswahl_ServerControlsTrack = "true" Then $Lesen_Auswahl_ServerControlsTrack = "1"
+		If $Lesen_Auswahl_ServerControlsTrack <> "true" Then $Lesen_Auswahl_ServerControlsTrack = "0"
+	$Lesen_Auswahl_ServerControlsVehicleClass = IniRead($config_ini, "Server_Einstellungen", "ServerControlsVehicleClass", "0")
+		If $Lesen_Auswahl_ServerControlsVehicleClass = "true" Then $Lesen_Auswahl_ServerControlsVehicleClass = "1"
+		If $Lesen_Auswahl_ServerControlsVehicleClass <> "true" Then $Lesen_Auswahl_ServerControlsVehicleClass = "0"
+
+	Global $FirstLine_Check
+
+	Global $Write_FirstLine = "false"
+
+	If FileExists($Dedi_config_cfg) Then
+		$Server_CFG_Array = FileReadToArray($Dedi_config_cfg)
+		$NR_Lines_config_cfg = _FileCountLines($Dedi_config_cfg) - 1
+		$FirstLine_Check = FileReadLine($Dedi_config_cfg, 1)
+		If $FirstLine_Check = "eventsLogSize : 10000" Then $Write_FirstLine = "true"
+	EndIf
+
+	If FileExists($Dedi_config_cfg) Then
+		$EmptyFile = FileOpen($Dedi_config_cfg, 2)
+		FileWrite($EmptyFile, "")
+		FileClose($EmptyFile)
+	EndIf
+
+	If $Write_FirstLine = "true" Then
+		FileWriteLine($Dedi_config_cfg, "// : You can use dummy entries like this to write comments into the config. " & '"rem"' & ' and ' & '"#"' & " are also supported as comment entries.")
+		FileWriteLine($Dedi_config_cfg, "// But in recent version of the server, standard C++ like one-liner comments are supported as well.")
+		FileWriteLine($Dedi_config_cfg, " ")
+		FileWriteLine($Dedi_config_cfg, "//////////////////////////")
+		FileWriteLine($Dedi_config_cfg, "// Basic server options //")
+		FileWriteLine($Dedi_config_cfg, "//////////////////////////")
+		FileWriteLine($Dedi_config_cfg, " ")
+		FileWriteLine($Dedi_config_cfg, "// Logging level of the server. Messages of this severity and more important will be logged. Can be any of debug/info/warning/error.")
+		FileWriteLine($Dedi_config_cfg, 'logLevel : "info"')
+		FileWriteLine($Dedi_config_cfg, " ")
+		FileWriteLine($Dedi_config_cfg, "// Number of gameplay events stored on the server. Oldest ones will be discarded once the game logs more.")
+	EndIf
+
+	$Status_Checkbox_PCDSG_settings_8 = IniRead($config_ini,"PC_Server", "Checkbox_PCDSG_settings_8", "")
+	$Status_Checkbox_PCDSG_settings_9 = IniRead($config_ini,"PC_Server", "Checkbox_PCDSG_settings_9", "")
+
+	Local $PCDSG_IP = @IPAddress1
+
+	If $Status_Checkbox_PCDSG_settings_8 = "true" Then
+		$PCDSG_IP = @IPAddress1
+		If $PCDSG_IP = "0.0.0.0" Then $PCDSG_IP = @IPAddress2
+		If $PCDSG_IP = "0.0.0.0" Then $PCDSG_IP = @IPAddress3
+		If $PCDSG_IP = "0.0.0.0" Then $PCDSG_IP = @IPAddress4
+
+		If $PCDSG_Network_Card_IP <> "" Then
+			If $PCDSG_Network_Card_IP = "1" Then $PCDSG_IP = @IPAddress1
+			If $PCDSG_Network_Card_IP = "2" Then $PCDSG_IP = @IPAddress2
+			If $PCDSG_Network_Card_IP = "3" Then $PCDSG_IP = @IPAddress3
+			If $PCDSG_Network_Card_IP = "4" Then $PCDSG_IP = @IPAddress4
+			If $PCDSG_Network_Card_IP = "" Then $PCDSG_IP = @IPAddress1
+		EndIf
+	EndIf
+
+	If $Status_Checkbox_PCDSG_settings_9 = "true" Then
+		$PCDSG_IP = _GetIP()
+	EndIf
+
+	For $Schleife_2 = 0 To $NR_Lines_config_cfg ; 55
+		If $Server_CFG_Array[$Schleife_2] <> 'blackList : [ "blackList.cfg" ]' Then
+			If $Server_CFG_Array[$Schleife_2] <> 'whiteList : [ "whitelist.cfg" ]' Then
+				$Wert_Line = $Server_CFG_Array[$Schleife_2]
+				$Check_Line = StringSplit($Wert_Line, ':', $Server_CFG_Array[$Schleife_2])
+				If IsArray($Check_Line) Then $Check_Line_1 = $Check_Line[1]
+
+				If $Check_Line_1 = 'logLevel ' Then $Wert_Line = 'logLevel : ' & '"' & $Lesen_Auswahl_loglevel & '"'
+				If $Check_Line_1 = 'eventsLogSize ' Then $Wert_Line = 'eventsLogSize : ' & $Lesen_Auswahl_eventsLogSize
+				If $Check_Line_1 = 'name ' Then $Wert_Line = 'name : ' & '"' & $Lesen_Auswahl_name & '"'
+				If $Check_Line_1 = 'secure ' Then $Wert_Line = 'secure : ' & $Lesen_Auswahl_secure
+				If $Check_Line_1 = 'password ' Then $Wert_Line = 'password : ' & '"' & $Lesen_Auswahl_password & '"'
+				If $Check_Line_1 = 'maxPlayerCount ' Then $Wert_Line = 'maxPlayerCount : ' & $Lesen_Auswahl_maxPlayerCount
+				If $Check_Line_1 = 'bindIP ' Then $Wert_Line = 'bindIP : ' & '"' & $Lesen_Auswahl_bindIP & '"'
+				If $Check_Line_1 = 'steamPort ' Then $Wert_Line = 'steamPort : ' & $Lesen_Auswahl_steamPort
+				If $Check_Line_1 = 'hostPort ' Then $Wert_Line = 'hostPort : ' & $Lesen_Auswahl_hostPort
+				If $Check_Line_1 = 'queryPort ' Then $Wert_Line = 'queryPort : ' & $Lesen_Auswahl_queryPort
+				If $Check_Line_1 = 'sleepWaiting ' Then $Wert_Line = 'sleepWaiting : ' & $Lesen_Auswahl_sleepWaiting
+				If $Check_Line_1 = 'sleepWaiting ' Then $Wert_Line = 'sleepWaiting : ' & $Lesen_Auswahl_sleepWaiting
+				If $Check_Line_1 = 'sleepActive ' Then $Wert_Line = 'sleepActive : ' & $Lesen_Auswahl_sleepActive
+				If $Check_Line_1 = 'enableHttpApi ' Then $Wert_Line = 'enableHttpApi : ' & $Lesen_Auswahl_enableHttpApi
+				If $Check_Line_1 = 'httpApiLogLevel ' Then $Wert_Line = 'httpApiLogLevel : ' & '"' & $Lesen_Auswahl_httpApiLogLevel & '"'
+				If $Check_Line_1 = 'httpApiInterface ' Then $Wert_Line = 'httpApiInterface : ' & '"' & $Lesen_Auswahl_httpApiInterface & '"'
+				If $Check_Line_1 = 'httpApiPort ' Then $Wert_Line = 'httpApiPort : ' & $Lesen_Auswahl_httpApiPort
+				If $Check_Line_1 = 'allowEmptyJoin ' Then $Wert_Line = 'allowEmptyJoin : ' & $Lesen_Auswahl_allowEmptyJoin
+				If $Check_Line_1 = 'controlGameSetup ' Then $Wert_Line = 'controlGameSetup : ' & $Lesen_Auswahl_controlGameSetup
+
+				If $Check_Line_1 = '    "ServerControlsTrack" ' Then $Wert_Line = '    "ServerControlsTrack" : ' & $Lesen_Auswahl_ServerControlsTrack & ','
+				If $Check_Line_1 = '    "ServerControlsVehicleClass" ' Then $Wert_Line = '    "ServerControlsVehicleClass" : ' & $Lesen_Auswahl_ServerControlsVehicleClass & ','
+
+				If $Check_Line_1 = '        { "type" ' Then
+					If $Check_Line[2] = ' "ip-accept", "ip" ' Then $Wert_Line = $Check_Line[1] & ':' & ' "ip-accept", "ip" : "' & $PCDSG_IP & '/32" ' & '}' & ','
+				EndIf
+
+				If $Schleife_2 <> $NR_Lines_config_cfg - 1 Then
+					FileWriteLine($Dedi_config_cfg, $Wert_Line)
+				EndIf
+			EndIf
+		EndIf
+	Next
+
+	FileWriteLine($Dedi_config_cfg, "")
+
+	If $Lesen_Auswahl_whitelist = "true" Then FileWriteLine($Dedi_config_cfg, 'whiteList : [ "whiteList.cfg" ]')
+	If $Lesen_Auswahl_blacklist = "true" Then FileWriteLine($Dedi_config_cfg, 'blackList : [ "blackList.cfg" ]')
+
+	$Dedi_config_whiteList_cfg = @ScriptDir & "\whiteList.cfg"
+	$Dedi_config_blackList_cfg = @ScriptDir & "\blackList.cfg"
+
+	;FileCopy($Dedi_Installations_Verzeichnis & "server.cfg", $install_dir & "server.cfg", $FC_OVERWRITE)
+	FileCopy($Dedi_config_whiteList_cfg, $Dedi_Verzeichnis & "whiteList.cfg", $FC_OVERWRITE)
+	FileCopy($Dedi_config_blackList_cfg, $Dedi_Verzeichnis & "blackList.cfg", $FC_OVERWRITE)
+
+	FileWriteLine($PCDSG_LOG_ini, "Server_cfg_created_" & $NowTime & "=" & "New Server.cfg File created and saved to: " & $Dedi_Installations_Verzeichnis & "server.cfg" & " | " & "Date - Time: " & $NowDate & " - " & $NowTime)
+	FileWriteLine($PCDSG_LOG_ini, "Server_cfg_copied_" & $NowTime & "=" & "Server.cfg File copied to: " & $install_dir & "server.cfg" & " | " & "Date - Time: " & $NowDate & " - " & $NowTime)
+	FileWriteLine($PCDSG_LOG_ini, "whiteList_copied_" & $NowTime & "=" & "WhiteList File copied to: " & $Dedi_Verzeichnis & "whiteList.cfg" & " | " & "Date - Time: " & $NowDate & " - " & $NowTime)
+	FileWriteLine($PCDSG_LOG_ini, "BlackList_cfg_copied_" & $NowTime & "=" & "BlackList File copied to: " & $Dedi_Verzeichnis & "blackList.cfg" & " | " & "Date - Time: " & $NowDate & " - " & $NowTime)
+EndFunc
+
+Func _config_cfg_erstellen_2()
+	$Dedi_config_whiteList_cfg = $Dedi_Verzeichnis & "\whiteList.cfg"
+	$Dedi_config_blackList_cfg = $Dedi_Verzeichnis & "\blackList.cfg"
+
+	Local $Auswahl_Sprachdatei, $Auswaehlen_eventsLogSize, $Eingabe_name, $Auswahl_secure, $Eingabe_password, $Auswaehlen_maxPlayerCount, $Eingabe_bindIP
+	Local $Auswaehlen_steamPort, $Auswaehlen_hostPort, $Auswaehlen_queryPort, $Auswahl_enableHttpApi, $Auswahl_httpApiLogLevel, $Eingabe_httpApiInterface
+	Local $Auswaehlen_httpApiPort, $Auswahl_Whitelist, $Auswahl_Blacklist, $Auswahl_allowEmptyJoin, $Auswahl_ServerControlsTrack, $Auswahl_ServerControlsVehicleClass
+	Local $Lesen_Auswahl_sleepWaiting, $Lesen_Auswahl_sleepActive
+
+	$Lesen_Auswahl_loglevel = IniRead($config_ini, "Server_Einstellungen", "loglevel", "")
+	$Lesen_Auswahl_eventsLogSize = IniRead($config_ini, "Server_Einstellungen", "eventsLogSize", "")
+	$Lesen_Auswahl_name = IniRead($config_ini, "Server_Einstellungen", "name", "")
+	$Lesen_Auswahl_secure = IniRead($config_ini, "Server_Einstellungen", "secure", "")
+	$Lesen_Auswahl_password = ""
+	$Lesen_Auswahl_maxPlayerCount = IniRead($config_ini, "Server_Einstellungen", "maxPlayerCount", "")
+	$Lesen_Auswahl_bindIP = IniRead($config_ini, "Server_Einstellungen", "bindIP", "")
+	$Lesen_Auswahl_steamPort = IniRead($config_ini, "Server_Einstellungen", "steamPort", "8766")
+	$Lesen_Auswahl_hostPort = IniRead($config_ini, "Server_Einstellungen", "hostPort", "27015")
+	$Lesen_Auswahl_queryPort = IniRead($config_ini, "Server_Einstellungen", "queryPort", "27016")
+	$Lesen_Auswahl_enableHttpApi = IniRead($config_ini, "Server_Einstellungen", "enableHttpApi", "")
+	$Lesen_Auswahl_httpApiLogLevel = IniRead($config_ini, "Server_Einstellungen", "httpApiLogLevel", "")
+	$Lesen_Auswahl_httpApiInterface = IniRead($config_ini, "Server_Einstellungen", "httpApiInterface", "")
+	$Lesen_Auswahl_httpApiPort = IniRead($config_ini, "Server_Einstellungen", "httpApiPort", "")
+	$Lesen_Auswahl_whitelist = IniRead($config_ini, "Server_Einstellungen", "Whitelist", "")
+	$Lesen_Auswahl_blacklist = IniRead($config_ini, "Server_Einstellungen", "Blacklist", "")
+
+	$Lesen_Auswahl_allowEmptyJoin = IniRead($config_ini, "Server_Einstellungen", "allowEmptyJoin", "")
+	$Lesen_Auswahl_controlGameSetup = IniRead($config_ini, "Server_Einstellungen", "controlGameSetup", "")
+
+	$Lesen_Auswahl_ServerControlsTrack = IniRead($config_ini, "Server_Einstellungen", "ServerControlsTrack", "0")
+		If $Lesen_Auswahl_ServerControlsTrack = "true" Then $Lesen_Auswahl_ServerControlsTrack = "1"
+		If $Lesen_Auswahl_ServerControlsTrack <> "true" Then $Lesen_Auswahl_ServerControlsTrack = "0"
+	$Lesen_Auswahl_ServerControlsVehicleClass = IniRead($config_ini, "Server_Einstellungen", "ServerControlsVehicleClass", "0")
+		If $Lesen_Auswahl_ServerControlsVehicleClass = "true" Then $Lesen_Auswahl_ServerControlsVehicleClass = "1"
+		If $Lesen_Auswahl_ServerControlsVehicleClass <> "true" Then $Lesen_Auswahl_ServerControlsVehicleClass = "0"
+
+	Global $FirstLine_Check
+
+	Global $Write_FirstLine = "false"
+
+	If FileExists($Dedi_config_cfg) Then
+		$Server_CFG_Array = FileReadToArray($Dedi_config_cfg)
+		$NR_Lines_config_cfg = _FileCountLines($Dedi_config_cfg) - 1
+		$FirstLine_Check = FileReadLine($Dedi_config_cfg, 1)
+		If $FirstLine_Check = "eventsLogSize : 10000" Then $Write_FirstLine = "true"
+	EndIf
+
+	If FileExists($Dedi_config_cfg) Then
+		$EmptyFile = FileOpen($Dedi_config_cfg, 2)
+		FileWrite($EmptyFile, "")
+		FileClose($EmptyFile)
+	EndIf
+
+	If $Write_FirstLine = "true" Then
+		FileWriteLine($Dedi_config_cfg, "// : You can use dummy entries like this to write comments into the config. " & '"rem"' & ' and ' & '"#"' & " are also supported as comment entries.")
+		FileWriteLine($Dedi_config_cfg, "// But in recent version of the server, standard C++ like one-liner comments are supported as well.")
+		FileWriteLine($Dedi_config_cfg, " ")
+		FileWriteLine($Dedi_config_cfg, "//////////////////////////")
+		FileWriteLine($Dedi_config_cfg, "// Basic server options //")
+		FileWriteLine($Dedi_config_cfg, "//////////////////////////")
+		FileWriteLine($Dedi_config_cfg, " ")
+		FileWriteLine($Dedi_config_cfg, "// Logging level of the server. Messages of this severity and more important will be logged. Can be any of debug/info/warning/error.")
+		FileWriteLine($Dedi_config_cfg, 'logLevel : "info"')
+		FileWriteLine($Dedi_config_cfg, " ")
+		FileWriteLine($Dedi_config_cfg, "// Number of gameplay events stored on the server. Oldest ones will be discarded once the game logs more.")
+	EndIf
+
+	$Status_Checkbox_PCDSG_settings_8 = IniRead($config_ini,"PC_Server", "Checkbox_PCDSG_settings_8", "")
+	$Status_Checkbox_PCDSG_settings_9 = IniRead($config_ini,"PC_Server", "Checkbox_PCDSG_settings_9", "")
+
+	Local $PCDSG_IP = @IPAddress1
+
+	If $Status_Checkbox_PCDSG_settings_8 = "true" Then
+		$PCDSG_IP = @IPAddress1
+		If $PCDSG_IP = "0.0.0.0" Then $PCDSG_IP = @IPAddress2
+		If $PCDSG_IP = "0.0.0.0" Then $PCDSG_IP = @IPAddress3
+		If $PCDSG_IP = "0.0.0.0" Then $PCDSG_IP = @IPAddress4
+
+		If $PCDSG_Network_Card_IP <> "" Then
+			If $PCDSG_Network_Card_IP = "1" Then $PCDSG_IP = @IPAddress1
+			If $PCDSG_Network_Card_IP = "2" Then $PCDSG_IP = @IPAddress2
+			If $PCDSG_Network_Card_IP = "3" Then $PCDSG_IP = @IPAddress3
+			If $PCDSG_Network_Card_IP = "4" Then $PCDSG_IP = @IPAddress4
+			If $PCDSG_Network_Card_IP = "" Then $PCDSG_IP = @IPAddress1
+		EndIf
+	EndIf
+
+	If $Status_Checkbox_PCDSG_settings_9 = "true" Then
+		$PCDSG_IP = _GetIP()
+	EndIf
+
+	For $Schleife_2 = 0 To $NR_Lines_config_cfg ; 55
+		If $Server_CFG_Array[$Schleife_2] <> 'blackList : [ "blackList.cfg" ]' Then
+			If $Server_CFG_Array[$Schleife_2] <> 'whiteList : [ "whitelist.cfg" ]' Then
+				$Wert_Line = $Server_CFG_Array[$Schleife_2]
+				$Check_Line = StringSplit($Wert_Line, ':', $Server_CFG_Array[$Schleife_2])
+				If IsArray($Check_Line) Then $Check_Line_1 = $Check_Line[1]
+
+				If $Check_Line_1 = 'logLevel ' Then $Wert_Line = 'logLevel : ' & '"' & $Lesen_Auswahl_loglevel & '"'
+				If $Check_Line_1 = 'eventsLogSize ' Then $Wert_Line = 'eventsLogSize : ' & $Lesen_Auswahl_eventsLogSize
+				If $Check_Line_1 = 'name ' Then $Wert_Line = 'name : ' & '"' & $Lesen_Auswahl_name & '"'
+				If $Check_Line_1 = 'secure ' Then $Wert_Line = 'secure : ' & $Lesen_Auswahl_secure
+				If $Check_Line_1 = 'password ' Then $Wert_Line = 'password : ' & '"' & $Lesen_Auswahl_password & '"'
+				If $Check_Line_1 = 'maxPlayerCount ' Then $Wert_Line = 'maxPlayerCount : ' & $Lesen_Auswahl_maxPlayerCount
+				If $Check_Line_1 = 'bindIP ' Then $Wert_Line = 'bindIP : ' & '"' & $Lesen_Auswahl_bindIP & '"'
+				If $Check_Line_1 = 'steamPort ' Then $Wert_Line = 'steamPort : ' & $Lesen_Auswahl_steamPort
+				If $Check_Line_1 = 'hostPort ' Then $Wert_Line = 'hostPort : ' & $Lesen_Auswahl_hostPort
+				If $Check_Line_1 = 'queryPort ' Then $Wert_Line = 'queryPort : ' & $Lesen_Auswahl_queryPort
+				If $Check_Line_1 = 'sleepWaiting ' Then $Wert_Line = 'sleepWaiting : ' & $Lesen_Auswahl_sleepWaiting
+				If $Check_Line_1 = 'sleepWaiting ' Then $Wert_Line = 'sleepWaiting : ' & $Lesen_Auswahl_sleepWaiting
+				If $Check_Line_1 = 'sleepActive ' Then $Wert_Line = 'sleepActive : ' & $Lesen_Auswahl_sleepActive
+				If $Check_Line_1 = 'enableHttpApi ' Then $Wert_Line = 'enableHttpApi : ' & $Lesen_Auswahl_enableHttpApi
+				If $Check_Line_1 = 'httpApiLogLevel ' Then $Wert_Line = 'httpApiLogLevel : ' & '"' & $Lesen_Auswahl_httpApiLogLevel & '"'
+				If $Check_Line_1 = 'httpApiInterface ' Then $Wert_Line = 'httpApiInterface : ' & '"' & $Lesen_Auswahl_httpApiInterface & '"'
+				If $Check_Line_1 = 'httpApiPort ' Then $Wert_Line = 'httpApiPort : ' & $Lesen_Auswahl_httpApiPort
+				If $Check_Line_1 = 'allowEmptyJoin ' Then $Wert_Line = 'allowEmptyJoin : ' & $Lesen_Auswahl_allowEmptyJoin
+				If $Check_Line_1 = 'controlGameSetup ' Then $Wert_Line = 'controlGameSetup : ' & $Lesen_Auswahl_controlGameSetup
+
+				If $Check_Line_1 = '    "ServerControlsTrack" ' Then $Wert_Line = '    "ServerControlsTrack" : ' & $Lesen_Auswahl_ServerControlsTrack & ','
+				If $Check_Line_1 = '    "ServerControlsVehicleClass" ' Then $Wert_Line = '    "ServerControlsVehicleClass" : ' & $Lesen_Auswahl_ServerControlsVehicleClass & ','
+
+				If $Check_Line_1 = '        { "type" ' Then
+					If $Check_Line[2] = ' "ip-accept", "ip" ' Then $Wert_Line = $Check_Line[1] & ':' & ' "ip-accept", "ip" : "' & $PCDSG_IP & '/32" ' & '}' & ','
+				EndIf
+
+				If $Schleife_2 <> $NR_Lines_config_cfg - 1 Then
+					FileWriteLine($Dedi_config_cfg, $Wert_Line)
+				EndIf
+			EndIf
+		EndIf
+	Next
+
+	FileWriteLine($Dedi_config_cfg, "")
+
+	If $Lesen_Auswahl_whitelist = "true" Then FileWriteLine($Dedi_config_cfg, 'whiteList : [ "whiteList.cfg" ]')
+	If $Lesen_Auswahl_blacklist = "true" Then FileWriteLine($Dedi_config_cfg, 'blackList : [ "blackList.cfg" ]')
+
+	$Dedi_config_whiteList_cfg = @ScriptDir & "\whiteList.cfg"
+	$Dedi_config_blackList_cfg = @ScriptDir & "\blackList.cfg"
+
+	;FileCopy($Dedi_Installations_Verzeichnis & "server.cfg", $install_dir & "server.cfg", $FC_OVERWRITE)
+	FileCopy($Dedi_config_whiteList_cfg, $Dedi_Verzeichnis & "whiteList.cfg", $FC_OVERWRITE)
+	FileCopy($Dedi_config_blackList_cfg, $Dedi_Verzeichnis & "blackList.cfg", $FC_OVERWRITE)
+
+	FileWriteLine($PCDSG_LOG_ini, "Server_cfg_created_" & $NowTime & "=" & "New Server.cfg File created and saved to: " & $Dedi_Installations_Verzeichnis & "server.cfg" & " | " & "Date - Time: " & $NowDate & " - " & $NowTime)
+	FileWriteLine($PCDSG_LOG_ini, "Server_cfg_copied_" & $NowTime & "=" & "Server.cfg File copied to: " & $install_dir & "server.cfg" & " | " & "Date - Time: " & $NowDate & " - " & $NowTime)
+	FileWriteLine($PCDSG_LOG_ini, "whiteList_copied_" & $NowTime & "=" & "WhiteList File copied to: " & $Dedi_Verzeichnis & "whiteList.cfg" & " | " & "Date - Time: " & $NowDate & " - " & $NowTime)
+	FileWriteLine($PCDSG_LOG_ini, "BlackList_cfg_copied_" & $NowTime & "=" & "BlackList File copied to: " & $Dedi_Verzeichnis & "blackList.cfg" & " | " & "Date - Time: " & $NowDate & " - " & $NowTime)
+EndFunc
+
+Func _config_cfg_erstellen_3()
+	$Dedi_config_whiteList_cfg = $Dedi_Verzeichnis & "\whiteList.cfg"
+	$Dedi_config_blackList_cfg = $Dedi_Verzeichnis & "\blackList.cfg"
+
+	Local $Auswahl_Sprachdatei, $Auswaehlen_eventsLogSize, $Eingabe_name, $Auswahl_secure, $Eingabe_password, $Auswaehlen_maxPlayerCount, $Eingabe_bindIP
+	Local $Auswaehlen_steamPort, $Auswaehlen_hostPort, $Auswaehlen_queryPort, $Auswahl_enableHttpApi, $Auswahl_httpApiLogLevel, $Eingabe_httpApiInterface
+	Local $Auswaehlen_httpApiPort, $Auswahl_Whitelist, $Auswahl_Blacklist, $Auswahl_allowEmptyJoin, $Auswahl_ServerControlsTrack, $Auswahl_ServerControlsVehicleClass
+	Local $Lesen_Auswahl_sleepWaiting, $Lesen_Auswahl_sleepActive
+
+	$Lesen_Auswahl_loglevel = IniRead($config_ini, "Server_Einstellungen", "loglevel", "")
+	$Lesen_Auswahl_eventsLogSize = IniRead($config_ini, "Server_Einstellungen", "eventsLogSize", "")
+	$Lesen_Auswahl_name = IniRead($config_ini, "Server_Einstellungen", "name", "")
+	$Lesen_Auswahl_secure = IniRead($config_ini, "Server_Einstellungen", "secure", "")
+	$Lesen_Auswahl_password = IniRead($config_ini, "Server_Einstellungen", "Private_Password", "")
+	$Lesen_Auswahl_maxPlayerCount = IniRead($config_ini, "Server_Einstellungen", "maxPlayerCount", "")
+	$Lesen_Auswahl_bindIP = IniRead($config_ini, "Server_Einstellungen", "bindIP", "")
+	$Lesen_Auswahl_steamPort = IniRead($config_ini, "Server_Einstellungen", "steamPort", "8766")
+	$Lesen_Auswahl_hostPort = IniRead($config_ini, "Server_Einstellungen", "hostPort", "27015")
+	$Lesen_Auswahl_queryPort = IniRead($config_ini, "Server_Einstellungen", "queryPort", "27016")
+	$Lesen_Auswahl_enableHttpApi = IniRead($config_ini, "Server_Einstellungen", "enableHttpApi", "")
+	$Lesen_Auswahl_httpApiLogLevel = IniRead($config_ini, "Server_Einstellungen", "httpApiLogLevel", "")
+	$Lesen_Auswahl_httpApiInterface = IniRead($config_ini, "Server_Einstellungen", "httpApiInterface", "")
+	$Lesen_Auswahl_httpApiPort = IniRead($config_ini, "Server_Einstellungen", "httpApiPort", "")
+	$Lesen_Auswahl_whitelist = IniRead($config_ini, "Server_Einstellungen", "Whitelist", "")
+	$Lesen_Auswahl_blacklist = IniRead($config_ini, "Server_Einstellungen", "Blacklist", "")
+
+	$Lesen_Auswahl_allowEmptyJoin = IniRead($config_ini, "Server_Einstellungen", "allowEmptyJoin", "")
+	$Lesen_Auswahl_controlGameSetup = IniRead($config_ini, "Server_Einstellungen", "controlGameSetup", "")
+
+	$Lesen_Auswahl_ServerControlsTrack = IniRead($config_ini, "Server_Einstellungen", "ServerControlsTrack", "0")
+		If $Lesen_Auswahl_ServerControlsTrack = "true" Then $Lesen_Auswahl_ServerControlsTrack = "1"
+		If $Lesen_Auswahl_ServerControlsTrack <> "true" Then $Lesen_Auswahl_ServerControlsTrack = "0"
+	$Lesen_Auswahl_ServerControlsVehicleClass = IniRead($config_ini, "Server_Einstellungen", "ServerControlsVehicleClass", "0")
+		If $Lesen_Auswahl_ServerControlsVehicleClass = "true" Then $Lesen_Auswahl_ServerControlsVehicleClass = "1"
+		If $Lesen_Auswahl_ServerControlsVehicleClass <> "true" Then $Lesen_Auswahl_ServerControlsVehicleClass = "0"
+
+	Global $FirstLine_Check
+
+	Global $Write_FirstLine = "false"
+
+	If FileExists($Dedi_config_cfg) Then
+		$Server_CFG_Array = FileReadToArray($Dedi_config_cfg)
+		$NR_Lines_config_cfg = _FileCountLines($Dedi_config_cfg) - 1
+		$FirstLine_Check = FileReadLine($Dedi_config_cfg, 1)
+		If $FirstLine_Check = "eventsLogSize : 10000" Then $Write_FirstLine = "true"
+	EndIf
+
+	If FileExists($Dedi_config_cfg) Then
+		$EmptyFile = FileOpen($Dedi_config_cfg, 2)
+		FileWrite($EmptyFile, "")
+		FileClose($EmptyFile)
+	EndIf
+
+	If $Write_FirstLine = "true" Then
+		FileWriteLine($Dedi_config_cfg, "// : You can use dummy entries like this to write comments into the config. " & '"rem"' & ' and ' & '"#"' & " are also supported as comment entries.")
+		FileWriteLine($Dedi_config_cfg, "// But in recent version of the server, standard C++ like one-liner comments are supported as well.")
+		FileWriteLine($Dedi_config_cfg, " ")
+		FileWriteLine($Dedi_config_cfg, "//////////////////////////")
+		FileWriteLine($Dedi_config_cfg, "// Basic server options //")
+		FileWriteLine($Dedi_config_cfg, "//////////////////////////")
+		FileWriteLine($Dedi_config_cfg, " ")
+		FileWriteLine($Dedi_config_cfg, "// Logging level of the server. Messages of this severity and more important will be logged. Can be any of debug/info/warning/error.")
+		FileWriteLine($Dedi_config_cfg, 'logLevel : "info"')
+		FileWriteLine($Dedi_config_cfg, " ")
+		FileWriteLine($Dedi_config_cfg, "// Number of gameplay events stored on the server. Oldest ones will be discarded once the game logs more.")
+	EndIf
+
+	$Status_Checkbox_PCDSG_settings_8 = IniRead($config_ini,"PC_Server", "Checkbox_PCDSG_settings_8", "")
+	$Status_Checkbox_PCDSG_settings_9 = IniRead($config_ini,"PC_Server", "Checkbox_PCDSG_settings_9", "")
+
+	Local $PCDSG_IP = @IPAddress1
+
+	If $Status_Checkbox_PCDSG_settings_8 = "true" Then
+		$PCDSG_IP = @IPAddress1
+		If $PCDSG_IP = "0.0.0.0" Then $PCDSG_IP = @IPAddress2
+		If $PCDSG_IP = "0.0.0.0" Then $PCDSG_IP = @IPAddress3
+		If $PCDSG_IP = "0.0.0.0" Then $PCDSG_IP = @IPAddress4
+
+		If $PCDSG_Network_Card_IP <> "" Then
+			If $PCDSG_Network_Card_IP = "1" Then $PCDSG_IP = @IPAddress1
+			If $PCDSG_Network_Card_IP = "2" Then $PCDSG_IP = @IPAddress2
+			If $PCDSG_Network_Card_IP = "3" Then $PCDSG_IP = @IPAddress3
+			If $PCDSG_Network_Card_IP = "4" Then $PCDSG_IP = @IPAddress4
+			If $PCDSG_Network_Card_IP = "" Then $PCDSG_IP = @IPAddress1
+		EndIf
+	EndIf
+
+	If $Status_Checkbox_PCDSG_settings_9 = "true" Then
+		$PCDSG_IP = _GetIP()
+	EndIf
+
+	For $Schleife_2 = 0 To $NR_Lines_config_cfg ; 55
+		If $Server_CFG_Array[$Schleife_2] <> 'blackList : [ "blackList.cfg" ]' Then
+			If $Server_CFG_Array[$Schleife_2] <> 'whiteList : [ "whitelist.cfg" ]' Then
+				$Wert_Line = $Server_CFG_Array[$Schleife_2]
+				$Check_Line = StringSplit($Wert_Line, ':', $Server_CFG_Array[$Schleife_2])
+				If IsArray($Check_Line) Then $Check_Line_1 = $Check_Line[1]
+
+				If $Check_Line_1 = 'logLevel ' Then $Wert_Line = 'logLevel : ' & '"' & $Lesen_Auswahl_loglevel & '"'
+				If $Check_Line_1 = 'eventsLogSize ' Then $Wert_Line = 'eventsLogSize : ' & $Lesen_Auswahl_eventsLogSize
+				If $Check_Line_1 = 'name ' Then $Wert_Line = 'name : ' & '"' & $Lesen_Auswahl_name & '"'
+				If $Check_Line_1 = 'secure ' Then $Wert_Line = 'secure : ' & $Lesen_Auswahl_secure
+				If $Check_Line_1 = 'password ' Then $Wert_Line = 'password : ' & '"' & $Lesen_Auswahl_password & '"'
+				If $Check_Line_1 = 'maxPlayerCount ' Then $Wert_Line = 'maxPlayerCount : ' & $Lesen_Auswahl_maxPlayerCount
+				If $Check_Line_1 = 'bindIP ' Then $Wert_Line = 'bindIP : ' & '"' & $Lesen_Auswahl_bindIP & '"'
+				If $Check_Line_1 = 'steamPort ' Then $Wert_Line = 'steamPort : ' & $Lesen_Auswahl_steamPort
+				If $Check_Line_1 = 'hostPort ' Then $Wert_Line = 'hostPort : ' & $Lesen_Auswahl_hostPort
+				If $Check_Line_1 = 'queryPort ' Then $Wert_Line = 'queryPort : ' & $Lesen_Auswahl_queryPort
+				If $Check_Line_1 = 'sleepWaiting ' Then $Wert_Line = 'sleepWaiting : ' & $Lesen_Auswahl_sleepWaiting
+				If $Check_Line_1 = 'sleepWaiting ' Then $Wert_Line = 'sleepWaiting : ' & $Lesen_Auswahl_sleepWaiting
+				If $Check_Line_1 = 'sleepActive ' Then $Wert_Line = 'sleepActive : ' & $Lesen_Auswahl_sleepActive
+				If $Check_Line_1 = 'enableHttpApi ' Then $Wert_Line = 'enableHttpApi : ' & $Lesen_Auswahl_enableHttpApi
+				If $Check_Line_1 = 'httpApiLogLevel ' Then $Wert_Line = 'httpApiLogLevel : ' & '"' & $Lesen_Auswahl_httpApiLogLevel & '"'
+				If $Check_Line_1 = 'httpApiInterface ' Then $Wert_Line = 'httpApiInterface : ' & '"' & $Lesen_Auswahl_httpApiInterface & '"'
+				If $Check_Line_1 = 'httpApiPort ' Then $Wert_Line = 'httpApiPort : ' & $Lesen_Auswahl_httpApiPort
+				If $Check_Line_1 = 'allowEmptyJoin ' Then $Wert_Line = 'allowEmptyJoin : ' & $Lesen_Auswahl_allowEmptyJoin
+				If $Check_Line_1 = 'controlGameSetup ' Then $Wert_Line = 'controlGameSetup : ' & $Lesen_Auswahl_controlGameSetup
+
+				If $Check_Line_1 = '    "ServerControlsTrack" ' Then $Wert_Line = '    "ServerControlsTrack" : ' & $Lesen_Auswahl_ServerControlsTrack & ','
+				If $Check_Line_1 = '    "ServerControlsVehicleClass" ' Then $Wert_Line = '    "ServerControlsVehicleClass" : ' & $Lesen_Auswahl_ServerControlsVehicleClass & ','
+
+				If $Check_Line_1 = '        { "type" ' Then
+					If $Check_Line[2] = ' "ip-accept", "ip" ' Then $Wert_Line = $Check_Line[1] & ':' & ' "ip-accept", "ip" : "' & $PCDSG_IP & '/32" ' & '}' & ','
+				EndIf
+
+				If $Schleife_2 <> $NR_Lines_config_cfg - 1 Then
+					FileWriteLine($Dedi_config_cfg, $Wert_Line)
+				EndIf
+			EndIf
+		EndIf
+	Next
+
+	FileWriteLine($Dedi_config_cfg, "")
+
+	If $Lesen_Auswahl_whitelist = "true" Then FileWriteLine($Dedi_config_cfg, 'whiteList : [ "whiteList.cfg" ]')
+	If $Lesen_Auswahl_blacklist = "true" Then FileWriteLine($Dedi_config_cfg, 'blackList : [ "blackList.cfg" ]')
+
+	$Dedi_config_whiteList_cfg = @ScriptDir & "\whiteList.cfg"
+	$Dedi_config_blackList_cfg = @ScriptDir & "\blackList.cfg"
+
+	;FileCopy($Dedi_Installations_Verzeichnis & "server.cfg", $install_dir & "server.cfg", $FC_OVERWRITE)
+	FileCopy($Dedi_config_whiteList_cfg, $Dedi_Verzeichnis & "whiteList.cfg", $FC_OVERWRITE)
+	FileCopy($Dedi_config_blackList_cfg, $Dedi_Verzeichnis & "blackList.cfg", $FC_OVERWRITE)
+
+	FileWriteLine($PCDSG_LOG_ini, "Server_cfg_created_" & $NowTime & "=" & "New Server.cfg File created and saved to: " & $Dedi_Installations_Verzeichnis & "server.cfg" & " | " & "Date - Time: " & $NowDate & " - " & $NowTime)
+	FileWriteLine($PCDSG_LOG_ini, "Server_cfg_copied_" & $NowTime & "=" & "Server.cfg File copied to: " & $install_dir & "server.cfg" & " | " & "Date - Time: " & $NowDate & " - " & $NowTime)
+	FileWriteLine($PCDSG_LOG_ini, "whiteList_copied_" & $NowTime & "=" & "WhiteList File copied to: " & $Dedi_Verzeichnis & "whiteList.cfg" & " | " & "Date - Time: " & $NowDate & " - " & $NowTime)
+	FileWriteLine($PCDSG_LOG_ini, "BlackList_cfg_copied_" & $NowTime & "=" & "BlackList File copied to: " & $Dedi_Verzeichnis & "blackList.cfg" & " | " & "Date - Time: " & $NowDate & " - " & $NowTime)
+EndFunc
+
+
+
+Func _Restart_DS()
+	WinClose($Dedi_Installations_Verzeichnis & "DedicatedServerCmd.exe")
+	ProcessClose("DedicatedServerCmd.exe")
+	Sleep(3000)
+	ShellExecute($Dedi_Installations_Verzeichnis & "DedicatedServerCmd.exe", "", $Dedi_Installations_Verzeichnis, "")
+EndFunc
 
 Exit

@@ -4,24 +4,74 @@
     "description" : "All known track ids",
     "list" : [
       {
+        "id" : 31280808,
+        "name" : "Mojave Cougar Ridge",
+        "gridsize" : 32
+      },
+      {
+        "id" : 35770107,
+        "name" : "Daytona International Speedway Rallycross",
+        "gridsize" : 6
+      },
+      {
+        "id" : 62242453,
+        "name" : "Indianapolis Motor Speedway Oval",
+        "gridsize" : 32
+      },
+      {
+        "id" : 167552033,
+        "name" : "Le Mans Vintage Track",
+        "gridsize" : 32
+      },
+      {
+        "id" : 169281142,
+        "name" : "Porsche Leipzig Short Circuit",
+        "gridsize" : 26
+      },
+      {
+        "id" : 211444010,
+        "name" : "Indianapolis Motor Speedway Road Course",
+        "gridsize" : 28
+      },
+      {
         "id" : 328972919,
-        "name" : "Cadwell Club Circuit",
-        "gridsize" : 20
+        "name" : "Cadwell Park Club",
+        "gridsize" : 12
       },
       {
         "id" : 354022214,
         "name" : "Donington Park GP",
-        "gridsize" : 38
+        "gridsize" : 32
       },
       {
         "id" : 368740158,
         "name" : "Autodromo Nazionale Monza Short",
-        "gridsize" : 40
+        "gridsize" : 32
+      },
+      {
+        "id" : 369271528,
+        "name" : "Mojave Coyote Noose",
+        "gridsize" : 32
+      },
+      {
+        "id" : 458589160,
+        "name" : "Knockhill National Reverse",
+        "gridsize" : 12
+      },
+      {
+        "id" : 467707118,
+        "name" : "Daytona Road Course",
+        "gridsize" : 32
       },
       {
         "id" : 521933422,
         "name" : "Circuit de Barcelona-Catalunya GP",
-        "gridsize" : 36
+        "gridsize" : 32
+      },
+      {
+        "id" : 533066470,
+        "name" : "Texas Motor Speedway Road Course",
+        "gridsize" : 32
       },
       {
         "id" : 545979690,
@@ -44,9 +94,19 @@
         "gridsize" : 28
       },
       {
+        "id" : 673609283,
+        "name" : "Lydden Hill Rallycross",
+        "gridsize" : 6
+      },
+      {
         "id" : 697498609,
-        "name" : "Nordschleife",
+        "name" : "Nürburgring Nordschleife",
         "gridsize" : 32
+      },
+      {
+        "id" : 761864750,
+        "name" : "Hockenheim Rallycross",
+        "gridsize" : 6
       },
       {
         "id" : 766599953,
@@ -54,34 +114,34 @@
         "gridsize" : 16
       },
       {
+        "id" : 802214179,
+        "name" : "Circuit of the Americas Club",
+        "gridsize" : 18
+      },
+      {
         "id" : 816601966,
-        "name" : "Oschersleben National",
-        "gridsize" : 30
+        "name" : "Oschersleben B Course",
+        "gridsize" : 28
       },
       {
         "id" : 832629329,
         "name" : "Azure Circuit",
-        "gridsize" : 36
-      },
-      {
-        "id" : 850003838,
-        "name" : "Mojave Boa Ascent",
-        "gridsize" : 47
+        "gridsize" : 32
       },
       {
         "id" : 904625875,
-        "name" : "Circuit de Spa-Francorchamps",
-        "gridsize" : 36
+        "name" : "Circuit de Spa-Francorchamps GP",
+        "gridsize" : 32
       },
       {
         "id" : 920145926,
-        "name" : "Imola",
-        "gridsize" : 40
+        "name" : "Autodromo Internazionale Enzo E Dino Ferrari Imola",
+        "gridsize" : 32
       },
       {
         "id" : 921120824,
-        "name" : "Bathurst",
-        "gridsize" : 36
+        "name" : "Bathurst Mount Panorama",
+        "gridsize" : 32
       },
       {
         "id" : 928006536,
@@ -91,12 +151,27 @@
       {
         "id" : 940391868,
         "name" : "California Highway Stage 2",
-        "gridsize" : 36
+        "gridsize" : 32
+      },
+      {
+        "id" : 953639515,
+        "name" : "Lydden Hill GP",
+        "gridsize" : 16
+      },
+      {
+        "id" : 977699253,
+        "name" : "Knockhill Rallycross",
+        "gridsize" : 6
+      },
+      {
+        "id" : 980779751,
+        "name" : "DirtFish Boneyard Course",
+        "gridsize" : 6
       },
       {
         "id" : 1035110721,
         "name" : "Sonoma Raceway Short",
-        "gridsize" : 43
+        "gridsize" : 32
       },
       {
         "id" : 1058872832,
@@ -110,8 +185,18 @@
       },
       {
         "id" : 1128950148,
-        "name" : "Nordschleife Stage 3",
-        "gridsize" : 36
+        "name" : "Nürburgring Nordschleife Stage 3",
+        "gridsize" : 32
+      },
+      {
+        "id" : 1184596327,
+        "name" : "Autodromo Nazionale Monza GP Historic",
+        "gridsize" : 22
+      },
+      {
+        "id" : 1185954707,
+        "name" : "Texas Motor Speedway",
+        "gridsize" : 32
       },
       {
         "id" : 1277693448,
@@ -124,6 +209,16 @@
         "gridsize" : 30
       },
       {
+        "id" : 1327182267,
+        "name" : "Autodromo Nazionale Monza Historic Oval + GP Mix",
+        "gridsize" : 22
+      },
+      {
+        "id" : 1371913179,
+        "name" : "Pista di Fiorano",
+        "gridsize" : 20
+      },
+      {
         "id" : 1408845203,
         "name" : "Summerton National",
         "gridsize" : 28
@@ -134,9 +229,14 @@
         "gridsize" : 28
       },
       {
+        "id" : 1457129528,
+        "name" : "Le Mans International Karting Circuit",
+        "gridsize" : 20
+      },
+      {
         "id" : 1459212514,
-        "name" : "Nordschleife Stage 1",
-        "gridsize" : 36
+        "name" : "Nürburgring Nordschleife Stage 1",
+        "gridsize" : 32
       },
       {
         "id" : 1508903068,
@@ -145,18 +245,23 @@
       },
       {
         "id" : 1552853772,
-        "name" : "Hockenheim Classic",
-        "gridsize" : 36
+        "name" : "Hockenheim Classic GP",
+        "gridsize" : 32
       },
       {
         "id" : 1590386668,
-        "name" : "Watkins Glen Short",
-        "gridsize" : 43
+        "name" : "Watkins Glen International Short",
+        "gridsize" : 32
       },
       {
         "id" : 1600840139,
         "name" : "Silverstone Stowe",
-        "gridsize" : 16
+        "gridsize" : 8
+      },
+      {
+        "id" : 1629467388,
+        "name" : "Circuit of the Americas National",
+        "gridsize" : 32
       },
       {
         "id" : 1641471184,
@@ -166,7 +271,7 @@
       {
         "id" : 1676943041,
         "name" : "California Highway Stage 1",
-        "gridsize" : 40
+        "gridsize" : 32
       },
       {
         "id" : 1695182971,
@@ -174,14 +279,29 @@
         "gridsize" : 30
       },
       {
+        "id" : 1719717729,
+        "name" : "Texas Motor Speedway Infield Course",
+        "gridsize" : 20
+      },
+      {
+        "id" : 1730519219,
+        "name" : "Mugello GP",
+        "gridsize" : 40
+      },
+      {
+        "id" : 1731699995,
+        "name" : "Long Beach Street Circuit",
+        "gridsize" : 32
+      },
+      {
         "id" : 1735854797,
         "name" : "Dubai Autodrome Club",
-        "gridsize" : 36
+        "gridsize" : 32
       },
       {
         "id" : 1740968730,
-        "name" : "Circuit des 24 Heures du Mans",
-        "gridsize" : 56
+        "name" : "24 Hours of Le Mans Circuit",
+        "gridsize" : 32
       },
       {
         "id" : 1768660198,
@@ -189,14 +309,29 @@
         "gridsize" : 30
       },
       {
+        "id" : 1828877100,
+        "name" : "Barcelona Rallycross",
+        "gridsize" : 6
+      },
+      {
         "id" : 1836888499,
         "name" : "Zhuhai International Circuit",
-        "gridsize" : 42
+        "gridsize" : 32
       },
       {
         "id" : 1876749797,
-        "name" : "Cadwell GP",
+        "name" : "Cadwell Park GP",
         "gridsize" : 12
+      },
+      {
+        "id" : 1887425815,
+        "name" : "Knockhill National",
+        "gridsize" : 12
+      },
+      {
+        "id" : 1892852585,
+        "name" : "Wildcrest Rallycross",
+        "gridsize" : 6
       },
       {
         "id" : 1940584155,
@@ -214,14 +349,44 @@
         "gridsize" : 30
       },
       {
-        "id" : 2089801285,
-        "name" : "Mojave Gila Crest",
-        "gridsize" : 47
+        "id" : 2015693491,
+        "name" : "Mojave Sidewinder",
+        "gridsize" : 32
       },
       {
-        "id" : -2125682335,
-        "name" : "Mojave Coyote Noose",
-        "gridsize" : 47
+        "id" : 2050315946,
+        "name" : "Circuit of the Americas GP",
+        "gridsize" : 32
+      },
+      {
+        "id" : 2054003546,
+        "name" : "Daytona International Speedway Tri-Oval",
+        "gridsize" : 32
+      },
+      {
+        "id" : 2087662703,
+        "name" : "Lånkebanen Rallycross",
+        "gridsize" : 6
+      },
+      {
+        "id" : -2126387783,
+        "name" : "Knockhill International",
+        "gridsize" : 12
+      },
+      {
+        "id" : -2110554879,
+        "name" : "Mugello Short",
+        "gridsize" : 40
+      },
+      {
+        "id" : -2108341365,
+        "name" : "DirtFish Pro Rallycross Course",
+        "gridsize" : 6
+      },
+      {
+        "id" : -2055158240,
+        "name" : "Classic Brands Hatch Rallycross",
+        "gridsize" : 6
       },
       {
         "id" : -2046633090,
@@ -234,6 +399,11 @@
         "gridsize" : 26
       },
       {
+        "id" : -2014223741,
+        "name" : "Red Bull Ring National",
+        "gridsize" : 32
+      },
+      {
         "id" : -1977142985,
         "name" : "Hockenheim National",
         "gridsize" : 30
@@ -241,7 +411,12 @@
       {
         "id" : -1936790504,
         "name" : "Azure Coast Westbound",
-        "gridsize" : 25
+        "gridsize" : 24
+      },
+      {
+        "id" : -1933253531,
+        "name" : "Red Bull Ring GP",
+        "gridsize" : 32
       },
       {
         "id" : -1877699523,
@@ -254,24 +429,39 @@
         "gridsize" : 24
       },
       {
+        "id" : -1804962581,
+        "name" : "Circuit de Spa-Francorchamps Historic",
+        "gridsize" : 20
+      },
+      {
         "id" : -1785781495,
-        "name" : "Watkins Glen GP",
-        "gridsize" : 43
+        "name" : "Watkins Glen International GP",
+        "gridsize" : 32
       },
       {
         "id" : -1759743046,
         "name" : "Sakitto GP",
-        "gridsize" : 54
+        "gridsize" : 32
       },
       {
         "id" : -1737261125,
         "name" : "Azure Coast Stage 3",
-        "gridsize" : 36
+        "gridsize" : 32
       },
       {
         "id" : -1735912413,
-        "name" : "Chesterfield",
+        "name" : "Chesterfield Karting Circuit",
         "gridsize" : 24
+      },
+      {
+        "id" : -1695214357,
+        "name" : "Fuji GP",
+        "gridsize" : 32
+      },
+      {
+        "id" : -1694936640,
+        "name" : "DirtFish Mill Run Course",
+        "gridsize" : 6
       },
       {
         "id" : -1612023328,
@@ -286,7 +476,7 @@
       {
         "id" : -1593944167,
         "name" : "California Highway Full",
-        "gridsize" : 36
+        "gridsize" : 32
       },
       {
         "id" : -1520844580,
@@ -296,22 +486,17 @@
       {
         "id" : -1515473908,
         "name" : "Rouen Les Essarts Short",
-        "gridsize" : 20
+        "gridsize" : 26
       },
       {
         "id" : -1474170192,
         "name" : "Sakitto International",
-        "gridsize" : 26
-      },
-      {
-        "id" : -1463443929,
-        "name" : "Mojave Sidewinder",
-        "gridsize" : 47
+        "gridsize" : 24
       },
       {
         "id" : -1454279631,
         "name" : "Sonoma Raceway GP",
-        "gridsize" : 43
+        "gridsize" : 32
       },
       {
         "id" : -1408779593,
@@ -320,33 +505,33 @@
       },
       {
         "id" : -1408189041,
-        "name" : "Cadwell Woodland",
+        "name" : "Cadwell Park Woodland",
         "gridsize" : 12
       },
       {
         "id" : -1359299594,
-        "name" : "Oschersleben C Circuit",
-        "gridsize" : 23
+        "name" : "Oschersleben C Course",
+        "gridsize" : 24
       },
       {
         "id" : -1260826266,
         "name" : "Sakitto National",
-        "gridsize" : 26
+        "gridsize" : 24
       },
       {
         "id" : -1194290828,
-        "name" : "Silverstone Classic",
+        "name" : "Silverstone Classic GP",
         "gridsize" : 18
       },
       {
         "id" : -1194185720,
-        "name" : "Oschersleben GP",
-        "gridsize" : 30
+        "name" : "Oschersleben A Course",
+        "gridsize" : 28
       },
       {
         "id" : -1194019375,
         "name" : "Donington Park National",
-        "gridsize" : 38
+        "gridsize" : 32
       },
       {
         "id" : -1160443077,
@@ -354,39 +539,59 @@
         "gridsize" : 22
       },
       {
+        "id" : -1088073214,
+        "name" : "Knockhill International Reverse",
+        "gridsize" : 12
+      },
+      {
         "id" : -1066742780,
-        "name" : "Glencairn",
+        "name" : "Glencairn GP",
         "gridsize" : 16
       },
       {
         "id" : -1042928898,
         "name" : "Circuit de Barcelona-Catalunya Club",
-        "gridsize" : 40
+        "gridsize" : 32
       },
       {
         "id" : -1031249929,
         "name" : "Rouen Les Essarts",
-        "gridsize" : 20
+        "gridsize" : 26
       },
       {
         "id" : -1027934689,
-        "name" : "Le Circuit Bugatti",
-        "gridsize" : 40
+        "name" : "Le Mans Bugatti Circuit",
+        "gridsize" : 32
+      },
+      {
+        "id" : -1024221192,
+        "name" : "Sportsland SUGO",
+        "gridsize" : 26
       },
       {
         "id" : -998191994,
         "name" : "Circuit de Barcelona-Catalunya National",
-        "gridsize" : 36
+        "gridsize" : 32
       },
       {
         "id" : -995202729,
         "name" : "Sonoma Raceway National",
-        "gridsize" : 33
+        "gridsize" : 32
+      },
+      {
+        "id" : -984009759,
+        "name" : "Mojave Boa Ascent",
+        "gridsize" : 32
       },
       {
         "id" : -945967394,
         "name" : "Nürburgring GP",
         "gridsize" : 30
+      },
+      {
+        "id" : -941106232,
+        "name" : "Knockhill Tri-Oval",
+        "gridsize" : 10
       },
       {
         "id" : -913625358,
@@ -395,8 +600,8 @@
       },
       {
         "id" : -907901266,
-        "name" : "Brno",
-        "gridsize" : 40
+        "name" : "Brno GP",
+        "gridsize" : 26
       },
       {
         "id" : -891514248,
@@ -406,12 +611,17 @@
       {
         "id" : -879282119,
         "name" : "Sakitto Sprint",
-        "gridsize" : 54
+        "gridsize" : 32
       },
       {
         "id" : -867340010,
         "name" : "Snetterton 100",
         "gridsize" : 26
+      },
+      {
+        "id" : -823048021,
+        "name" : "Sampala Ice Circuit",
+        "gridsize" : 6
       },
       {
         "id" : -810715843,
@@ -421,12 +631,12 @@
       {
         "id" : -780879576,
         "name" : "Azure Coast Stage 2",
-        "gridsize" : 32
+        "gridsize" : 24
       },
       {
         "id" : -710712693,
         "name" : "Dubai Autodrome International",
-        "gridsize" : 36
+        "gridsize" : 32
       },
       {
         "id" : -709737101,
@@ -434,19 +644,14 @@
         "gridsize" : 30
       },
       {
-        "id" : -688586697,
-        "name" : "Mojave Cougar Ridge",
-        "gridsize" : 47
-      },
-      {
         "id" : -661887517,
         "name" : "Dubai Autodrome GP",
-        "gridsize" : 36
+        "gridsize" : 32
       },
       {
         "id" : -660300766,
         "name" : "Road America",
-        "gridsize" : 64
+        "gridsize" : 32
       },
       {
         "id" : -602684269,
@@ -454,29 +659,39 @@
         "gridsize" : 20
       },
       {
+        "id" : -598879227,
+        "name" : "Rallycross of Loheac",
+        "gridsize" : 6
+      },
+      {
         "id" : -446794969,
         "name" : "Glencairn East Reverse",
         "gridsize" : 16
       },
       {
+        "id" : -416617300,
+        "name" : "Autódromo Internacional do Algarve",
+        "gridsize" : 32
+      },
+      {
         "id" : -360711057,
         "name" : "Zolder",
-        "gridsize" : 36
+        "gridsize" : 32
       },
       {
         "id" : -331502851,
         "name" : "California Highway Stage 3",
-        "gridsize" : 36
+        "gridsize" : 32
       },
       {
         "id" : -300387291,
-        "name" : "Nordschleife Stage 2",
-        "gridsize" : 36
+        "name" : "Nürburgring Nordschleife Stage 2",
+        "gridsize" : 32
       },
       {
         "id" : -246966400,
         "name" : "Nürburgring Müllenbach",
-        "gridsize" : 36
+        "gridsize" : 30
       },
       {
         "id" : -232513374,
@@ -484,24 +699,49 @@
         "gridsize" : 22
       },
       {
+        "id" : -163046637,
+        "name" : "Autodromo Nazionale Monza Oval Historic",
+        "gridsize" : 22
+      },
+      {
+        "id" : -158843644,
+        "name" : "Porsche Leipzig Full Circuit",
+        "gridsize" : 26
+      },
+      {
+        "id" : -105902772,
+        "name" : "Porsche Leipzig Dynamic Circuit",
+        "gridsize" : 20
+      },
+      {
         "id" : -103312908,
         "name" : "Willow Springs International Raceway",
-        "gridsize" : 50
+        "gridsize" : 32
+      },
+      {
+        "id" : -73186614,
+        "name" : "Red Bull Ring Club",
+        "gridsize" : 32
+      },
+      {
+        "id" : -60500434,
+        "name" : "Mojave Gila Crest",
+        "gridsize" : 32
       },
       {
         "id" : -52972612,
         "name" : "Autodromo Nazionale Monza GP",
-        "gridsize" : 54
+        "gridsize" : 32
       },
       {
         "id" : -44748320,
-        "name" : "Summerton",
+        "name" : "Summerton International",
         "gridsize" : 28
       },
       {
         "id" : -31727447,
         "name" : "Dubai Autodrome National",
-        "gridsize" : 36
+        "gridsize" : 32
       }
     ]
   }

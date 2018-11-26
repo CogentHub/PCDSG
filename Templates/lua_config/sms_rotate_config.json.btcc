@@ -1,0 +1,562 @@
+// Config version.
+version : 7
+
+// Default configuration.
+config : {
+
+	// Is the current rotation index persistent? If true, the rotation will continue after server restart,
+	// If false, the rotation will always start from the first setup.
+	// You can always delete the sms_rotate_data.json file from lua_config to reset the persisted index.
+	"persist_index" : true,
+
+	// The default setup. This is a table with attributes and values. The following rules apply to the attributes:
+
+	// - The setup should never contain any of the "ServerControls" attributes, those are decided automatically.
+	// - The setup should never contain both VehicleModelId and VehicleClassId at the same time. Restrict either the class or specific vehicle.
+	
+	"default" : {
+		// Default Car Class
+		// -- If VehicleClassId is specified: The class to enforce. Automatically sets 1 to ServerControlsVehicleClass, sets FORCE_SAME_VEHICLE_CLASS to Flags
+		// -- Vehicle class and all enum/flags attributes can use values in string forms - so you can use either track id, or track name.
+		"VehicleClassId" : "Touring Car",
+
+		// Default Car if VehicleClassId is not specificed for single Make Race
+		// -- If VehicleModelId is specified: The vehicle to enforce. Automatically sets 1 to ServerControlsVehicle, sets FORCE_IDENTICAL_VEHICLES to Flags
+		// -- Vehicle model, and all enum/flags attributes can use values in string forms - so you can use either track id, or track name.	
+		//"VehicleModelId" : "Opel Astra TCR",
+
+			// See /api/list/vehicles/ via HTTP (http://127.0.0.1:9000/api/list/vehicles/)
+
+		// Default Track for Session
+		// -- If TrackId is specified: The track to enforce. Automatically sets 1 to ServerControlsTrack
+		// -- Track, and all enum/flags attributes can use values in string forms - so you can use either track id, or track name.	
+		// -- WARNING! WARNING! WARNING! DO NOT UNCOMMENT THE TRACKID BELOW, BREAKS SERVER LAUNCH -- //
+		//"TrackId" : "DO NOT ENABLE ME",
+
+			// See /api/list/tracks/ via HTTP (http://127.0.0.1:9000/api/list/tracks/)
+
+		// Default Session settings for Realism and Penalties
+		// -- Remove TIMED_RACE to switch back to Laps based races --
+		// -- Flags in string form can contain multiple flags separated by comma, so for example "ABS_ALLOWED,SC_ALLOWED,TCS_ALLOWED"
+		// -- The Flags attribute should never contain FORCE_IDENTICAL_VEHICLES or FORCE_SAME_VEHICLE_CLASS flags, those are decided automatically.
+		"Flags" : "ALLOW_CUSTOM_VEHICLE_SETUP,AUTO_START_ENGINE,MECHANICAL_FAILURES,ONLINE_REPUTATION_ENABLED,WAIT_FOR_RACE_READY_INPUT,PIT_SPEED_LIMITER,TIMED_RACE,GHOST_GRIEFERS,ANTI_GRIEFING_COLLISIONS",
+
+			// See /api/list/flags/session via HTTP (http://127.0.0.1:9000/api/list/flags/session)
+		//"OpponentDifficulty" : 120,
+		// Damage: "OFF","VISUAL_ONLY","PERFORMANCEIMPACTING","FULL" (Value in order of names shown: [0-3] 0 = OFF : 3 = FULL)
+		"DamageType" : "FULL",
+
+		// Tire Wear: "OFF","SLOW","STANDARD","X2" to "x7" (Value in order to names shown: [8-0] 8 = OFF : 0 = X7)
+		"TireWearType" : "STANDARD",
+
+		// Fuel Usage: "STANDARD","SLOW","OFF" (Value in order of names shown: [0-2] 0 = STANDARD : 2 = OFF)
+		"FuelUsageType" : "STANDARD",
+
+		// Penalty Setting: "NONE","FULL" (Value in order of names shown: [0-1] 0 = OFF : 1 = FULL)
+		"PenaltiesType" : "FULL",
+
+		// Penalty Time in Seconds
+		"AllowablePenaltyTime" : 5,
+
+		// Pit Lane exit crossing the white Line: 0 Disable 1 Enable 
+		"PitWhiteLinePenalty" : 1,
+
+		// Drive through penalties: 0 Disable 1 Enable
+		"DriveThroughPenalty" : 1,
+
+		// Camera view: "Any" All veiws "CockpitHelmet" Locked view to cockpit only
+		"AllowedViews" : "Any",
+
+		// Force Manual Pitstops: 0 Enable 1 Disable -- This might get fixed in future ded server updates
+		// -- Bugged values are reverse to what documentations states. NOTE: No visual change in In Game Lobby view
+		"ManualPitStops" : 0,
+
+		// Manual Rolling Starts: 0 Disable 1 Enable :: Used only when Rolling Starts is enabled
+		"ManualRollingStarts" : 0,
+
+		// Minimum Online Safety Rank: "U","F","E","D","C","B","A","S"
+		"MinimumOnlineRank" : "F",
+
+		// MinimuM Online Driver Rank: 100 - 5000 :: Use lower values to allow more players in, segragate by safety rank to get clean drivers
+		"MinimumOnlineStrength" : 1000,
+
+		// Default Practice Session Settings
+		// Practice Session Length in Time (Minutes) :: Leave uncommented and set to 0 if you don't want a practice session
+		"PracticeLength" : 0,
+
+		// Default Qualify Session Settings
+		// Qualify Session Length in Time (Minutes)
+		"QualifyLength" : 10,
+
+		// Default Race Session Settings
+		// Race Session Length in Time (Minutes) if TIMED_RACE Flag() is set, LAPS otherwise.
+		"RaceLength" : 10,
+		
+		// Default Race Start: 0 - Standing 1 - Rolling
+		"RaceRollingStart" : 0,
+
+		// Default Formation Lap: 0 - Disable 1 - Enable :: Only valid if "RaceRollingStart" is 1 (Rolling)
+		"RaceFormationLap" : 0,
+
+		// Default Mandatory Pitstop: 0 - Disable 1 - Enable
+		"RaceMandatoryPitStops" : 0,
+
+		// Default Practice Date and Time :: *DateHour is 24HR, no need for a leading 0 for early AM e.g. use 1 for 1AM, 8 for 8AM, 14 for 2PM
+		// "PracticeDateHour" : 6,
+
+		// Default Practice Time Progression Multiplier: 0 - OFF, 1 - Real Time, 2 - 2x, 5 - 5x, 10 - 10x, 15 - 15x, 20 - 20x, 25 - 25x, 30 - 30x, 40 - 40x, 50 - 50x, 60 - 60x
+		//"PracticeDateProgression" : 25,
+		
+		// Default Practice Weather Progression Multiplier: 0 - Sync to Race, 1 - Real Time, 2 - 2x, 5 - 5x, 10 - 10x, 15 - 15x, 20 - 20x, 25 - 25x, 30 - 30x, 40 - 40x, 50 - 50x, 60 - 60x
+		//"PracticeWeatherProgression" : 0,
+
+		// Default Qualify Date and Time :: *DateHour is 24HR, no need for a leading 0 for early AM e.g. use 1 for 1AM, 8 for 8AM, 14 for 2PM
+		"QualifyDateHour" : 8,
+
+		// Default Qualify Time Progression Multiplier: 0 - OFF, 1 - Real Time, 2 - 2x, 5 - 5x, 10 - 10x, 15 - 15x, 20 - 20x, 25 - 25x, 30 - 30x, 40 - 40x, 50 - 50x, 60 - 60x
+		"QualifyDateProgression" : 25,
+
+		// Default Qualify Weather Progression Multiplier: 0 - Sync to Race, 1 - Real Time, 2 - 2x, 5 - 5x, 10 - 10x, 15 - 15x, 20 - 20x, 25 - 25x, 30 - 30x, 40 - 40x, 50 - 50x, 60 - 60x
+		"QualifyWeatherProgression" : 0,
+
+		// Default Race Date and Time :: *DateHour is 24HR, no need for a leading 0 for early AM e.g. use 1 for 1AM, 8 for 8AM, 14 for 2PM
+		"RaceDateYear" : 2017,
+		"RaceDateMonth" : 3,
+		"RaceDateDay" : 27,
+		"RaceDateHour" : 14,
+
+		// Default Race Time Progression Multiplier: 0 - OFF, 1 - Real Time, 2 - 2x, 5 - 5x, 10 - 10x, 15 - 15x, 20 - 20x, 25 - 25x, 30 - 30x, 40 - 40x, 50 - 50x, 60 - 60x
+		"RaceDateProgression" : 25,
+
+		// Default Race Weather Progression Multiplier: 0 - Sync to Race, 1 - Real Time, 2 - 2x, 5 - 5x, 10 - 10x, 15 - 15x, 20 - 20x, 25 - 25x, 30 - 30x, 40 - 40x, 50 - 50x, 60 - 60x
+		"RaceWeatherProgression" : 0,
+
+			// "Clear"
+			// "LightCloud"
+			// "MediumClud"
+			// "HeavyCloud"
+			// "Overcast"
+			// "Foggy" 
+			// "HeavyFog"
+			// "Hazy"
+			// "Storm" 
+			// "ThunderStorm" 
+			// "Rain" 
+			// "LightRain" 
+			// "snow"
+			// "heavysnow"
+			// "blizzard"
+			// "HeavyFog"
+			// "HeavyFogWithRain"
+			// "random"
+
+			// See /api/list/enums/weather via HTTP (http://127.0.0.1:9000/api/list/enums/weather)
+		
+		// Default Practice Weather Slots: 0 - 4 Slots, 0 = "Real Weather" for ##CURRENT## date/time, NOT date/time set for the session
+		// Not clear if this is based on the track location or the location of the dedicated server. Need details from devs
+		// "PracticeWeatherSlots" : 4,
+		// "PracticeWeatherSlot1" : "Clear",
+		// "PracticeWeatherSlot2" : "Clear",
+		// "PracticeWeatherSlot3" : "Clear",
+		// "PracticeWeatherSlot4" : "Clear",
+
+		// Default Qualify Weather Slots: 0 - 4 Slots, 0 = "Real Weather" for ##CURRENT## date/time, NOT date/time set for the session
+		// Not clear if this is based on the track location or the location of the dedicated server. Need details from devs.
+		"QualifyWeatherSlots" : 4,
+		"QualifyWeatherSlot1" : "Clear",
+		"QualifyWeatherSlot2" : "Clear",
+		"QualifyWeatherSlot3" : "Clear",
+		"QualifyWeatherSlot4" : "Clear",
+
+		// Default Race Weather Slots: 0 - 4 Slots, 0 = "Real Weather" for ##CURRENT## date/time, NOT date/time set for the session
+		// Not clear if this is based on the track location or the location of the dedicated server. Need details from devs
+		"RaceWeatherSlots" : 4,
+		"RaceWeatherSlot1" : "Clear",
+		"RaceWeatherSlot2" : "Clear",
+		"RaceWeatherSlot3" : "Clear",
+		"RaceWeatherSlot4" : "Clear",
+	},
+
+	// The rotation. Array of setups to rotate. If empty, just the default setup will be used with no actual rotation happening.
+	//
+	// These setups are applied on top of the default setup, then applied to the game. Previous setup in the rotation is never used.
+	// So for example if you wanted to repeat the same track in multiple consecutive setups, different from the default track,
+	// each of those setups needs to explicitly include that track. Also remember that apart from the flags nothing can be "removed"
+	// from the default setup, so if the default setup contains a track, some track will always be enforced (either the default one,
+	// or the setup-specific one). And one last thing, these override setups can never include an attribute that's not specified in
+	// the default setup - it can just override some of the default attributes, not add new ones. The only exception are the
+	// track/vehicle/class attributes.
+	//
+	// Attributes in these setups can have a special attribute RemoveFlags set, which will remove the specified flags from the default
+	// setup instead of adding them to it (which is what the Flags attribute will do)
+
+	"rotation" : [
+
+		// WEC Track Rotation Reference 2017: Monza, Silverstone Int, Spa, Le Mans 24h, Nurburgring GP, COTA, Fuji, Shanghai, Bahrain
+		// WEC Dates in order MM/DD: 3/25, 4/16, 5/6, 6/17, 7/16, 9/3, 9/16, 10/15, 11/5, 11/18
+
+		// GTE Track Rotation Reference 2017: Same as GT3
+		// GTE Dates in order MM/DD: Same as GT3
+
+		// GT3 Blancpain Track Rotation 2017: Paul Ricard, Zolder, Monza, Brands Hatch GP, Silverstone Int, Paul Ricard, Misano, Spa, Spa24hr, Budapest, Nurburgring GP, Barcelona
+		// GT3 Dates in order MM/DD: 3/13-14, 4/6-8, 4/21-22, 5/5-6, 5/19-20, 6/1-2, 6/22-24, 7/3, 7/26-29, 8/31-9/2, 9/14-16, 9/29-30
+		
+		// GT4 Euro Series North Cup Track Rotation 2017: Misano, Red Bull Ring GP, Brands Hatch GP, Slovakia Ring, Zandvoort, Nurburgring GP
+		// GT4 Dates in order MM/DD:  3/31-4/2, 6/9-11, 5/6-7, 6/14-16, 8/19-20, 9/15-17
+
+		// -- You can override any of the defaults listed above by specifying them per track/rotation as desired --
+		// -- Use [ "RemoveFlags" : "FLAGS_TO_REMOVE" ] to remove a flag e.g. (TC_ENABLED) from a particular track/car combo in the rotation
+
+		// Race 1 Donington Park National
+		{
+			"TrackId" : "Donington Park National",
+			"VehicleClassId" : "Touring Car",
+
+			// If enabled the the Formation lap and Rolling start are player controlled.
+			// "ManualRollingStarts" : 1,
+
+			// Rolling start options, set both to 1 to enable a Rolling start
+			// "RaceRollingStart" : 1,
+			// "RaceFormationLap" : 1,
+
+			// "PracticeLength" : 10,
+			// "PracticeDateHour" : 6,
+
+			// "PracticeDateProgression" : 12,
+			// "PracticeWeatherProgression" : 7,
+
+			// "PracticeWeatherSlots" : 4,
+			// "PracticeWeatherSlot1" : "Clear",
+			// "PracticeWeatherSlot2" : "Overcast",
+			// "PracticeWeatherSlot3" : "Foggy",
+			// "PracticeWeatherSlot4" : "LightCloud",
+
+			"QualifyLength" : 10,
+			"QualifyDateHour" : 8,
+
+			"QualifyWeatherSlots" : 4,
+			"QualifyWeatherSlot1" : "Foggy",
+			"QualifyWeatherSlot2" : "Overcast",
+			"QualifyWeatherSlot3" : "LightCloud",
+			"QualifyWeatherSlot4" : "Clear",
+
+			//"ManualRollingStarts" : 0,
+			//"RaceRollingStart" : 0,
+			//"RaceFormationLap" : 0,
+			//"RaceMandatoryPitStops" : 0,
+
+			"RaceLength" : 10,
+
+			"RaceDateYear" : 2017,
+			"RaceDateMonth" : 3,
+			"RaceDateDay" : 27,
+			"RaceDateHour" : 14,
+
+			"RaceWeatherSlots" : 4,
+			"RaceWeatherSlot1" : "Clear",
+			"RaceWeatherSlot2" : "MediumCloud",
+			"RaceWeatherSlot3" : "HeavyCloud",
+			"RaceWeatherSlot4" : "Hazy",
+		},
+		// Race 2 Brands Hatch Indy
+		{
+			"TrackId" : "Brands Hatch Indy",
+			"VehicleClassId" : "Touring Car",
+
+			"PracticeLength" : 0,
+
+			"QualifyLength" : 10,
+
+			"QualifyDateHour" : 8,
+
+			"QualifyWeatherSlots" : 4,
+			"QualifyWeatherSlot1" : "Clear",
+			"QualifyWeatherSlot2" : "Overcast",
+			"QualifyWeatherSlot3" : "LightRain",
+			"QualifyWeatherSlot4" : "LightCloud",
+
+			"RaceLength" : 10,
+
+			"RaceDateYear" : 2017,
+			"RaceDateMonth" : 4,
+			"RaceDateDay" : 8,
+			"RaceDateHour" : 14,
+
+			"RaceWeatherSlots" : 4,
+			"RaceWeatherSlot1" : "Clear",
+			"RaceWeatherSlot2" : "Hazy",
+			"RaceWeatherSlot3" : "MediumCloud",
+			"RaceWeatherSlot4" : "HeavyCloud",
+		},
+		// Race 3 Donington Park National
+		{
+			"TrackId" : "Donington Park National",
+			"VehicleClassId" : "Touring Car",
+
+			"PracticeLength" : 0,
+
+			"QualifyLength" : 10,
+
+			"QualifyDateHour" : 8,
+
+			"QualifyWeatherSlots" : 4,
+			"QualifyWeatherSlot1" : "Hazy",
+			"QualifyWeatherSlot2" : "MediumCloud",
+			"QualifyWeatherSlot3" : "LightCloud",
+			"QualifyWeatherSlot4" : "Clear",
+
+			"RaceLength" : 10,
+
+			"RaceDateYear" : 2017,
+			"RaceDateMonth" : 4,
+			"RaceDateDay" : 29,
+			"RaceDateHour" : 14,
+
+			"RaceWeatherSlots" : 4,
+			"RaceWeatherSlot1" : "Overcast",
+			"RaceWeatherSlot2" : "MediumCloud",
+			"RaceWeatherSlot3" : "HeavyCloud",
+			"RaceWeatherSlot4" : "Clear",
+		},
+		// Race 4 Thruxton -> SUGO
+		{
+			"TrackId" : "Sportsland SUGO",
+			"VehicleClassId" : "Touring Car",
+
+			"PracticeLength" : 0,
+
+			"QualifyLength" : 10,
+
+			"QualifyDateHour" : 8,
+
+			"QualifyWeatherSlots" : 4,
+			"QualifyWeatherSlot1" : "Hazy",
+			"QualifyWeatherSlot2" : "Clear",
+			"QualifyWeatherSlot3" : "MediumCloud",
+			"QualifyWeatherSlot4" : "Clear",
+
+			"RaceLength" : 10,
+
+			"RaceDateYear" : 2017,
+			"RaceDateMonth" : 5,
+			"RaceDateDay" : 20,
+			"RaceDateHour" : 14,
+
+			"RaceWeatherSlots" : 4,
+			"RaceWeatherSlot1" : "LightCloud",
+			"RaceWeatherSlot2" : "MediumCloud",
+			"RaceWeatherSlot3" : "Clear",
+			"RaceWeatherSlot4" : "Hazy",
+		},
+		// Race 5 Oulton Park Island
+		{
+			"TrackId" : "Oulton Park Island",
+			"VehicleClassId" : "Touring Car",
+
+			"PracticeLength" : 0,
+
+			"QualifyLength" : 10,
+
+			"QualifyDateHour" : 8,
+
+			"QualifyWeatherSlots" : 4,
+			"QualifyWeatherSlot1" : "HeavyFog",
+			"QualifyWeatherSlot2" : "Foggy",
+			"QualifyWeatherSlot3" : "Overcast",
+			"QualifyWeatherSlot4" : "MediumCloud",
+
+			"RaceLength" : 10,
+
+			"RaceDateYear" : 2017,
+			"RaceDateMonth" : 6,
+			"RaceDateDay" : 10,
+			"RaceDateHour" : 14,
+
+			"RaceWeatherSlots" : 4,
+			"RaceWeatherSlot1" : "LightCloud",
+			"RaceWeatherSlot2" : "MediumCloud",
+			"RaceWeatherSlot3" : "Clear",
+			"RaceWeatherSlot4" : "LightCloud",
+		},
+		// Race 6 Croft -> Zolder
+		{
+			"TrackId" : "Oulton Park Island",
+			"VehicleClassId" : "Touring Car",
+
+			"PracticeLength" : 0,
+
+			"QualifyLength" : 10,
+
+			"QualifyDateHour" : 8,
+
+			"QualifyWeatherSlots" : 4,
+			"QualifyWeatherSlot1" : "Hazy",
+			"QualifyWeatherSlot2" : "Overcast",
+			"QualifyWeatherSlot3" : "LightRain",
+			"QualifyWeatherSlot4" : "Foggy",
+
+			"RaceLength" : 10,
+
+			"RaceDateYear" : 2017,
+			"RaceDateMonth" : 6,
+			"RaceDateDay" : 24,
+			"RaceDateHour" : 14,
+
+			"RaceWeatherSlots" : 4,
+			"RaceWeatherSlot1" : "MediumCloud",
+			"RaceWeatherSlot2" : "Clear",
+			"RaceWeatherSlot3" : "LightCloud",
+			"RaceWeatherSlot4" : "Clear",
+		},
+		// Race 7 Snetterton 300
+		{
+			"TrackId" : "Snetterton 300",
+			"VehicleClassId" : "Touring Car",
+
+			"PracticeLength" : 0,
+
+			"QualifyLength" : 10,
+
+			"QualifyDateHour" : 8,
+
+			"QualifyWeatherSlots" : 4,
+			"QualifyWeatherSlot1" : "Clear",
+			"QualifyWeatherSlot2" : "Overcast",
+			"QualifyWeatherSlot3" : "LightCloud",
+			"QualifyWeatherSlot4" : "HeavyCloud",
+
+			"RaceLength" : 10,
+
+			"RaceDateYear" : 2017,
+			"RaceDateMonth" : 6,
+			"RaceDateDay" : 10,
+			"RaceDateHour" : 14,
+
+			"RaceWeatherSlots" : 4,
+			"RaceWeatherSlot1" : "MediumCloud",
+			"RaceWeatherSlot2" : "HeavyCloud",
+			"RaceWeatherSlot3" : "Overcast",
+			"RaceWeatherSlot4" : "Clear",
+		},
+		// Race 8 Rockingham -> Indianapolis
+		{
+			"TrackId" : "Indianapolis Motor Speedway Road Course",
+			"VehicleClassId" : "Touring Car",
+
+			"PracticeLength" : 0,
+
+			"QualifyLength" : 10,
+
+			"QualifyDateHour" : 8,
+
+			"QualifyWeatherSlots" : 4,
+			"QualifyWeatherSlot1" : "Hazy",
+			"QualifyWeatherSlot2" : "MediumCloud",
+			"QualifyWeatherSlot3" : "LightCloud",
+			"QualifyWeatherSlot4" : "Clear",
+
+			"RaceLength" : 10,
+
+			"RaceDateYear" : 2017,
+			"RaceDateMonth" : 6,
+			"RaceDateDay" : 10,
+			"RaceDateHour" : 14,
+
+			"RaceWeatherSlots" : 4,
+			"RaceWeatherSlot1" : "Clear",
+			"RaceWeatherSlot2" : "MediumCloud",
+			"RaceWeatherSlot3" : "HeavyCloud",
+			"RaceWeatherSlot4" : "Clear",
+		},
+		// Race 9 Knockhill International -> Reb Bull Ring GP
+		{
+			"TrackId" : "Red Bull Ring GP",
+			"VehicleClassId" : "Touring Car",
+
+			"PracticeLength" : 0,
+
+			"QualifyLength" : 10,
+
+			"QualifyDateHour" : 8,
+
+			"QualifyWeatherSlots" : 4,
+			"QualifyWeatherSlot1" : "Clear",
+			"QualifyWeatherSlot2" : "Overcast",
+			"QualifyWeatherSlot3" : "LightCloud",
+			"QualifyWeatherSlot4" : "Clear",
+
+			"RaceLength" : 10,
+
+			"RaceDateYear" : 2017,
+			"RaceDateMonth" : 8,
+			"RaceDateDay" : 26,
+			"RaceDateHour" : 14,
+
+			"RaceWeatherSlots" : 4,
+			"RaceWeatherSlot1" : "Clear",
+			"RaceWeatherSlot2" : "Hazy",
+			"RaceWeatherSlot3" : "MediumCloud",
+			"RaceWeatherSlot4" : "Clear",
+		},
+		// Race 10 Silverstone National
+		{
+			"TrackId" : "Silverstone National",
+			"VehicleClassId" : "Touring Car",
+
+			"PracticeLength" : 0,
+
+			"QualifyLength" : 10,
+
+			"QualifyDateHour" : 8,
+
+			"QualifyWeatherSlots" : 4,
+			"QualifyWeatherSlot1" : "Foggy",
+			"QualifyWeatherSlot2" : "Overcast",
+			"QualifyWeatherSlot3" : "LightRain",
+			"QualifyWeatherSlot4" : "Rain",
+
+			"RaceLength" : 10,
+
+			"RaceDateYear" : 2017,
+			"RaceDateMonth" : 9,
+			"RaceDateDay" : 16,
+			"RaceDateHour" : 14,
+
+			"RaceWeatherSlots" : 4,
+			"RaceWeatherSlot1" : "Rain",
+			"RaceWeatherSlot2" : "Storm",
+			"RaceWeatherSlot3" : "ThunderStorm",
+			"RaceWeatherSlot4" : "Overcast",
+		},
+		// Race 11 Brands Hatch GP
+		{
+			"TrackId" : "Brands Hatch GP",
+			"VehicleClassId" : "Touring Car",
+
+			"PracticeLength" : 0,
+
+			"QualifyLength" : 10,
+
+			"QualifyDateHour" : 8,
+
+			"QualifyWeatherSlots" : 4,
+			"QualifyWeatherSlot1" : "Clear",
+			"QualifyWeatherSlot2" : "Overcast",
+			"QualifyWeatherSlot3" : "LightCloud",
+			"QualifyWeatherSlot4" : "Clear",
+
+			"RaceLength" : 10,
+
+			"RaceDateYear" : 2017,
+			"RaceDateMonth" : 9,
+			"RaceDateDay" : 30,
+			"RaceDateHour" : 14,
+
+			"RaceWeatherSlots" : 4,
+			"RaceWeatherSlot1" : "Clear",
+			"RaceWeatherSlot2" : "MediumCloud",
+			"RaceWeatherSlot3" : "HeavyCloud",
+			"RaceWeatherSlot4" : "Clear",
+		}
+	]
+}

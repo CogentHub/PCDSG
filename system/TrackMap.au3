@@ -1,6 +1,4 @@
-#Region ;**** Directives created by AutoIt3Wrapper_GUI ****
-#AutoIt3Wrapper_Icon=..\ICONS\InfoWindow.ico
-#EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
+
 
 #include <GUIConstantsEx.au3>
 #include <WindowsConstants.au3>
@@ -46,6 +44,7 @@ Global $NowTime_Value = _NowTime()
 Global $NowTime_orig = $NowTime_Value
 Global $NowTime = StringReplace($NowTime_Value, ":", "-")
 
+
 #Region Global Variables / Const
 Global $Wert, $ListView
 #endregion Global Variables/Const
@@ -83,6 +82,48 @@ Global $Check_Checkbox_Position_Shadow = IniRead($config_ini, "TrackMap", "Check
 Global $Check_Checkbox_Show_Track = IniRead($config_ini, "TrackMap", "Checkbox_2", "")
 
 Global $TrackName_Replay, $SessionStage_Replay
+
+;Server http settings lesen
+Global $Name_Password = ""
+If IniRead($config_ini, "Server_Einstellungen", "Group_Admin_1", "") <> "" Then
+	Local $Name_User = IniRead($config_ini, "Server_Einstellungen", "Group_Admin_1", "")
+	Local $Password_User = IniRead($config_ini, "Server_Einstellungen", "password_User_1", "")
+	$Name_Password = $Name_User & ":" & $Password_User & "@"
+EndIf
+
+Local $DS_Mode_Temp = IniRead($config_ini, "PC_Server", "DS_Mode", "local")
+If $DS_Mode_Temp = "local" Then
+	If $Name_User <> "" And $Password_User <> "" Then
+		Global $Lesen_Auswahl_httpApiInterface = $Name_Password & IniRead($config_ini, "Server_Einstellungen", "httpApiInterface", "")
+		Global $Lesen_Auswahl_httpApiPort = IniRead($config_ini, "Server_Einstellungen", "httpApiPort", "")
+
+		If IniRead($config_ini, "Server_Einstellungen", "httpApiInterface", "") = "" Then Global $Lesen_Auswahl_httpApiInterface = $Name_Password & "localhost" ; "127.0.0.1"
+		If $Lesen_Auswahl_httpApiPort = "" Then Global $Lesen_Auswahl_httpApiPort = "9000"
+	Else
+		Global $Lesen_Auswahl_httpApiInterface = IniRead($config_ini, "Server_Einstellungen", "httpApiInterface", "")
+		Global $Lesen_Auswahl_httpApiPort = IniRead($config_ini, "Server_Einstellungen", "httpApiPort", "")
+
+		If IniRead($config_ini, "Server_Einstellungen", "httpApiInterface", "") = "" Then Global $Lesen_Auswahl_httpApiInterface = "localhost" ; "127.0.0.1"
+		If $Lesen_Auswahl_httpApiPort = "" Then Global $Lesen_Auswahl_httpApiPort = "9000"
+	EndIf
+EndIf
+If $DS_Mode_Temp = "remote" Then
+	If $Name_User <> "" And $Password_User <> "" Then
+		Global $Lesen_Auswahl_httpApiInterface = $Name_Password & IniRead($config_ini, "Server_Einstellungen", "DS_Domain_or_IP", "")
+		Global $Lesen_Auswahl_httpApiPort = IniRead($config_ini, "Server_Einstellungen", "httpApiPort", "")
+
+		;If IniRead($config_ini, "Server_Einstellungen", "DS_Domain_or_IP", "") = "" Then Global $Lesen_Auswahl_httpApiInterface = $Name_Password & "localhost" ; "127.0.0.1"
+		If $Lesen_Auswahl_httpApiPort = "" Then Global $Lesen_Auswahl_httpApiPort = "9000"
+	Else
+		Global $Lesen_Auswahl_httpApiInterface = IniRead($config_ini, "Server_Einstellungen", "DS_Domain_or_IP", "")
+		Global $Lesen_Auswahl_httpApiPort = IniRead($config_ini, "Server_Einstellungen", "httpApiPort", "")
+
+		;If IniRead($config_ini, "Server_Einstellungen", "DS_Domain_or_IP", "") = "" Then Global $Lesen_Auswahl_httpApiInterface = "localhost" ; "127.0.0.1"
+		If $Lesen_Auswahl_httpApiPort = "" Then Global $Lesen_Auswahl_httpApiPort = "9000"
+	EndIf
+EndIf
+
+;$Lesen_Auswahl_httpApiInterface = $Name_Password & "www.annonymous-chiller.de"
 
 #endregion Declare Variables/Const
 
@@ -1381,13 +1422,9 @@ EndIf
 EndFunc
 
 Func _Download()
-$Lesen_Auswahl_httpApiInterface = IniRead($config_ini, "Server_Einstellungen", "httpApiInterface", "")
-$Lesen_Auswahl_httpApiPort = IniRead($config_ini, "Server_Einstellungen", "httpApiPort", "")
-
-If $Lesen_Auswahl_httpApiInterface = "" Then $Lesen_Auswahl_httpApiInterface = "127.0.0.1"
-If $Lesen_Auswahl_httpApiPort = "" Then $Lesen_Auswahl_httpApiPort = "9000"
 
 $URL_participants = "http://" & $Lesen_Auswahl_httpApiInterface & ":" & $Lesen_Auswahl_httpApiPort & "/api/session/status?attributes&participants"
+;MsgBox(0, "", $URL_participants)
 
 $download = InetGet($URL_participants, $TrackMap_participants_json, 16, 0)
 EndFunc

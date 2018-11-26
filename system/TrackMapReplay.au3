@@ -1,6 +1,4 @@
-#Region ;**** Directives created by AutoIt3Wrapper_GUI ****
-#AutoIt3Wrapper_Icon=..\ICONS\AutoDataUpdate.ico
-#EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
+
 
 #include <GUIConstantsEx.au3>
 #include <WindowsConstants.au3>
@@ -72,11 +70,45 @@ $msgbox_36 = IniRead($Sprachdatei,"Language", "msgbox_36", "It will save the Res
 
 
 ;Server http settings lesen
-Global $Lesen_Auswahl_httpApiInterface = IniRead($config_ini, "Server_Einstellungen", "httpApiInterface", "")
-Global $Lesen_Auswahl_httpApiPort = IniRead($config_ini, "Server_Einstellungen", "httpApiPort", "")
+Global $Name_Password = ""
+If IniRead($config_ini, "Server_Einstellungen", "Group_Admin_1", "") <> "" Then
+	Local $Name_User = IniRead($config_ini, "Server_Einstellungen", "Group_Admin_1", "")
+	Local $Password_User = IniRead($config_ini, "Server_Einstellungen", "password_User_1", "")
+	$Name_Password = $Name_User & ":" & $Password_User & "@"
+EndIf
 
-If $Lesen_Auswahl_httpApiInterface = "" Then Global $Lesen_Auswahl_httpApiInterface = "127.0.0.1"
-If $Lesen_Auswahl_httpApiPort = "" Then Global $Lesen_Auswahl_httpApiPort = "9000"
+Local $DS_Mode_Temp = IniRead($config_ini, "PC_Server", "DS_Mode", "local")
+If $DS_Mode_Temp = "local" Then
+	If $Name_User <> "" And $Password_User <> "" Then
+		Global $Lesen_Auswahl_httpApiInterface = $Name_Password & IniRead($config_ini, "Server_Einstellungen", "httpApiInterface", "")
+		Global $Lesen_Auswahl_httpApiPort = IniRead($config_ini, "Server_Einstellungen", "httpApiPort", "")
+
+		If IniRead($config_ini, "Server_Einstellungen", "httpApiInterface", "") = "" Then Global $Lesen_Auswahl_httpApiInterface = $Name_Password & "localhost" ; "127.0.0.1"
+		If $Lesen_Auswahl_httpApiPort = "" Then Global $Lesen_Auswahl_httpApiPort = "9000"
+	Else
+		Global $Lesen_Auswahl_httpApiInterface = IniRead($config_ini, "Server_Einstellungen", "httpApiInterface", "")
+		Global $Lesen_Auswahl_httpApiPort = IniRead($config_ini, "Server_Einstellungen", "httpApiPort", "")
+
+		If IniRead($config_ini, "Server_Einstellungen", "httpApiInterface", "") = "" Then Global $Lesen_Auswahl_httpApiInterface = "localhost" ; "127.0.0.1"
+		If $Lesen_Auswahl_httpApiPort = "" Then Global $Lesen_Auswahl_httpApiPort = "9000"
+	EndIf
+EndIf
+If $DS_Mode_Temp = "remote" Then
+	If $Name_User <> "" And $Password_User <> "" Then
+		Global $Lesen_Auswahl_httpApiInterface = $Name_Password & IniRead($config_ini, "Server_Einstellungen", "DS_Domain_or_IP", "")
+		Global $Lesen_Auswahl_httpApiPort = IniRead($config_ini, "Server_Einstellungen", "httpApiPort", "")
+
+		;If IniRead($config_ini, "Server_Einstellungen", "DS_Domain_or_IP", "") = "" Then Global $Lesen_Auswahl_httpApiInterface = $Name_Password & "localhost" ; "127.0.0.1"
+		If $Lesen_Auswahl_httpApiPort = "" Then Global $Lesen_Auswahl_httpApiPort = "9000"
+	Else
+		Global $Lesen_Auswahl_httpApiInterface = IniRead($config_ini, "Server_Einstellungen", "DS_Domain_or_IP", "")
+		Global $Lesen_Auswahl_httpApiPort = IniRead($config_ini, "Server_Einstellungen", "httpApiPort", "")
+
+		;If IniRead($config_ini, "Server_Einstellungen", "DS_Domain_or_IP", "") = "" Then Global $Lesen_Auswahl_httpApiInterface = "localhost" ; "127.0.0.1"
+		If $Lesen_Auswahl_httpApiPort = "" Then Global $Lesen_Auswahl_httpApiPort = "9000"
+	EndIf
+EndIf
+
 
 
 Global $participants_RefId, $participants_Name, $participants_IsPlayer, $participants_GridPosition, $participants_VehicleId, $participants_LiveryId
@@ -309,12 +341,6 @@ EndIf
 EndFunc
 
 Func _Download()
-$Lesen_Auswahl_httpApiInterface = IniRead($config_ini, "Server_Einstellungen", "httpApiInterface", "")
-$Lesen_Auswahl_httpApiPort = IniRead($config_ini, "Server_Einstellungen", "httpApiPort", "")
-
-If $Lesen_Auswahl_httpApiInterface = "" Then $Lesen_Auswahl_httpApiInterface = "127.0.0.1"
-If $Lesen_Auswahl_httpApiPort = "" Then $Lesen_Auswahl_httpApiPort = "9000"
-
 $URL_participants = "http://" & $Lesen_Auswahl_httpApiInterface & ":" & $Lesen_Auswahl_httpApiPort & "/api/session/status?attributes&participants"
 
 $download = InetGet($URL_participants, $TrackMapReplay_participants_json, 16, 0)
@@ -334,13 +360,6 @@ Func _Download_LOG()
 
 	If $LOG_Index_Start <> "" Then $Value_LOG_Start = $LOG_Index_Start
 	If $LOG_Index_End <> ""  Then $Value_LOG_End = $LOG_Index_End
-
-
-	$Lesen_Auswahl_httpApiInterface = IniRead($config_ini, "Server_Einstellungen", "httpApiInterface", "")
-	$Lesen_Auswahl_httpApiPort = IniRead($config_ini, "Server_Einstellungen", "httpApiPort", "")
-
-	If $Lesen_Auswahl_httpApiInterface = "" Then $Lesen_Auswahl_httpApiInterface = "127.0.0.1"
-	If $Lesen_Auswahl_httpApiPort = "" Then $Lesen_Auswahl_httpApiPort = "9000"
 
 	$URL_LOG = "http://" & $Lesen_Auswahl_httpApiInterface & ":" & $Lesen_Auswahl_httpApiPort & "/api/log/range?offset=" & $Value_LOG_Start & "&count=" & $Value_LOG_End
 	$download_LOG = InetGet($URL_LOG, $Replay_LOG_json, 16, 0)

@@ -1,0 +1,38 @@
+// Persistent data for addon 'sms_stats', addon version 2.0
+// Automatically maintained by the addon, do not edit!
+
+{
+  "next_history_index" : 1,
+  "stats" : {
+    "history" : {},
+    "players" : {},
+    "server" : {
+      "name" : "PCDSG Test",
+      "steam_disconnects" : 0,
+      "steam_downtime" : 0,
+      "total_steam_downtime" : 0,
+      "total_uptime" : 0,
+      "uptime" : 0
+    },
+    "session" : {
+      "counts" : {
+        "lobbies" : 0,
+        "player_finishes" : 0,
+        "player_loads" : 0,
+        "player_loads_done" : 0,
+        "race_finishes" : 0,
+        "race_loads" : 0,
+        "race_loads_done" : 0,
+        "sessions" : 0,
+        "stage_counts" : {},
+        "stage_durations" : {},
+        "track_distances" : {},
+        "tracks" : {},
+        "vehicle_distances" : {},
+        "vehicles" : {}
+      }
+    }
+  }
+}
+
+// EOF //

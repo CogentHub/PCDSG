@@ -1,4 +1,5 @@
 
+#Region Includes
 #include <GUIConstantsEx.au3>
 #include <WindowsConstants.au3>
 #include <GuiButton.au3>
@@ -17,18 +18,24 @@
 #include <SQLite.dll.au3>
 #include <Date.au3>
 ;#include <base64.au3>
+#include <MsgBoxConstants.au3>
+#include <Process.au3>
 
+#include <ColorConstants.au3>
+#EndRegion Includes
+
+#Region Declare Globals
 Global $config_ini, $install_dir, $Dedi_configCFG_sample
 Global $ListView, $ListView_Produktinformationen, $iMemo_unten, $idTreeView, $Statusbar, $GUI, $id_Projekt, $iwParam
 Global $Func_Neuen_Ordner_erstellen_ausgefuert, $Verzeichnisse_aktualisieren_ausgefuert, $Verzeichnis_Produkte, $Aufnahme_lauft_icon
 Global $ZM_LabelGZ2, $ZM_LabelGZ3, $ZM_LabelGZ4, $ZM_LabelGZ5, $ZM_LabelGZ6, $ZM_LabelGZ7, $ZM_LabelGZ8, $ZM_LabelGZ9, $ZM_LabelGZ10, $ZM_LabelGZ11, $ZM_LabelGZ12, $ZM_LabelGZ13, $ZM_LabelG14, $ZM_LabelGZ15
-Global $Wert_logLevel, $Wert_eventsLogSize, $Wert_name, $Wert_secure, $Wert_password, $Wert_maxPlayerCount, $Wert_bindIP, $Wert_steamPort, $Wert_hostPort, $Wert_queryPort, $Wert_sleepWaiting, $Wert_sleepActive, $Wert_enableHttpApi, $Wert_httpApiLogLevel, $Wert_httpApiInterface, $Wert_httpApiPort, $Wert_allowEmptyJoin, $Wert_controlGameSetup
+Global $Wert_logLevel, $Wert_eventsLogSize, $Wert_name, $Wert_secure, $Wert_password, $Wert_maxPlayerCount, $Wert_GridSize, $Wert_steamPort, $Wert_hostPort, $Wert_queryPort, $Wert_sleepWaiting, $Wert_sleepActive, $Wert_enableHttpApi, $Wert_httpApiLogLevel, $Wert_httpApiInterface, $Wert_httpApiPort, $Wert_allowEmptyJoin, $Wert_controlGameSetup
 Global $Dedi_config_cfg, $Dedi_Installations_Verzeichnis, $Dedi_Verzeichnis
 Global $Lesen_Auswahl_loglevel, $Lesen_Auswahl_eventsLogSize, $Lesen_Auswahl_name, $Lesen_Auswahl_secure, $Lesen_Auswahl_password, $Lesen_Auswahl_maxPlayerCount
 Global $Lesen_Auswahl_bindIP, $Lesen_Auswahl_steamPort, $Lesen_Auswahl_hostPort, $Lesen_Auswahl_queryPort, $Lesen_Auswahl_sleepWaiting, $Lesen_Auswahl_sleepActive
 Global $Lesen_Auswahl_enableHttpApi, $Lesen_Auswahl_httpApiLogLevel, $Lesen_Auswahl_httpApiInterface, $Lesen_Auswahl_httpApiPort, $Lesen_Auswahl_whitelist
 Global $Lesen_Auswahl_blacklist, $Lesen_Auswahl_allowEmptyJoin, $Lesen_Auswahl_controlGameSetup
-Global $Wert_ServerControlsTrack, $Wert_ServerControlsVehicleClass, $GUI, $GUI_Users
+Global $Wert_ServerControlsTrack, $Wert_ServerControlsVehicleClass, $Wert_ServerControlsVehicle, $GUI, $GUI_Users
 Global $InputPCDSG_USERName, $Combo_httpApiAccessLevel, $Combo_status, $Combo_Public_rules
 Global $Input_Name_1, $Input_Name_2, $Input_Name_3, $Input_Name_4, $Input_Name_5
 Global $Input_password_Name_1, $Input_password_Name_2, $Input_password_Name_3, $Input_password_Name_4, $Input_password_Name_5
@@ -51,22 +58,31 @@ Global $Checkbox_User_1, $Checkbox_User_2, $Checkbox_User_3, $Checkbox_User_4, $
 Global $Check_Line_1, $Check_Line_2, $Check_Line_3, $Check_Line_4, $Check_Line_5
 Global $Tab3_Button_1,$Tab3_Button_2, $Tab3_Button_3, $Tab3_Button_4, $Tab3_Button_5
 Global $Tab3_Pfad_Button_1, $Tab3_Pfad_Button_2, $Tab3_Pfad_Button_3, $Tab3_Pfad_Button_4, $Tab3_Pfad_Button_5
+Global $Check_AdminUser_, $Check_AdminUser_2, $Check_AdminUser_3, $Check_AdminUser_4, $Check_AdminUser_5
+Global $GUI_Loading
+#EndRegion Declare Globals
 
 Opt("GUIOnEventMode", 1)
 Opt("GUIDataSeparatorChar", "|")
 
 $ListViewSeperator = "|"
 
-$config_ini = @ScriptDir & "\system\" & "config.ini"
-$install_dir = IniRead($config_ini,"Einstellungen", "Installations_Verzeichnis", "")
+#Region Declare Globals
+Global $oIE, $oIE_GUI
+#EndRegion Declare Globals
+
+#Region Declare Variables
+Global $config_ini = @ScriptDir & "\system\" & "config.ini"
+Global $install_dir = IniRead($config_ini,"Einstellungen", "Installations_Verzeichnis", "")
+Global $Backup_dir = $install_dir & "Backup\"
 Global $System_Dir = $install_dir & "system\"
-$Sprachdatei = IniRead($config_ini,"Einstellungen", "Sprachdatei", "")
-$Dedi_Installations_Verzeichnis = IniRead($config_ini, "Einstellungen", "Dedi_Installations_Verzeichnis", "")
-$Dedi_Verzeichnis = $Dedi_Installations_Verzeichnis
-$Dedi_configCFG_sample = $install_dir & "server_sample.cfg"
+Global $Sprachdatei = IniRead($config_ini,"Einstellungen", "Sprachdatei", "")
+Global $Dedi_Installations_Verzeichnis = IniRead($config_ini, "Einstellungen", "Dedi_Installations_Verzeichnis", "")
+Global $Dedi_Verzeichnis = $Dedi_Installations_Verzeichnis
+Global $Dedi_configCFG_sample = $install_dir & "server_sample.cfg"
 Global $PCDSG_LOG_ini = $System_Dir & "PCDSG_LOG.ini"
 Global $DB_path = $System_Dir & "Database.sqlite"
-
+Global $PCDSG_Network_Card_IP= IniRead($config_ini, "Einstellungen", "Network_Card_IP", "")
 Global $NowDate_Value = _NowDate()
 Global $NowDate = StringReplace($NowDate_Value, "/", ".")
 Global $NowTime_Value = _NowTime()
@@ -76,6 +92,59 @@ Global $NowTime = StringReplace($NowTime_Value, ":", "-")
 Global $PCDSG_DS_Mode = IniRead($config_ini,"PC_Server", "DS_Mode", "")
 Global $DS_PublicIP = IniRead($config_ini,"PC_Server", "DS_PublicIP", "")
 Global $DS_API_Port = IniRead($config_ini,"PC_Server", "DS_API_Port", "")
+
+Global $Dedi_config_cfg = $Dedi_Installations_Verzeichnis & "server.cfg"
+
+Global $sms_rotate_config_json_File = $Dedi_Installations_Verzeichnis & "lua_config\sms_rotate_config.json"
+
+
+$Status_Checkbox_PCDSG_settings_8 = IniRead($config_ini,"PC_Server", "Checkbox_PCDSG_settings_8", "")
+$Status_Checkbox_PCDSG_settings_9 = IniRead($config_ini,"PC_Server", "Checkbox_PCDSG_settings_9", "")
+
+
+;Server http settings lesen
+Global $Name_User = ""
+Global $Name_Password = ""
+If IniRead($config_ini, "Server_Einstellungen", "Group_Admin_1", "") <> "" Then
+	Local $Name_User = IniRead($config_ini, "Server_Einstellungen", "Group_Admin_1", "")
+	Local $Password_User = IniRead($config_ini, "Server_Einstellungen", "password_User_1", "")
+	$Name_Password = $Name_User & ":" & $Password_User & "@"
+EndIf
+
+Local $DS_Mode_Temp = IniRead($config_ini, "PC_Server", "DS_Mode", "local")
+If $DS_Mode_Temp = "local" Then
+	If $Name_User <> "" And $Password_User <> "" Then
+		Global $Lesen_Auswahl_httpApiInterface = $Name_Password & IniRead($config_ini, "Server_Einstellungen", "httpApiInterface", "")
+		Global $Lesen_Auswahl_httpApiPort = IniRead($config_ini, "Server_Einstellungen", "httpApiPort", "")
+
+		If IniRead($config_ini, "Server_Einstellungen", "httpApiInterface", "") = "" Then Global $Lesen_Auswahl_httpApiInterface = $Name_Password & "localhost" ; "127.0.0.1"
+		If $Lesen_Auswahl_httpApiPort = "" Then Global $Lesen_Auswahl_httpApiPort = "9000"
+		;MsgBox(0, "$Lesen_Auswahl_httpApiInterface", $Lesen_Auswahl_httpApiInterface)
+	Else
+		Global $Lesen_Auswahl_httpApiInterface = IniRead($config_ini, "Server_Einstellungen", "httpApiInterface", "")
+		Global $Lesen_Auswahl_httpApiPort = IniRead($config_ini, "Server_Einstellungen", "httpApiPort", "")
+
+		If IniRead($config_ini, "Server_Einstellungen", "httpApiInterface", "") = "" Then Global $Lesen_Auswahl_httpApiInterface = "localhost" ; "127.0.0.1"
+		If $Lesen_Auswahl_httpApiPort = "" Then Global $Lesen_Auswahl_httpApiPort = "9000"
+	EndIf
+EndIf
+If $DS_Mode_Temp = "remote" Then
+	If $Name_User <> "" And $Password_User <> "" Then
+		Global $Lesen_Auswahl_httpApiInterface = $Name_Password & IniRead($config_ini, "Server_Einstellungen", "DS_Domain_or_IP", "")
+		Global $Lesen_Auswahl_httpApiPort = IniRead($config_ini, "Server_Einstellungen", "httpApiPort", "")
+
+		;If IniRead($config_ini, "Server_Einstellungen", "DS_Domain_or_IP", "") = "" Then Global $Lesen_Auswahl_httpApiInterface = $Name_Password & "localhost" ; "127.0.0.1"
+		If $Lesen_Auswahl_httpApiPort = "" Then Global $Lesen_Auswahl_httpApiPort = "9000"
+	Else
+		Global $Lesen_Auswahl_httpApiInterface = IniRead($config_ini, "Server_Einstellungen", "DS_Domain_or_IP", "")
+		Global $Lesen_Auswahl_httpApiPort = IniRead($config_ini, "Server_Einstellungen", "httpApiPort", "")
+
+		;If IniRead($config_ini, "Server_Einstellungen", "DS_Domain_or_IP", "") = "" Then Global $Lesen_Auswahl_httpApiInterface = "localhost" ; "127.0.0.1"
+		If $Lesen_Auswahl_httpApiPort = "" Then Global $Lesen_Auswahl_httpApiPort = "9000"
+	EndIf
+EndIf
+#EndRegion Declare Variables
+
 
 If $Dedi_Installations_Verzeichnis = "" Then
 	StartUp_settings()
@@ -95,9 +164,13 @@ If $Checkbox_PCDSG_settings_5 = "true" Then
 	StartUp_settings()
 EndIf
 
+_Loading_GUI()
+
 $PCDSG_DS_Mode = IniRead($config_ini,"PC_Server", "DS_Mode", "")
 $DS_PublicIP = IniRead($config_ini,"PC_Server", "DS_PublicIP", "")
 $DS_API_Port = IniRead($config_ini,"PC_Server", "DS_API_Port", "")
+
+Global $DS_Domain_or_IP = IniRead($config_ini, "PC_Server", "DS_Domain_or_IP", "")
 
 If $PCDSG_DS_Mode = "" Then
 	IniWrite($config_ini, "PC_Server", "DS_Mode", "local")
@@ -115,7 +188,7 @@ If Not FileExists($Sprachdatei) Then
 EndIf
 
 IniWrite($config_ini, "Einstellungen", "Installations_Verzeichnis", @ScriptDir & "\")
-IniWrite($config_ini, "Einstellungen", "Version", "1.4 (beta)")
+IniWrite($config_ini, "Einstellungen", "Version", "1.5 (beta)")
 
 $install_dir = IniRead($config_ini,"Einstellungen", "Installations_Verzeichnis", "")
 $Aktuelle_Version = IniRead($config_ini, "Einstellungen", "Version", "")
@@ -179,12 +252,13 @@ Global $GUI_Name = "Project Cars - Dedicated Server GUI"
 
 $gfx = (@ScriptDir & "\" & "system\gfx\")
 
-$Label_GUI_Button1 = IniRead($Sprachdatei,"Language", "Label_GUI_Button1", "")
-$Label_GUI_Button2 = IniRead($Sprachdatei,"Language", "Label_GUI_Button2", "")
-$Label_GUI_Button3 = IniRead($Sprachdatei,"Language", "Label_GUI_Button3", "")
+$Label_GUI_Button0 = IniRead($Sprachdatei,"Language", "Label_GUI_Button0", "Start Server")
+$Label_GUI_Button1 = IniRead($Sprachdatei,"Language", "Label_GUI_Button1", "Connect to Srver")
+$Label_GUI_Button2 = IniRead($Sprachdatei,"Language", "Label_GUI_Button2", "Web page")
+$Label_GUI_Button3 = IniRead($Sprachdatei,"Language", "Label_GUI_Button3", "Close Server")
 $Label_GUI_Button4 = IniRead($Sprachdatei,"Language", "Label_GUI_Button4", "")
 $Label_GUI_Button5 = IniRead($Sprachdatei,"Language", "Label_GUI_Button5", "")
-$Label_GUI_Button0 = IniRead($Sprachdatei,"Language", "Label_GUI_Button0", "")
+
 
 $Info_GUI_Button1_1 = IniRead($Sprachdatei,"Language", "Info_GUI_Button1_1", "")
 $Info_GUI_Button1_2 = IniRead($Sprachdatei,"Language", "Info_GUI_Button1_2", "")
@@ -372,6 +446,31 @@ $msgbox_22 = IniRead($Sprachdatei,"Language", "msgbox_22", "Do you realy want to
 $msgbox_23 = IniRead($Sprachdatei,"Language", "msgbox_23", "user frim the Blacklist?")
 #endregion Declare Variables/Const
 
+
+#Region Check IP
+Local $PCDSG_IP = @IPAddress1
+
+If $Status_Checkbox_PCDSG_settings_8 = "true" Then
+	$PCDSG_IP = @IPAddress1
+	If $PCDSG_IP = "0.0.0.0" Then $PCDSG_IP = @IPAddress2
+	If $PCDSG_IP = "0.0.0.0" Then $PCDSG_IP = @IPAddress3
+	If $PCDSG_IP = "0.0.0.0" Then $PCDSG_IP = @IPAddress4
+	If $PCDSG_Network_Card_IP <> "" Then
+		If $PCDSG_Network_Card_IP = "1" Then $PCDSG_IP = @IPAddress1
+		If $PCDSG_Network_Card_IP = "2" Then $PCDSG_IP = @IPAddress2
+		If $PCDSG_Network_Card_IP = "3" Then $PCDSG_IP = @IPAddress3
+		If $PCDSG_Network_Card_IP = "4" Then $PCDSG_IP = @IPAddress4
+		If $PCDSG_Network_Card_IP = "" Then $PCDSG_IP = @IPAddress1
+	EndIf
+EndIf
+
+
+
+If $Status_Checkbox_PCDSG_settings_9 = "true" Then
+		$PCDSG_IP = _GetIP()
+EndIf
+#endregion Check IP
+
 #region GUI Erstellen
 Local $hGUI, $hGraphic, $hPen
 Local $GUI, $aSize, $aStrings[5]
@@ -401,17 +500,28 @@ $Linie_oben = GUICtrlCreatePic($gfx & "Hintergrund.jpg", 0, 41, 650, 2, BitOR($S
 $Linie_unten = GUICtrlCreatePic($gfx & "Hintergrund.jpg", 0, 427, 650, 2, BitOR($SS_NOTIFY, $WS_GROUP, $WS_CLIPSIBLINGS))
 
 #region GUI Toolbar Buttons oben
-$GUI_Button1 = GUICtrlCreateButton($Label_GUI_Button1, 5, 3, 130, 35, $BS_BITMAP)
-If $PCDSG_DS_Mode = "local" Then _GUICtrlButton_SetImage($GUI_Button1, $gfx & "Server_starten_EN.bmp")
-If $PCDSG_DS_Mode = "remote" Then _GUICtrlButton_SetImage($GUI_Button1, $gfx & "Connect_Server_EN.bmp")
+$GUI_Button0 = GUICtrlCreateButton($Label_GUI_Button0, 5, 3, 100, 35, $BS_DEFPUSHBUTTON)
+GUICtrlSetStyle(-1, $GUI_SS_DEFAULT_BUTTON)
+GUICtrlSetBkColor(-1, 0xB0C4DE)
+GUICtrlSetColor(-1, 0x00008B)
 GuiCtrlSetTip(-1, $Info_GUI_Button1_1 & @CRLF & @CRLF & $Info_GUI_Button1_2 & @CRLF & $Info_GUI_Button1_3 & @CRLF & @CRLF & $Info_GUI_Button1_4 & @CRLF & $Info_GUI_Button1_5)
 
-$GUI_Button2 = GUICtrlCreateButton($Label_GUI_Button2, 140, 3, 130, 35, $BS_BITMAP)
-_GUICtrlButton_SetImage($GUI_Button2, $gfx & "Server_Web_Page.bmp")
+$GUI_Button1 = GUICtrlCreateButton($Label_GUI_Button1, 110, 3, 100, 35, $BS_DEFPUSHBUTTON)
+GUICtrlSetStyle(-1, $GUI_SS_DEFAULT_BUTTON)
+GUICtrlSetBkColor(-1, 0xB0C4DE)
+GUICtrlSetColor(-1, 0x00008B)
+GuiCtrlSetTip(-1, $Info_GUI_Button1_1 & @CRLF & @CRLF & $Info_GUI_Button1_2 & @CRLF & $Info_GUI_Button1_3 & @CRLF & @CRLF & $Info_GUI_Button1_4 & @CRLF & $Info_GUI_Button1_5)
+
+$GUI_Button2 = GUICtrlCreateButton($Label_GUI_Button2, 215, 3, 100, 35, $BS_MULTILINE)
+GUICtrlSetStyle(-1, $GUI_SS_DEFAULT_BUTTON)
+GUICtrlSetBkColor(-1, 0xB0C4DE)
+GUICtrlSetColor(-1, 0x00008B)
 GuiCtrlSetTip(-1, $Info_GUI_Button2_1  & @CRLF & @CRLF & $Info_GUI_Button2_2 & @CRLF & $Info_GUI_Button2_3& @CRLF & $Info_GUI_Button2_4)
 
-$GUI_Button3 = GUICtrlCreateButton($Label_GUI_Button3, 275, 3, 130, 35, $BS_BITMAP)
-_GUICtrlButton_SetImage($GUI_Button3, $gfx & "Server_Beenden_EN.bmp")
+$GUI_Button3 = GUICtrlCreateButton($Label_GUI_Button3, 320, 3, 100, 35, "", $BS_MULTILINE)
+GUICtrlSetStyle(-1, $GUI_SS_DEFAULT_BUTTON)
+GUICtrlSetBkColor(-1, 0xB0C4DE)
+GUICtrlSetColor(-1, 0x00008B)
 GuiCtrlSetTip(-1, $Info_GUI_Button3_1 & @CRLF & $Info_GUI_Button3_2)
 
 $GUI_Button6 = GUICtrlCreateButton("Hide Windows", 430, 3, 85, 17, $BS_BITMAP)
@@ -428,8 +538,8 @@ $GUI_Button9 = GUICtrlCreateButton($Label_GUI_Button5, 562, 3, 35, 35, $BS_BITMA
 _GUICtrlButton_SetImage($GUI_Button9, "imageres.dll", 109, True)
 GuiCtrlSetTip(-1, $Info_GUI_Button5)
 
-Global $GUI_Button0 = GUICtrlCreateButton($Label_GUI_Button0, 602, 3, 35, 35, $BS_BITMAP)
-_GUICtrlButton_SetImage($GUI_Button0, $gfx & "Beenden.bmp")
+Global $GUI_Button_Exit = GUICtrlCreateButton($Label_GUI_Button0, 602, 3, 35, 35, $BS_BITMAP)
+_GUICtrlButton_SetImage($GUI_Button_Exit, $gfx & "Beenden.bmp")
 GuiCtrlSetTip(-1, $Info_GUI_Button0)
 #endregion GUI Toolbar Buttons oben
 
@@ -449,8 +559,9 @@ GUISetState()
 GUICtrlCreateTab(70, 105, 420, 380)
 $TAB_1 = GUICtrlCreateTabItem($Label_TAB_1)
 
-$oIE = ObjCreate("Shell.Explorer.2")
-GUICtrlCreateObj($oIE, 10000, 10000, 637, 100)
+
+;$oIE = ObjCreate("Shell.Explorer.2")
+;$oIE_GUI = GUICtrlCreateObj($oIE, 10000, 10000, 637, 100)
 
 $TAB_1_Button1 = GUICtrlCreateButton("", 5, 10000, 36, 36, $BS_BITMAP)
 _GUICtrlButton_SetImage($TAB_1_Button1, $gfx & "Aktualisieren_Browser.bmp") ;
@@ -472,15 +583,15 @@ $TAB_1_Button5 = GUICtrlCreateButton("", 185, 387, 36, 36, $BS_BITMAP)
 _GUICtrlButton_SetImage($TAB_1_Button5, $gfx & "TrackMap.bmp") ;
 GuiCtrlSetTip(-1, $Info_TAB_1_Button5)
 
-$TAB_1_Button8 = GUICtrlCreateButton("", 490, 387, 36, 36, $BS_BITMAP)
+$TAB_1_Button8 = GUICtrlCreateButton("", 445, 387, 36, 36, $BS_BITMAP)
 _GUICtrlButton_SetImage($TAB_1_Button8, $gfx & "Browser.bmp") ;
 GuiCtrlSetTip(-1, $Info_TAB_1_Button8)
 
-$TAB_1_Button9 = GUICtrlCreateButton("", 530, 387, 36, 36, $BS_BITMAP)
+$TAB_1_Button9 = GUICtrlCreateButton("", 485, 387, 36, 36, $BS_BITMAP)
 _GUICtrlButton_SetImage($TAB_1_Button9, $gfx & "UserHistory.bmp")
 GuiCtrlSetTip(-1, $Info_TAB_1_Button9_1 & @CRLF & $Info_TAB_1_Button9_2)
 
-$TAB_1_Button10 = GUICtrlCreateButton("", 570, 387, 69, 36, $BS_BITMAP)
+$TAB_1_Button10 = GUICtrlCreateButton("", 525, 387, 113, 35, $BS_BITMAP)
 _GUICtrlButton_SetImage($TAB_1_Button10, $gfx & "Race_Control.bmp")
 GuiCtrlSetTip(-1, $Info_TAB_1_Button10)
 #endregion GUI TAB 1
@@ -494,27 +605,33 @@ _Werte_Server_CFG_Read()
 
 $font_arial = "arial"
 
-; Label loglevel
-GUICtrlCreateLabel($Group_1_Label_1, 10, 90, 140, 20) ; loglevel
+
+; Label name
+GUICtrlCreateLabel($Group_1_Label_3, 10, 90, 140, 20) ; name
 GUICtrlSetFont(-1, 11, 400, 1, $font_arial)
-$Auswahl_Sprachdatei = GUICtrlCreateCombo("", 150, 88, 150, 25, $CBS_DROPDOWNLIST)
-GUICtrlSetData(-1, "debug" & $ListViewSeperator & "info" & $ListViewSeperator & "warning" & $ListViewSeperator & "error", $Wert_logLevel)
+$Eingabe_name = GUICtrlCreateInput($Wert_name, 150, 88, 150, 25)
+GUICtrlSetFont(-1, 11, 400, 1, $font_arial)
+
+
+
+; Label enableHttpApi
+GUICtrlCreateLabel($Group_1_Label_13, 10, 120, 140, 20) ; enableHttpApi
+GUICtrlSetFont(-1, 11, 400, 1, $font_arial)
+$Auswahl_enableHttpApi = GUICtrlCreateCombo("", 150, 117, 150, 25, $CBS_DROPDOWNLIST)
+GUICtrlSetData(-1, "true" & $ListViewSeperator & "false", $Wert_enableHttpApi)
 GUICtrlSetFont(-1, 11, 400, 1, $font_arial)
 GUISetState()
 
+
 ; Label eventsLogSize
-GUICtrlCreateLabel($Group_1_Label_2, 10, 120, 140, 20) ; eventsLogSize
+GUICtrlCreateLabel($Group_1_Label_2, 10, 150, 140, 20) ; eventsLogSize
 GUICtrlSetFont(-1, 11, 400, 1, $font_arial)
-$Auswaehlen_eventsLogSize = GUICtrlCreateInput($Wert_eventsLogSize, 150, 115, 150, 25) ;150, 130, 75, 25
+$Auswaehlen_eventsLogSize = GUICtrlCreateInput($Wert_eventsLogSize, 150, 145, 150, 25)
 GUICtrlSetFont(-1, 11, 400, 1, $font_arial)
 GUICtrlCreateUpdown(-1)
 GUISetState(@SW_SHOW)
 
-; Label name
-GUICtrlCreateLabel($Group_1_Label_3, 10, 150, 140, 20) ; name
-GUICtrlSetFont(-1, 11, 400, 1, $font_arial)
-$Eingabe_name = GUICtrlCreateInput($Wert_name, 150, 142, 150, 25)
-GUICtrlSetFont(-1, 11, 400, 1, $font_arial)
+
 
 
 ; Label secure
@@ -542,11 +659,12 @@ GUICtrlCreateUpdown(-1)
 GUISetState(@SW_SHOW)
 
 
-; Label bindIP
-GUICtrlCreateLabel($Group_1_Label_7, 10, 270, 140, 20) ; bindIP
+; Label GridSize
+GUICtrlCreateLabel("GridSize", 10, 270, 140, 20) ; GridSize
 GUICtrlSetFont(-1, 11, 400, 1, $font_arial)
-$Eingabe_bindIP = GUICtrlCreateInput($Wert_bindIP, 150, 265, 150, 25)
+$Auswaehlen_GridSize = GUICtrlCreateInput($Wert_GridSize, 150, 265, 150, 25)
 GUICtrlSetFont(-1, 11, 400, 1, $font_arial)
+GUICtrlCreateUpdown(-1)
 
 
 ; Label steamPort
@@ -576,115 +694,134 @@ GUICtrlCreateUpdown(-1)
 GUISetState(@SW_SHOW)
 
 
-; Label enableHttpApi
-GUICtrlCreateLabel($Group_1_Label_13, 340, 90, 140, 20) ; enableHttpApi
-GUICtrlSetFont(-1, 11, 400, 1, $font_arial)
-$Auswahl_enableHttpApi = GUICtrlCreateCombo("", 480, 88, 150, 25, $CBS_DROPDOWNLIST)
-GUICtrlSetData(-1, "true" & $ListViewSeperator & "false", $Wert_enableHttpApi)
-GUICtrlSetFont(-1, 11, 400, 1, $font_arial)
-GUISetState()
 
 
-; Label httpApiLogLevel
-GUICtrlCreateLabel($Group_1_Label_14, 340, 120, 140, 20) ; httpApiLogLevel
-GUICtrlSetFont(-1, 11, 400, 1, $font_arial)
-$Auswahl_httpApiLogLevel = GUICtrlCreateCombo("", 480, 115, 150, 25, $CBS_DROPDOWNLIST)
-GUICtrlSetData(-1, "debug" & $ListViewSeperator & "info" & $ListViewSeperator & "warning" & $ListViewSeperator & "error", $Wert_httpApiLogLevel)
-GUICtrlSetFont(-1, 11, 400, 1, $font_arial)
-GUISetState()
 
+
+; Label DS Domain or IP
+GUICtrlCreateLabel("DS Domain or IP:", 340, 90, 140, 20) ; DS_Domain_or_IP
+GUICtrlSetFont(-1, 11, 400, 1, $font_arial)
+$Eingabe_DS_Domain_or_IP = GUICtrlCreateInput($DS_Domain_or_IP, 480, 88, 150, 25)
+GUICtrlSetFont(-1, 11, 400, 1, $font_arial)
 
 ; Label httpApiInterface
-GUICtrlCreateLabel($Group_1_Label_15, 340, 150, 140, 20) ; httpApiInterface
+GUICtrlCreateLabel($Group_1_Label_15, 340, 120, 140, 20) ; httpApiInterface
 GUICtrlSetFont(-1, 11, 400, 1, $font_arial)
 ; Input httpApiInterface
-If $PCDSG_DS_Mode = "local" Then $Eingabe_httpApiInterface = GUICtrlCreateInput($Wert_httpApiInterface, 480, 148, 150, 25)
-If $PCDSG_DS_Mode = "remote" Then $Eingabe_httpApiInterface = GUICtrlCreateInput($DS_PublicIP, 480, 148, 150, 25)
+;If $PCDSG_DS_Mode = "local" Then $Eingabe_httpApiInterface = GUICtrlCreateInput($Wert_httpApiInterface, 480, 117, 150, 25)
+;If $PCDSG_DS_Mode = "remote" Then $Eingabe_httpApiInterface = GUICtrlCreateInput($DS_PublicIP, 480, 117, 150, 25)
+$Eingabe_httpApiInterface = GUICtrlCreateInput($Wert_httpApiInterface, 480, 117, 150, 25)
 GUICtrlSetFont(-1, 11, 400, 1, $font_arial)
 
 
 ; Label httpApiPort
-GUICtrlCreateLabel($Group_1_Label_16, 340, 180, 140, 20) ; httpApiPort
+GUICtrlCreateLabel($Group_1_Label_16, 340, 150, 140, 20) ; httpApiPort
 GUICtrlSetFont(-1, 11, 400, 1, $font_arial)
-If $PCDSG_DS_Mode = "local" Then $Auswaehlen_httpApiPort = GUICtrlCreateInput($Wert_httpApiPort, 480, 178, 150, 25)
-If $PCDSG_DS_Mode = "remote" Then $Auswaehlen_httpApiPort = GUICtrlCreateInput($DS_API_Port, 480, 178, 150, 25)
+;If $PCDSG_DS_Mode = "local" Then $Auswaehlen_httpApiPort = GUICtrlCreateInput($Wert_httpApiPort, 480, 148, 150, 25)
+;If $PCDSG_DS_Mode = "remote" Then $Auswaehlen_httpApiPort = GUICtrlCreateInput($DS_API_Port, 480, 148, 150, 25)
+$Auswaehlen_httpApiPort = GUICtrlCreateInput($Wert_httpApiPort, 480, 148, 150, 25)
 GUICtrlSetFont(-1, 11, 400, 1, $font_arial)
 GUICtrlCreateUpdown(-1)
 GUISetState(@SW_SHOW)
 
 
 ; Label enableHttpApi
-GUICtrlCreateLabel($Group_1_Label_17, 340, 210, 140, 20) ; enableHttpApi
+GUICtrlCreateLabel($Group_1_Label_17, 340, 180, 140, 20) ; Whitelist
 GUICtrlSetFont(-1, 11, 400, 1, $font_arial)
 $Wert_Auswahl_Whitelist = IniRead($config_ini, "Server_Einstellungen", "Whitelist", "")
-$Auswahl_Whitelist = GUICtrlCreateCombo("", 480, 208, 150, 25, $CBS_DROPDOWNLIST)
+$Auswahl_Whitelist = GUICtrlCreateCombo("", 480, 178, 150, 25, $CBS_DROPDOWNLIST)
 GUICtrlSetData(-1, "true" & $ListViewSeperator & "false", $Wert_Auswahl_Whitelist)
 GUICtrlSetFont(-1, 11, 400, 1, $font_arial)
 GUISetState()
 
 
 ; Label enableHttpApi
-GUICtrlCreateLabel($Group_1_Label_18, 340, 240, 140, 20) ; enableHttpApi
+GUICtrlCreateLabel($Group_1_Label_18, 340, 210, 140, 20) ; Blacklist
 GUICtrlSetFont(-1, 11, 400, 1, $font_arial)
 $Wert_Auswahl_Blacklist = IniRead($config_ini, "Server_Einstellungen", "Blacklist", "")
-$Auswahl_Blacklist = GUICtrlCreateCombo("", 480, 238, 150, 25, $CBS_DROPDOWNLIST)
+$Auswahl_Blacklist = GUICtrlCreateCombo("", 480, 208, 150, 25, $CBS_DROPDOWNLIST)
 GUICtrlSetData(-1, "true" & $ListViewSeperator & "false", $Wert_Auswahl_Blacklist)
 GUICtrlSetFont(-1, 11, 400, 1, $font_arial)
 GUISetState()
 
 
 ; Label allowEmptyJoin
-GUICtrlCreateLabel($Group_1_Label_19, 340, 270, 140, 20)
+GUICtrlCreateLabel($Group_1_Label_19, 340, 240, 140, 20)
 GUICtrlSetFont(-1, 11, 400, 1, $font_arial)
-$Auswahl_allowEmptyJoin = GUICtrlCreateCombo("", 480, 268, 150, 25, $CBS_DROPDOWNLIST)
+$Auswahl_allowEmptyJoin = GUICtrlCreateCombo("", 480, 238, 150, 25, $CBS_DROPDOWNLIST)
 GUICtrlSetData(-1, "true" & $ListViewSeperator & "false", $Wert_allowEmptyJoin)
 GUICtrlSetFont(-1, 11, 400, 1, $font_arial)
 GUISetState()
 
 
 ; Label controlGameSetup
-GUICtrlCreateLabel($Group_1_Label_20, 340, 300, 140, 20)
+GUICtrlCreateLabel($Group_1_Label_20, 340, 270, 140, 20)
 GUICtrlSetFont(-1, 11, 400, 1, $font_arial)
-$Auswahl_controlGameSetup = GUICtrlCreateCombo("", 480, 298, 150, 25, $CBS_DROPDOWNLIST)
+$Auswahl_controlGameSetup = GUICtrlCreateCombo("", 480, 268, 150, 25, $CBS_DROPDOWNLIST)
 GUICtrlSetData(-1, "true" & $ListViewSeperator & "false", $Wert_controlGameSetup)
 GUICtrlSetFont(-1, 11, 400, 1, $font_arial)
 GUISetState()
 
 ; Label ServerControlsTrack
-GUICtrlCreateLabel($Group_1_Label_21, 340, 330, 140, 20)
+GUICtrlCreateLabel($Group_1_Label_21, 340, 300, 140, 20)
 GUICtrlSetFont(-1, 11, 400, 1, $font_arial)
 If $Wert_ServerControlsTrack = "1" Then $Wert_ServerControlsTrack = "true"
 If $Wert_ServerControlsTrack = "0" Then $Wert_ServerControlsTrack = "false"
-$Auswahl_ServerControlsTrack = GUICtrlCreateCombo("", 480, 328, 150, 25, $CBS_DROPDOWNLIST)
+$Auswahl_ServerControlsTrack = GUICtrlCreateCombo("", 480, 298, 150, 25, $CBS_DROPDOWNLIST)
 GUICtrlSetData(-1, "true" & $ListViewSeperator & "false", $Wert_ServerControlsTrack)
 GUICtrlSetFont(-1, 11, 400, 1, $font_arial)
 GUISetState()
 
 ; Label ServerControlsVehicleClass
-GUICtrlCreateLabel($Group_1_Label_22, 340, 360, 140, 20)
+GUICtrlCreateLabel($Group_1_Label_22, 340, 330, 140, 20)
 GUICtrlSetFont(-1, 11, 400, 1, $font_arial)
 If $Wert_ServerControlsVehicleClass = "1" Then $Wert_ServerControlsVehicleClass = "true"
 If $Wert_ServerControlsVehicleClass = "0" Then $Wert_ServerControlsVehicleClass = "false"
-$Auswahl_ServerControlsVehicleClass = GUICtrlCreateCombo("", 480, 358, 150, 25, $CBS_DROPDOWNLIST)
+$Auswahl_ServerControlsVehicleClass = GUICtrlCreateCombo("", 480, 327, 150, 25, $CBS_DROPDOWNLIST)
 GUICtrlSetData(-1, "true" & $ListViewSeperator & "false", $Wert_ServerControlsVehicleClass)
 GUICtrlSetFont(-1, 11, 400, 1, $font_arial)
 GUISetState()
 
-Global $TAB_2_Button1 = GUICtrlCreateButton("server.cfg", 10, 386, 35, 35, $BS_BITMAP)
-_GUICtrlButton_SetImage($TAB_2_Button1, $gfx & "Server_cfg.bmp")
-GuiCtrlSetTip(-1, "Open Server.cfg File")
+; Label ServerControlsVehicle
+GUICtrlCreateLabel($Group_1_Label_23, 340, 360, 140, 20)
+GUICtrlSetFont(-1, 11, 400, 1, $font_arial)
+If $Wert_ServerControlsVehicle = "1" Then $Wert_ServerControlsVehicle = "true"
+If $Wert_ServerControlsVehicle = "0" Then $Wert_ServerControlsVehicle = "false"
+$Auswahl_ServerControlsVehicle = GUICtrlCreateCombo("", 480, 357, 150, 25, $CBS_DROPDOWNLIST)
+GUICtrlSetData(-1, "true" & $ListViewSeperator & "false", $Wert_ServerControlsVehicle)
+GUICtrlSetFont(-1, 11, 400, 1, $font_arial)
+GUISetState()
 
-Global $TAB_2_Button2 = GUICtrlCreateButton("FTP_Upload", 560, 386, 35, 35, $BS_BITMAP)
+
+
+Global $TAB_2_Button_Race_Control = GUICtrlCreateButton("", 10, 387, 113, 35, $BS_BITMAP)
+_GUICtrlButton_SetImage($TAB_2_Button_Race_Control, $gfx & "Race_Control.bmp")
+GuiCtrlSetTip(-1, $Info_TAB_1_Button10)
+
+
+
+Global $TAB_2_Button1 = GUICtrlCreateButton("server.cfg", 128, 387, 35, 35, $BS_BITMAP)
+_GUICtrlButton_SetImage($TAB_2_Button1, $gfx & "Server_cfg.bmp")
+GuiCtrlSetTip(-1, "Open 'Server.cfg' File")
+
+Global $TAB_2_Button4 = GUICtrlCreateButton("sms_rotate_config.json", 166, 387, 35, 35, $BS_BITMAP)
+_GUICtrlButton_SetImage($TAB_2_Button4, $gfx & "LUA_Settings.bmp")
+GuiCtrlSetTip(-1, "Open 'sms_rotate_config.json' File")
+
+
+Global $TAB_2_Button5 = GUICtrlCreateButton("Restart_DS", 520, 387, 35, 35, $BS_BITMAP)
+_GUICtrlButton_SetImage($TAB_2_Button5, $gfx & "Restart_DS.bmp")
+GuiCtrlSetTip(-1, "Restart DS - Restarts Dedicated Server in local and remote Mode.")
+
+Global $TAB_2_Button2 = GUICtrlCreateButton("FTP_Upload", 560, 387, 35, 35, $BS_BITMAP)
 _GUICtrlButton_SetImage($TAB_2_Button2, $gfx & "FTP_Upload.bmp")
 GuiCtrlSetTip(-1, "FTP Upload - Uploads server.cfg File to the DS remote folder")
 
-Global $TAB_2_Button3 = GUICtrlCreateButton("Speichern", 600, 386, 35, 35, $BS_BITMAP)
+Global $TAB_2_Button3 = GUICtrlCreateButton("Speichern", 600, 387, 35, 35, $BS_BITMAP)
 _GUICtrlButton_SetImage($TAB_2_Button3, $gfx & "Speichern.bmp")
 GuiCtrlSetTip(-1, $Info_TAB_2_Button3)
 
-Global $GUI_Button_Users = GUICtrlCreateButton("Users", 50, 386, 35, 35, $BS_BITMAP) ; Users
-_GUICtrlButton_SetImage($GUI_Button_Users, "shell32.dll", 111, true)
-GuiCtrlSetTip(-1, "Http authentication")
+
 
 ;GUICtrlCreateTabItem("")
 #endregion GUI TAB 2
@@ -864,6 +1001,8 @@ EndIf
 ;GUICtrlCreateTabItem("")
 #endregion GUI TAB 5
 
+_GUI_Button_Users()
+
 ;GUICtrlSetState($TAB_1,$GUI_SHOW)
 GUICtrlSetState($TAB_2,$GUI_SHOW)
 ;GUICtrlSetState($TAB_3,$GUI_SHOW)
@@ -877,7 +1016,8 @@ Sleep(500)
 #Region Funktionen Verküpfen
 GUISetOnEvent($GUI_EVENT_CLOSE, "_Beenden")
 
-GUICtrlSetOnEvent($GUI_Button1, "_PC_Server_starten")
+GUICtrlSetOnEvent($GUI_Button0, "_PC_Server_starten")
+GUICtrlSetOnEvent($GUI_Button1, "_PC_Server_Connect_DS")
 GUICtrlSetOnEvent($GUI_Button2, "_PC_Server_web_page")
 GUICtrlSetOnEvent($GUI_Button3, "_PC_Server_beenden")
 
@@ -885,7 +1025,7 @@ GUICtrlSetOnEvent($GUI_Button6, "_Hide_Windows")
 GUICtrlSetOnEvent($GUI_Button7, "_Show_Windows")
 GUICtrlSetOnEvent($GUI_Button8, "_Info")
 GUICtrlSetOnEvent($GUI_Button9, "_PCDSG_Programm_Einstellungen")
-GUICtrlSetOnEvent($GUI_Button0, "_Beenden")
+GUICtrlSetOnEvent($GUI_Button_Exit, "_Beenden")
 
 GUICtrlSetOnEvent($TAB_1_Button1, "_TAB_1_Button1")
 GUICtrlSetOnEvent($TAB_1_Button2, "_TAB_1_Button2")
@@ -896,10 +1036,14 @@ GUICtrlSetOnEvent($TAB_1_Button8, "_TAB_1_Button8")
 GUICtrlSetOnEvent($TAB_1_Button9, "_TAB_1_Button9")
 GUICtrlSetOnEvent($TAB_1_Button10, "_TAB_1_Button10")
 
+GUICtrlSetOnEvent($TAB_2_Button_Race_Control, "_TAB_1_Button10")
 GUICtrlSetOnEvent($TAB_2_Button1, "_TAB_2_Button1")
-GUICtrlSetOnEvent($TAB_2_Button2, "_CFG_FTP_Upload")
+GUICtrlSetOnEvent($TAB_2_Button2, "_FTP_Upload")
 GUICtrlSetOnEvent($TAB_2_Button3, "_TAB_2_Button3")
-GUICtrlSetOnEvent($GUI_Button_Users, "_GUI_Button_Users")
+GUICtrlSetOnEvent($TAB_2_Button4, "_TAB_2_Button4")
+GUICtrlSetOnEvent($TAB_2_Button5, "_Restart_DS_Remote")
+
+
 
 GUICtrlSetOnEvent($DropDown_NR_APPS, "_Tab3_APPS_NR")
 
@@ -932,10 +1076,16 @@ EndIf
 GUICtrlSetOnEvent($Auswahl_Whitelist, "_Whitelist_Dowpdown")
 GUICtrlSetOnEvent($Auswahl_Blacklist, "_Blacklist_Dowpdown")
 
-_GUICtrlStatusBar_SetText($Statusbar, $Statusbar_welcome_msg_1 & @TAB & @TAB & $Statusbar_welcome_msg_2 & " " & $Aktuelle_Version & "' " & '[' & $PCDSG_DS_Mode & " Mode]")
-
-GUISetState(@SW_SHOW)
 #endregion Funktionen Verküpfen
+
+
+GUIDelete($GUI_Loading)
+
+_Check_for_Backups()
+
+$PCDSG_DS_Mode = IniRead($config_ini,"PC_Server", "DS_Mode", "")
+_GUICtrlStatusBar_SetText($Statusbar, "IP: " & $PCDSG_IP & @TAB & @TAB & $Statusbar_welcome_msg_2 & " " & $Aktuelle_Version & "' " & '[' & $PCDSG_DS_Mode & " Mode]")
+GUISetState(@SW_SHOW)
 
 
 While 1
@@ -949,35 +1099,51 @@ Func _Server_Status_anzeigen()
 	Local $oIE, $GUI_Button_Back, $GUI_Button_Forward
 	Local $GUI_Button_Home, $GUI_Button_Stop, $msg
 
-	$oIE = ObjCreate("Shell.Explorer.2")
+	Local $regValue = "0x2AF8"
 
-	GUICtrlCreateObj($oIE, 00, 75, 637, 306)
-	GUISetState()
-
-	$Lesen_Auswahl_httpApiInterface = GUICtrlRead($Eingabe_httpApiInterface)
-	$Lesen_Auswahl_httpApiPort = GUICtrlRead($Auswaehlen_httpApiPort)
-
-	If $Lesen_Auswahl_httpApiInterface = "" Then $Lesen_Auswahl_httpApiInterface = "127.0.0.1"
-	If $Lesen_Auswahl_httpApiPort = "" Then $Lesen_Auswahl_httpApiPort = "9000"
-
-	$IE_Adresse = $Lesen_Auswahl_httpApiInterface & ":" & $Lesen_Auswahl_httpApiPort
-
-	$oIE.navigate("http://" & $IE_Adresse)
-EndFunc
-
-
-Func _Server_Status_web_page_anzeigen()
-	Local $oIE, $GUI_Button_Back, $GUI_Button_Forward
-	Local $GUI_Button_Home, $GUI_Button_Stop, $msg
+	RegWrite("HKEY_CURRENT_USER\Software\Microsoft\Internet Explorer\Main\FeatureControl\FEATURE_BROWSER_EMULATION", _ProcessGetName(@AutoItPID), "REG_DWORD", $regValue)
+	RegWrite("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Internet Explorer\MAIN\FeatureControl\FEATURE_BROWSER_EMULATION", _ProcessGetName(@AutoItPID), "REG_DWORD", $regValue)
+	RegWrite("HKEY_CURRENT_USER\Software\Microsoft\Internet Explorer\Main\FeatureControl\FEATURE_BROWSER_EMULATION", @ScriptName, "REG_DWORD", $regValue)
+	RegWrite("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Internet Explorer\MAIN\FeatureControl\FEATURE_BROWSER_EMULATION",@ScriptName, "REG_DWORD", $regValue)
 
 	$oIE = ObjCreate("Shell.Explorer.2")
-	GUICtrlCreateObj($oIE, 00, 75, 637, 306)
 
+	$oIE_GUI = GUICtrlCreateObj($oIE, 00, 75, 637, 306)
 	GUISetState()
 
-	$Server_Status_web_page = IniRead($config_ini,"Einstellungen", "HTML_Status_web_page", "")
-EndFunc
+	Local $DS_Mode_Temp = IniRead($config_ini, "PC_Server", "DS_Mode", "local")
+	If $DS_Mode_Temp = "local" Then
+		$Lesen_Auswahl_httpApiInterface = GUICtrlRead($Eingabe_httpApiInterface)
+		$Lesen_Auswahl_httpApiPort = GUICtrlRead($Auswaehlen_httpApiPort)
 
+		If $Lesen_Auswahl_httpApiInterface = "" Then $Lesen_Auswahl_httpApiInterface = "localhost" ; "127.0.0.1"
+		If $Lesen_Auswahl_httpApiPort = "" Then $Lesen_Auswahl_httpApiPort = "9000"
+
+		$IE_Adresse = $Lesen_Auswahl_httpApiInterface & ":" & $Lesen_Auswahl_httpApiPort
+
+		If $Value_httpApiUser_1_Name <> "" And $Value_httpApiUser_1_Password <> "" Then
+			$oIE.navigate("http://" & $Value_httpApiUser_1_Name & ":" & $Value_httpApiUser_1_Password & "@" & $IE_Adresse)
+		Else
+			$oIE.navigate("http://" & $IE_Adresse)
+		EndIf
+	EndIf
+
+	If $DS_Mode_Temp = "remote" Then
+		$Lesen_Auswahl_httpApiInterface = GUICtrlRead($Eingabe_DS_Domain_or_IP)
+		$Lesen_Auswahl_httpApiPort = GUICtrlRead($Auswaehlen_httpApiPort)
+
+		;If $Lesen_Auswahl_httpApiInterface = "" Then $Lesen_Auswahl_httpApiInterface = "localhost" ; "127.0.0.1"
+		If $Lesen_Auswahl_httpApiPort = "" Then $Lesen_Auswahl_httpApiPort = "9000"
+
+		$IE_Adresse = $Lesen_Auswahl_httpApiInterface & ":" & $Lesen_Auswahl_httpApiPort
+
+		If $Value_httpApiUser_1_Name <> "" And $Value_httpApiUser_1_Password <> "" Then
+			$oIE.navigate("http://" & $Value_httpApiUser_1_Name & ":" & $Value_httpApiUser_1_Password & "@" & $IE_Adresse)
+		Else
+			$oIE.navigate("http://" & $IE_Adresse)
+		EndIf
+	EndIf
+EndFunc
 
 Func _Tab()
 	$Tab3_Name = GUICtrlRead($hTab)
@@ -998,12 +1164,12 @@ Func _Tab()
 
 			$pos = WinGetPos($GUI_Name)
 
-			GUICtrlSetPos($hTab, $posx_hTab, $posy_hTab, $width_hTab, $height_hTab)
-			GUICtrlSetPos($GUI_Button1, 5, 2)
-			GUICtrlSetPos($GUI_Button2, 140, 2)
-			GUICtrlSetPos($GUI_Button3, 275, 2)
-			GUICtrlSetPos($GUI_Button9, 562, 2)
-			GUICtrlSetPos($GUI_Button0, 602, 2)
+			;GUICtrlSetPos($hTab, $posx_hTab, $posy_hTab, $width_hTab, $height_hTab)
+			;GUICtrlSetPos($GUI_Button1, 5, 2)
+			;GUICtrlSetPos($GUI_Button2, 140, 2)
+			;GUICtrlSetPos($GUI_Button3, 275, 2)
+			;GUICtrlSetPos($GUI_Button9, 562, 2)
+			;GUICtrlSetPos($GUI_Button0, 602, 2)
 
 			GUICtrlSetPos($TAB_1_Button1, 5, 387)
 			GUICtrlSetPos($TAB_1_Button2, 55, 387)
@@ -1034,16 +1200,18 @@ Func _Tab()
 		$width_hTab = 1095
 		$height_hTab = 575
 
+		GUICtrlDelete($oIE_GUI)
+		;GUIDelete($oIE_GUI)
+
 		$pos = WinGetPos($GUI_Name)
 		WinMove($GUI_Name, "", $pos[0], $pos[1], $width, $height + 28)
 
-		GUICtrlSetPos($hTab, $posx_hTab, $posy_hTab, $width_hTab, $height_hTab)
-
-		GUICtrlSetPos($GUI_Button1, 5, 3)
-		GUICtrlSetPos($GUI_Button2, 140, 3)
-		GUICtrlSetPos($GUI_Button3, 275, 3)
-		GUICtrlSetPos($GUI_Button9, 562, 3)
-		GUICtrlSetPos($GUI_Button0, 602, 3)
+		;GUICtrlSetPos($hTab, $posx_hTab, $posy_hTab, $width_hTab, $height_hTab)
+		;GUICtrlSetPos($GUI_Button1, 5, 3)
+		;GUICtrlSetPos($GUI_Button2, 140, 3)
+		;GUICtrlSetPos($GUI_Button3, 275, 3)
+		;GUICtrlSetPos($GUI_Button9, 562, 3)
+		;GUICtrlSetPos($GUI_Button0, 602, 3)
 
 		GUICtrlSetPos($Linie_oben, 0, 41)
 		GUICtrlSetPos($Linie_unten, 0, 427)
@@ -1062,16 +1230,17 @@ Func _Tab()
 		$width_hTab = 1095
 		$height_hTab = 575
 
+	GUICtrlDelete($oIE_GUI)
+
 		$pos = WinGetPos($GUI_Name)
 		WinMove($GUI_Name, "", $pos[0], $pos[1], $width, $height + 28)
 
-		GUICtrlSetPos($hTab, $posx_hTab, $posy_hTab, $width_hTab, $height_hTab)
-
-		GUICtrlSetPos($GUI_Button1, 5, 3)
-		GUICtrlSetPos($GUI_Button2, 140, 3)
-		GUICtrlSetPos($GUI_Button3, 275, 3)
-		GUICtrlSetPos($GUI_Button9, 562, 3)
-		GUICtrlSetPos($GUI_Button0, 602, 3)
+		;GUICtrlSetPos($hTab, $posx_hTab, $posy_hTab, $width_hTab, $height_hTab)
+		;GUICtrlSetPos($GUI_Button1, 5, 3)
+		;GUICtrlSetPos($GUI_Button2, 140, 3)
+		;GUICtrlSetPos($GUI_Button3, 275, 3)
+		;GUICtrlSetPos($GUI_Button9, 562, 3)
+		;GUICtrlSetPos($GUI_Button0, 602, 3)
 
 		GUICtrlSetPos($Linie_oben, 0, 41)
 		GUICtrlSetPos($Linie_unten, 0, 427)
@@ -1085,16 +1254,23 @@ Func _Tab()
 	EndIf
 
 	If $Tab3_Name = "3" Then
+		GUICtrlDelete($oIE_GUI)
+
 		$Use_Whitelist = IniRead($config_ini,"Server_Einstellungen", "Whitelist", "")
 		$Use_Blacklist = IniRead($config_ini,"Server_Einstellungen", "Blacklist", "")
 
 		If $Use_Whitelist <> "false" Then _TAB_4_Button1()
 		If $Use_Blacklist <> "false" Then _TAB_5_Button1()
 	EndIf
+
+	If $Tab3_Name = "4" Then
+		GUICtrlDelete($oIE_GUI)
+	EndIf
 EndFunc
 
 Func _PC_Server_starten()
 	_Delete_DS_StartUp_Files()
+	IniWrite($config_ini, "PC_Server", "DS_Mode", "local")
 
 	$PC_Server_Status = IniRead($config_ini, "PC_Server", "Status", "")
 
@@ -1104,61 +1280,31 @@ Func _PC_Server_starten()
 		_PC_Server_starten()
 	Else
 
-	_config_cfg_erstellen()
-	_LUA_erstellen()
+		_config_cfg_erstellen()
+		;_LUA_erstellen()
 
-	Sleep(1500)
+		Sleep(500)
 
-	_GUICtrlStatusBar_SetText($Statusbar, $Statusbar_welcome_msg_3)
-	IniWrite($config_ini, "PC_Server", "Status", "PC_Server_gestartet")
+		_GUICtrlStatusBar_SetText($Statusbar, $Statusbar_welcome_msg_3)
+		IniWrite($config_ini, "PC_Server", "Status", "PC_Server_gestartet")
 
-	$Launch_StartPCarsDS_on_StartUp_Check = IniRead($config_ini,"PC_Server", "Checkbox_PCDSG_settings_7", "")
+		$Launch_StartPCarsDS_on_StartUp_Check = IniRead($config_ini,"PC_Server", "Checkbox_PCDSG_settings_7", "")
 
-	If $Launch_StartPCarsDS_on_StartUp_Check = "true" Then
-
-		$PC_Server_Status = IniRead($config_ini, "PC_Server", "Status", "")
-		$PCDSG_DS_Mode = IniRead($config_ini,"PC_Server", "DS_Mode", "")
-
-		If $PCDSG_DS_Mode = "local" Then
-
-			If WinExists("Project Cars - Dedicated Server GUI") Then
-				If NOT WinExists($Dedi_Installations_Verzeichnis & "DedicatedServerCmd.exe") Then
-					$PC_Server_Status = IniRead($config_ini, "PC_Server", "Status", "")
-					If $PC_Server_Status <> "PC_Server_beendet" Then
-						ShellExecute($Dedi_Installations_Verzeichnis & "DedicatedServerCmd.exe", "", "", "")
-					EndIf
-				EndIf
-			EndIf
-		EndIf
-
-		If FileExists($Programm_Verzeichnis & "StartPCarsDS.exe") Then
-			ShellExecute($Programm_Verzeichnis & "StartPCarsDS.exe")
+		If $Launch_StartPCarsDS_on_StartUp_Check = "true" Then
+			_Start_DS_EXE()
+			_Start_PCDSG_Lapper()
 		Else
-			ShellExecute($Programm_Verzeichnis & "StartPCarsDS.au3")
-		EndIf
-	Else
-		$PC_Server_Status = IniRead($config_ini, "PC_Server", "Status", "")
-		$PCDSG_DS_Mode = IniRead($config_ini,"PC_Server", "DS_Mode", "")
+			_Start_DS_EXE()
 
-		If $PCDSG_DS_Mode = "local" Then
-			If WinExists("Project Cars - Dedicated Server GUI") Then
-				If NOT WinExists($Dedi_Installations_Verzeichnis & "DedicatedServerCmd.exe") Then
-					$PC_Server_Status = IniRead($config_ini, "PC_Server", "Status", "")
-					If $PC_Server_Status <> "PC_Server_beendet" Then
-						ShellExecute($Dedi_Installations_Verzeichnis & "DedicatedServerCmd.exe", "", "", "")
-					EndIf
-				EndIf
+			$Abfrage = MsgBox(4, "PCDSG Event Lapper", "You need to start the File 'StartPCarsDS.exe' manually from inside 'PCDSG\system\' folder or enable the 'Launch StartPCarsDS.exe on DS Start' option in settings menu." & @CRLF & @CRLF & _
+														"'...\PCDSG\system\StartPCarsDS.exe'" & @CRLF & @CRLF & _
+														"Do you want to open Windows Explorer in PCDSG system folder?", 10)
+
+			If $Abfrage = 6 Then
+				ShellExecute($System_Dir)
 			EndIf
 		EndIf
 
-		$Abfrage = MsgBox(4, "PCDSG Event Lapper", "You need to start the File 'StartPCarsDS.exe' manually from inside 'PCDSG\system\' folder or enable the 'Launch StartPCarsDS.exe on DS Start' option in settings menu." & @CRLF & @CRLF & _
-													"'...\PCDSG\system\StartPCarsDS.exe'" & @CRLF & @CRLF & _
-													"Do you want to open Windows Explorer in PCDSG system folder?", 10)
-
-		If $Abfrage = 6 Then
-			ShellExecute($System_Dir)
-		EndIf
-	EndIf
 		Sleep(5000)
 		_GUICtrlStatusBar_SetText($Statusbar, $Statusbar_welcome_msg_4 & @TAB & @TAB & $Statusbar_welcome_msg_5)
 		Sleep(2000)
@@ -1188,6 +1334,48 @@ Func _PC_Server_starten()
 	FileWriteLine($PCDSG_LOG_ini, "PCDSG_Server_started_connected_" & $NowTime & "=" & "PCDSG Server started /  connected" & " | " & "Date - Time: " & $NowDate & " - " & $NowTime)
 EndFunc
 
+Func _PC_Server_Connect_DS()
+	;_Delete_DS_StartUp_Files()
+	IniWrite($config_ini, "PC_Server", "DS_Mode", "remote")
+
+	$PC_Server_Status = IniRead($config_ini, "PC_Server", "Status", "")
+
+	If $PC_Server_Status = "PC_Server_gestartet" Then
+		IniWrite($config_ini, "PC_Server", "Status", "PC_Server_beendet")
+		IniWrite($config_ini, "TEMP", "RestartCheck", "false")
+	EndIf
+
+	_GUICtrlStatusBar_SetText($Statusbar, $Statusbar_welcome_msg_3)
+	IniWrite($config_ini, "PC_Server", "Status", "PC_Server_gestartet")
+
+	Sleep(2000)
+	_GUICtrlStatusBar_SetText($Statusbar, $Statusbar_welcome_msg_4 & @TAB & @TAB & $Statusbar_welcome_msg_5)
+	Sleep(2000)
+	GUICtrlSetState($TAB_1, $GUI_SHOW)
+
+	$PC_Server_Status = IniRead($config_ini, "PC_Server", "Status", "")
+	If $PC_Server_Status = "PC_Server_gestartet" Then $PC_Server_Status = "Online"
+	If $PC_Server_Status = "PC_Server_beendet" Then $PC_Server_Status = "Offline"
+
+	Sleep(1000)
+
+	GUICtrlSetState($TAB_1,$GUI_SHOW)
+
+	_Start_PCDSG_Lapper()
+	Sleep(500)
+	_Tab()
+
+	$Update_TrackList_VehicleList = IniRead($config_ini, "PC_Server", "Checkbox_PCDSG_settings_10", "")
+	If $Update_TrackList_VehicleList = "true" Then
+		Sleep(1000)
+		_get_tracks_from_DS()
+		Sleep(500)
+		_get_cars_from_DS()
+	EndIf
+	FileWriteLine($PCDSG_LOG_ini, "PCDSG_Server_started_connected_" & $NowTime & "=" & "PCDSG Server started /  connected" & " | " & "Date - Time: " & $NowDate & " - " & $NowTime)
+EndFunc
+
+
 Func _PC_Server_web_page()
 	ShellExecute($Web_Page)
 EndFunc
@@ -1203,7 +1391,7 @@ Func _PC_Server_beenden()
 	IniWrite($config_ini, "PC_Server", "Server_State", "")
 	IniWrite($config_ini, "PC_Server", "Session_Stage", "")
 
-	Sleep(3000)
+	Sleep(2000)
 
 	_GUICtrlStatusBar_SetText($Statusbar, $Statusbar_welcome_msg_8 & @TAB & @TAB & $Statusbar_welcome_msg_9)
 
@@ -1215,6 +1403,10 @@ Func _PC_Server_beenden()
 	EndIf
 
 	FileWriteLine($PCDSG_LOG_ini, "PCDSG_Server_closed_" & $NowTime & "=" & "PCDSG Server will closed in few seconds" & " | " & "Date - Time: " & $NowDate & " - " & $NowTime)
+	_Tab()
+	$PCDSG_DS_Mode = IniRead($config_ini,"PC_Server", "DS_Mode", "")
+	_GUICtrlStatusBar_SetText($Statusbar, "IP: " & $PCDSG_IP & @TAB & @TAB & $Statusbar_welcome_msg_2 & " " & $Aktuelle_Version & "' " & '[' & $PCDSG_DS_Mode & " Mode]")
+	GUISetState(@SW_SHOW)
 EndFunc
 
 Func _PCDSG_Programm_Einstellungen()
@@ -1233,13 +1425,6 @@ EndFunc
 
 Func _get_tracks_from_DS()
 	$TrackList_txt = $System_Dir & "TrackList.txt"
-
-	$Lesen_Auswahl_httpApiInterface = IniRead($config_ini, "Server_Einstellungen", "httpApiInterface", "")
-	$Lesen_Auswahl_httpApiPort = IniRead($config_ini, "Server_Einstellungen", "httpApiPort", "")
-
-	If $Lesen_Auswahl_httpApiInterface = "" Then $Lesen_Auswahl_httpApiInterface = "127.0.0.1"
-	If $Lesen_Auswahl_httpApiPort = "" Then $Lesen_Auswahl_httpApiPort = "9000"
-
 	$URL = "http://" & $Lesen_Auswahl_httpApiInterface & ":" & $Lesen_Auswahl_httpApiPort & "/api/list/tracks"
 	$download = InetGet($URL, $TrackList_txt, 16, 0)
 	FileWriteLine($PCDSG_LOG_ini, "TrackList_dowloaded_" & $NowTime & "=" & "New Track List downloaded and saved to: " &  $TrackList_txt & " | " & "Date - Time: " & $NowDate & " - " & $NowTime)
@@ -1247,13 +1432,6 @@ EndFunc
 
 Func _get_cars_from_DS()
 	$VehicleList_txt = $System_Dir & "VehicleList.txt"
-
-	$Lesen_Auswahl_httpApiInterface = IniRead($config_ini, "Server_Einstellungen", "httpApiInterface", "")
-	$Lesen_Auswahl_httpApiPort = IniRead($config_ini, "Server_Einstellungen", "httpApiPort", "")
-
-	If $Lesen_Auswahl_httpApiInterface = "" Then $Lesen_Auswahl_httpApiInterface = "127.0.0.1"
-	If $Lesen_Auswahl_httpApiPort = "" Then $Lesen_Auswahl_httpApiPort = "9000"
-
 	$URL = "http://" & $Lesen_Auswahl_httpApiInterface & ":" & $Lesen_Auswahl_httpApiPort & "/api/list/vehicles"
 	$download = InetGet($URL, $VehicleList_txt, 16, 0)
 	FileWriteLine($PCDSG_LOG_ini, "VehicleList_dowloaded_" & $NowTime & "=" & "New VehicleList List downloaded and saved to: " &  $VehicleList_txt & " | " & "Date - Time: " & $NowDate & " - " & $NowTime)
@@ -1263,28 +1441,29 @@ EndFunc
 Func _TAB_1_Button1()
 	$Server_Status = IniRead($config_ini,"PC_Server", "Status", "")
 
-	$Lesen_Auswahl_httpApiInterface = GUICtrlRead($Eingabe_httpApiInterface)
-	$Lesen_Auswahl_httpApiPort = GUICtrlRead($Auswaehlen_httpApiPort)
+	;$Lesen_Auswahl_httpApiInterface = GUICtrlRead($Eingabe_httpApiInterface)
+	;$Lesen_Auswahl_httpApiPort = GUICtrlRead($Auswaehlen_httpApiPort)
 
-	If $Lesen_Auswahl_httpApiInterface = "" Then $Lesen_Auswahl_httpApiInterface = "127.0.0.1"
-	If $Lesen_Auswahl_httpApiPort = "" Then $Lesen_Auswahl_httpApiPort = "9000"
+	;If $Lesen_Auswahl_httpApiInterface = "" Then $Lesen_Auswahl_httpApiInterface = "127.0.0.1"
+	;If $Lesen_Auswahl_httpApiPort = "" Then $Lesen_Auswahl_httpApiPort = "9000"
 
 	$HTML_local_Verzeichnis = IniRead($config_ini,"Einstellungen", "HTML_local_Verzeichnis", "")
 	$HTML_web_Verzeichnis = IniRead($config_ini,"Einstellungen", "HTML_web_Verzeichnis", "")
 	$HTML_Status_web_page = IniRead($config_ini,"Einstellungen", "HTML_Status_web_page", "")
 
+
 	$IE_Adresse = $Lesen_Auswahl_httpApiInterface & ":" & $Lesen_Auswahl_httpApiPort
 
-	If $Server_Status = "PC_Server_gestartet" Then $oIE.navigate("http://" & $IE_Adresse)
-	_Tab()
+	;If $Server_Status = "PC_Server_gestartet" Then $oIE.navigate("http://" & $IE_Adresse)
+	If $Server_Status = "PC_Server_gestartet" Then _Tab()
 EndFunc
 
 Func _TAB_1_Button2()
-	$Lesen_Auswahl_httpApiInterface = GUICtrlRead($Eingabe_httpApiInterface)
-	$Lesen_Auswahl_httpApiPort = GUICtrlRead($Auswaehlen_httpApiPort)
+	;$Lesen_Auswahl_httpApiInterface = GUICtrlRead($Eingabe_httpApiInterface)
+	;$Lesen_Auswahl_httpApiPort = GUICtrlRead($Auswaehlen_httpApiPort)
 
-	If $Lesen_Auswahl_httpApiInterface = "" Then $Lesen_Auswahl_httpApiInterface = "127.0.0.1"
-	If $Lesen_Auswahl_httpApiPort = "" Then $Lesen_Auswahl_httpApiPort = "9000"
+	;If $Lesen_Auswahl_httpApiInterface = "" Then $Lesen_Auswahl_httpApiInterface = "127.0.0.1"
+	;If $Lesen_Auswahl_httpApiPort = "" Then $Lesen_Auswahl_httpApiPort = "9000"
 
 	ShellExecute("http://" & $Lesen_Auswahl_httpApiInterface & ":" & $Lesen_Auswahl_httpApiPort)
 EndFunc
@@ -1364,31 +1543,20 @@ Func _TAB_2_Button2()
 EndFunc
 
 Func _TAB_2_Button3()
-	Global $FirstLine_Check
-
-	Global $Write_FirstLine = "false"
-
-	If FileExists($Dedi_config_cfg) Then
-		$Server_CFG_Array = FileReadToArray($Dedi_config_cfg)
-		Global $NR_Lines_config_cfg = _FileCountLines($Dedi_config_cfg) - 1
-		$FirstLine_Check = FileReadLine($Dedi_config_cfg, 1)
-		If $FirstLine_Check = "eventsLogSize : 10000" Then $Write_FirstLine = "true"
-	EndIf
-
 	$NR_Lines_config_cfg = _FileCountLines($Dedi_config_cfg) - 1
 
-	Global $Lesen_Auswahl_loglevel = GUICtrlRead($Auswahl_Sprachdatei)
+	;Global $Lesen_Auswahl_loglevel = GUICtrlRead($Auswahl_Sprachdatei)
 	Global $Lesen_Auswahl_eventsLogSize = GUICtrlRead($Auswaehlen_eventsLogSize)
 	Global $Lesen_Auswahl_name = GUICtrlRead($Eingabe_name)
 	Global $Lesen_Auswahl_secure = GUICtrlRead($Auswahl_secure)
 	Global $Lesen_Auswahl_password = GUICtrlRead($Eingabe_password)
 	Global $Lesen_Auswahl_maxPlayerCount = GUICtrlRead($Auswaehlen_maxPlayerCount)
-	Global $Lesen_Auswahl_bindIP = GUICtrlRead($Eingabe_bindIP)
+	Global $Lesen_Auswahl_GridSize = GUICtrlRead($Auswaehlen_GridSize)
 	Global $Lesen_Auswahl_steamPort = GUICtrlRead($Auswaehlen_steamPort)
 	Global $Lesen_Auswahl_hostPort = GUICtrlRead($Auswaehlen_hostPort)
 	Global $Lesen_Auswahl_queryPort = GUICtrlRead($Auswaehlen_queryPort)
 	Global $Lesen_Auswahl_enableHttpApi = GUICtrlRead($Auswahl_enableHttpApi)
-	Global $Lesen_Auswahl_httpApiLogLevel = GUICtrlRead($Auswahl_httpApiLogLevel)
+	;Global $Lesen_Auswahl_httpApiLogLevel = GUICtrlRead($Auswahl_httpApiLogLevel)
 	Global $Lesen_Auswahl_httpApiInterface = GUICtrlRead($Eingabe_httpApiInterface)
 	Global $Lesen_Auswahl_httpApiPort = GUICtrlRead($Auswaehlen_httpApiPort)
 	Global $Lesen_Auswahl_whitelist = GUICtrlRead($Auswahl_Whitelist)
@@ -1428,82 +1596,9 @@ Func _TAB_2_Button3()
 	IniWrite($config_ini, "Server_Einstellungen", "ServerControlsTrack", $Lesen_Auswahl_ServerControlsTrack)
 	IniWrite($config_ini, "Server_Einstellungen", "ServerControlsVehicleClass", $Lesen_Auswahl_ServerControlsVehicleClass)
 
-	If FileExists($Dedi_config_cfg) Then $Server_CFG_Array = FileReadToArray($Dedi_config_cfg)
 
-	If FileExists($Dedi_config_cfg) Then
-		$EmptyFile = FileOpen($Dedi_config_cfg, 2)
-		FileWrite($EmptyFile, "")
-		FileClose($EmptyFile)
-	EndIf
+	_config_cfg_erstellen()
 
-	If $Write_FirstLine = "true" Then
-		FileWriteLine($Dedi_config_cfg, "// : You can use dummy entries like this to write comments into the config. " & '"rem"' & ' and ' & '"#"' & " are also supported as comment entries.")
-		FileWriteLine($Dedi_config_cfg, "// But in recent version of the server, standard C++ like one-liner comments are supported as well.")
-		FileWriteLine($Dedi_config_cfg, " ")
-		FileWriteLine($Dedi_config_cfg, "//////////////////////////")
-		FileWriteLine($Dedi_config_cfg, "// Basic server options //")
-		FileWriteLine($Dedi_config_cfg, "//////////////////////////")
-		FileWriteLine($Dedi_config_cfg, " ")
-		FileWriteLine($Dedi_config_cfg, "// Logging level of the server. Messages of this severity and more important will be logged. Can be any of debug/info/warning/error.")
-		FileWriteLine($Dedi_config_cfg, 'logLevel : "info"')
-		FileWriteLine($Dedi_config_cfg, " ")
-		FileWriteLine($Dedi_config_cfg, "// Number of gameplay events stored on the server. Oldest ones will be discarded once the game logs more.")
-	EndIf
-
-		For $Schleife_2 = 0 To $NR_Lines_config_cfg ; 55
-			If $Server_CFG_Array[$Schleife_2] <> 'blackList : [ "blackList.cfg" ]' Then
-				If $Server_CFG_Array[$Schleife_2] <> 'whiteList : [ "whitelist.cfg" ]' Then
-					$Wert_Line = $Server_CFG_Array[$Schleife_2]
-					$Check_Line = StringSplit($Wert_Line, ':', $Server_CFG_Array[$Schleife_2])
-					If IsArray($Check_Line) Then $Check_Line_1 = $Check_Line[1]
-
-					If $Check_Line_1 = 'logLevel ' Then $Wert_Line = 'logLevel : ' & '"' & $Lesen_Auswahl_loglevel & '"'
-					If $Check_Line_1 = 'eventsLogSize ' Then $Wert_Line = 'eventsLogSize : ' & $Lesen_Auswahl_eventsLogSize
-					If $Check_Line_1 = 'name ' Then $Wert_Line = 'name : ' & '"' & $Lesen_Auswahl_name & '"'
-					If $Check_Line_1 = 'secure ' Then $Wert_Line = 'secure : ' & $Lesen_Auswahl_secure
-					If $Check_Line_1 = 'password ' Then $Wert_Line = 'password : ' & '"' & $Lesen_Auswahl_password & '"'
-					If $Check_Line_1 = 'maxPlayerCount ' Then $Wert_Line = 'maxPlayerCount : ' & $Lesen_Auswahl_maxPlayerCount
-					If $Check_Line_1 = 'bindIP ' Then $Wert_Line = 'bindIP : ' & '"' & $Lesen_Auswahl_bindIP & '"'
-					If $Check_Line_1 = 'steamPort ' Then $Wert_Line = 'steamPort : ' & $Lesen_Auswahl_steamPort
-					If $Check_Line_1 = 'hostPort ' Then $Wert_Line = 'hostPort : ' & $Lesen_Auswahl_hostPort
-					If $Check_Line_1 = 'queryPort ' Then $Wert_Line = 'queryPort : ' & $Lesen_Auswahl_queryPort
-					If $Check_Line_1 = 'sleepWaiting ' Then $Wert_Line = 'sleepWaiting : ' & $Lesen_Auswahl_sleepWaiting
-					If $Check_Line_1 = 'sleepWaiting ' Then $Wert_Line = 'sleepWaiting : ' & $Lesen_Auswahl_sleepWaiting
-					If $Check_Line_1 = 'sleepActive ' Then $Wert_Line = 'sleepActive : ' & $Lesen_Auswahl_sleepActive
-					If $Check_Line_1 = 'enableHttpApi ' Then $Wert_Line = 'enableHttpApi : ' & $Lesen_Auswahl_enableHttpApi
-					If $Check_Line_1 = 'httpApiLogLevel ' Then $Wert_Line = 'httpApiLogLevel : ' & '"' & $Lesen_Auswahl_httpApiLogLevel & '"'
-					If $Check_Line_1 = 'httpApiInterface ' Then $Wert_Line = 'httpApiInterface : ' & '"' & $Lesen_Auswahl_httpApiInterface & '"'
-					If $Check_Line_1 = 'httpApiPort ' Then $Wert_Line = 'httpApiPort : ' & $Lesen_Auswahl_httpApiPort
-					If $Check_Line_1 = 'allowEmptyJoin ' Then $Wert_Line = 'allowEmptyJoin : ' & $Lesen_Auswahl_allowEmptyJoin
-					If $Check_Line_1 = 'controlGameSetup ' Then $Wert_Line = 'controlGameSetup : ' & $Lesen_Auswahl_controlGameSetup
-
-					If $Check_Line_1 = '    "ServerControlsTrack" ' Then $Wert_Line = '    "ServerControlsTrack" : ' & $Lesen_Auswahl_ServerControlsTrack & ','
-					If $Check_Line_1 = '    "ServerControlsVehicleClass" ' Then $Wert_Line = '    "ServerControlsVehicleClass" : ' & $Lesen_Auswahl_ServerControlsVehicleClass & ','
-
-					If $Check_Line_1 = '        { "type" ' Then
-						If $Check_Line[2] = ' "ip-accept", "ip" ' Then $Wert_Line = $Check_Line[1] & ':' & ' "ip-accept", "ip" : "' & @IPAddress1 & '/32" ' & '}' & ','
-					EndIf
-
-					If $Schleife_2 <> $NR_Lines_config_cfg - 1 Then
-						FileWriteLine($Dedi_config_cfg, $Wert_Line)
-					EndIf
-
-				EndIf
-			EndIf
-		Next
-
-	FileWriteLine($Dedi_config_cfg, "")
-
-	If $Lesen_Auswahl_whitelist = "true" Then FileWriteLine($Dedi_config_cfg, 'whiteList : [ "whiteList.cfg" ]')
-	If $Lesen_Auswahl_blacklist = "true" Then FileWriteLine($Dedi_config_cfg, 'blackList : [ "blackList.cfg" ]')
-
-
-	$Dedi_config_whiteList_cfg = @ScriptDir & "\whiteList.cfg"
-	$Dedi_config_blackList_cfg = @ScriptDir & "\blackList.cfg"
-
-	FileCopy($Dedi_Installations_Verzeichnis & "server.cfg", $install_dir & "server.cfg", $FC_OVERWRITE)
-	FileCopy($Dedi_config_whiteList_cfg, $Dedi_Verzeichnis & "\whiteList.cfg", $FC_OVERWRITE)
-	FileCopy($Dedi_config_blackList_cfg, $Dedi_Verzeichnis & "\blackList.cfg", $FC_OVERWRITE)
 
 	MsgBox(0,"", $msgbox_12, 3)
 
@@ -1516,10 +1611,16 @@ Func _TAB_2_Button3()
 	_Beenden()
 EndFunc
 
-Func _GUI_Button_Users()
-	$TAB_6 = GUICtrlCreateTabItem("PCDSG User settings")
+Func _TAB_2_Button4()
+	If FileExists($sms_rotate_config_json_File) Then
+		ShellExecute($sms_rotate_config_json_File)
+	EndIf
+EndFunc
 
-	_Werte_Server_CFG_Read()
+Func _GUI_Button_Users()
+	$TAB_6 = GUICtrlCreateTabItem("DS API User settings")
+
+	;_Werte_Server_CFG_Read()
 
 	GUICtrlCreateLabel("PCDSG User Name:", 10, 92, 155, 20)
 	GUICtrlSetFont(-1, 12, 400, 1, $font_arial)
@@ -1546,10 +1647,11 @@ Func _GUI_Button_Users()
 	GUISetState()
 
 	; Label status
+	$Value_Combo_status = IniRead($config_ini, "Server_Einstellungen", "httpApistatus", "")
 	$Checkbox_Activate_status = GUICtrlCreateCheckbox("status", 10, 222, 140, 20)
-	If $Check_Status_1 = "true" Then GUICtrlSetState(-1, $GUI_CHECKED)
+	If $Check_Status_1 <> "false" Then GUICtrlSetState(-1, $GUI_CHECKED)
 	GUICtrlSetFont(-1, 11, 400, 1, $font_arial)
-	$Combo_status = GUICtrlCreateCombo("", 160, 217, 140, 25, $CBS_DROPDOWNLIST)
+	$Combo_status = GUICtrlCreateCombo($Value_Combo_status, 160, 217, 140, 25, $CBS_DROPDOWNLIST)
 	GUICtrlSetData(-1, "public" & $ListViewSeperator & "private" & $ListViewSeperator, $Value_httpApi_status)
 	GUICtrlSetFont(-1, 11, 400, 1, $font_arial)
 	GUISetState(@SW_SHOW)
@@ -1562,16 +1664,17 @@ Func _GUI_Button_Users()
 	GUICtrlSetData(-1, "accept" & $ListViewSeperator & "reject" & $ListViewSeperator & "reject-password" & $ListViewSeperator & "ip-accept" & $ListViewSeperator & "ip-reject" & $ListViewSeperator & "user" & $ListViewSeperator & "group", $Value_httpApiAccessFilters)
 	GUICtrlSetFont(-1, 11, 400, 1, $font_arial)
 
+
 	GUICtrlCreateGroup("httpApiUsers", 335, 75, 303, 205)
 	DllCall("UxTheme.dll", "int", "SetWindowTheme", "hwnd", GUICtrlGetHandle(-1), "wstr", "Explorer", "wstr", 0)
 	GUICtrlSetColor(-1, "0x0000FF")
 	GUICtrlSetFont(-1, 11, 400, 6, $font_arial)
 
-	GUICtrlCreateLabel("Name", 410, 95, 155, 20)
+	GUICtrlCreateLabel("Name", 410, 95, 155, 15)
 	GUICtrlSetFont(-1, 11, 400, 2, $font_arial)
-	GUICtrlCreateLabel(":", 497, 90, 140, 20)
+	GUICtrlCreateLabel(":", 497, 90, 5, 20)
 	GUICtrlSetFont(-1, 16, 400, 1, $font_arial)
-	GUICtrlCreateLabel("Password", 545, 95, 155, 20)
+	GUICtrlCreateLabel("Password", 545, 95, 155, 15)
 	GUICtrlSetFont(-1, 11, 400, 2, $font_arial)
 
 	; Label User 1
@@ -1580,7 +1683,7 @@ Func _GUI_Button_Users()
 	GUICtrlSetFont(-1, 11, 400, 1, $font_arial)
 	$Input_Name_1= GUICtrlCreateInput($Value_httpApiUser_1_Name, 370, 115, 120, 25)
 	GUICtrlSetFont(-1, 11, 400, 1, $font_arial)
-	GUICtrlCreateLabel(":", 497, 113, 140, 20)
+	GUICtrlCreateLabel(":", 497, 113, 5, 20)
 	GUICtrlSetFont(-1, 16, 400, 1, $font_arial)
 	$Input_password_Name_1 = GUICtrlCreateInput($Value_httpApiUser_1_Password, 510, 115, 120, 25)
 	GUICtrlSetFont(-1, 11, 400, 1, $font_arial)
@@ -1590,7 +1693,7 @@ Func _GUI_Button_Users()
 	GUICtrlSetFont(-1, 11, 400, 1, $font_arial)
 	$Input_Name_2= GUICtrlCreateInput($Value_httpApiUser_2_Name, 370, 145, 120, 25)
 	GUICtrlSetFont(-1, 11, 400, 1, $font_arial)
-	GUICtrlCreateLabel(":", 497, 143, 140, 20)
+	GUICtrlCreateLabel(":", 497, 143, 5, 20)
 	GUICtrlSetFont(-1, 16, 400, 1, $font_arial)
 	$Input_password_Name_2 = GUICtrlCreateInput($Value_httpApiUser_2_Password, 510, 145, 120, 25)
 	GUICtrlSetFont(-1, 11, 400, 1, $font_arial)
@@ -1600,7 +1703,7 @@ Func _GUI_Button_Users()
 	GUICtrlSetFont(-1, 11, 400, 1, $font_arial)
 	$Input_Name_3= GUICtrlCreateInput($Value_httpApiUser_3_Name, 370, 175, 120, 25)
 	GUICtrlSetFont(-1, 11, 400, 1, $font_arial)
-	GUICtrlCreateLabel(":", 497, 173, 140, 20)
+	GUICtrlCreateLabel(":", 497, 173, 5, 20)
 	GUICtrlSetFont(-1, 16, 400, 1, $font_arial)
 	$Input_password_Name_3 = GUICtrlCreateInput($Value_httpApiUser_3_Password, 510, 175, 120, 25)
 	GUICtrlSetFont(-1, 11, 400, 1, $font_arial)
@@ -1611,7 +1714,7 @@ Func _GUI_Button_Users()
 	; Input password User 1
 	$Input_Name_4= GUICtrlCreateInput($Value_httpApiUser_4_Name, 370, 205, 120, 25)
 	GUICtrlSetFont(-1, 11, 400, 1, $font_arial)
-	GUICtrlCreateLabel(":", 497, 203, 140, 20)
+	GUICtrlCreateLabel(":", 497, 203, 5, 20)
 	GUICtrlSetFont(-1, 16, 400, 1, $font_arial)
 	$Input_password_Name_4 = GUICtrlCreateInput($Value_httpApiUser_4_Password, 510, 205, 120, 25)
 	GUICtrlSetFont(-1, 11, 400, 1, $font_arial)
@@ -1621,7 +1724,7 @@ Func _GUI_Button_Users()
 	GUICtrlSetFont(-1, 11, 400, 1, $font_arial)
 	$Input_Name_5= GUICtrlCreateInput($Value_httpApiUser_5_Name, 370, 235, 120, 25)
 	GUICtrlSetFont(-1, 11, 400, 1, $font_arial)
-	GUICtrlCreateLabel(":", 497, 233, 140, 20)
+	GUICtrlCreateLabel(":", 497, 233, 5, 20)
 	GUICtrlSetFont(-1, 16, 400, 1, $font_arial)
 	$Input_password_Name_5 = GUICtrlCreateInput($Value_httpApiUser_5_Password, 510, 235, 120, 25)
 	GUICtrlSetFont(-1, 11, 400, 1, $font_arial)
@@ -1632,7 +1735,7 @@ Func _GUI_Button_Users()
 	GUICtrlSetFont(-1, 11, 400, 6, $font_arial)
 
 	; Label
-	GUICtrlCreateLabel("Private:", 10, 312, 140, 20) ; bindIP
+	GUICtrlCreateLabel("Private:", 10, 312, 50, 20) ; bindIP
 	GUICtrlSetFont(-1, 11, 400, 1, $font_arial)
 	$Combo_Group_Private_1 = GUICtrlCreateCombo("", 70, 310, 105, 25, $CBS_DROPDOWNLIST)
 	GUICtrlSetData(-1, $Value_httpApiUser_1_Name & $ListViewSeperator & $Value_httpApiUser_2_Name & $ListViewSeperator & $Value_httpApiUser_3_Name & $ListViewSeperator & $Value_httpApiUser_4_Name & $ListViewSeperator & $Value_httpApiUser_5_Name & $ListViewSeperator & "" & $ListViewSeperator, $Value_httpApi_GroupUser_Name_1)
@@ -1646,7 +1749,7 @@ Func _GUI_Button_Users()
 	GUICtrlSetData(-1, $Value_httpApiUser_1_Name & $ListViewSeperator & $Value_httpApiUser_2_Name & $ListViewSeperator & $Value_httpApiUser_3_Name & $ListViewSeperator & $Value_httpApiUser_4_Name & $ListViewSeperator & $Value_httpApiUser_5_Name & $ListViewSeperator & "" & $ListViewSeperator, $Value_httpApi_GroupUser_Name_5)
 
 	; Label
-	GUICtrlCreateLabel("Admin:", 10, 338, 140, 20) ; steamPort
+	GUICtrlCreateLabel("Admin:", 10, 338, 50, 20) ; steamPort
 	GUICtrlSetFont(-1, 11, 400, 1, $font_arial)
 	$Combo_Group_Admin_1 = GUICtrlCreateCombo("", 70, 335, 105, 25, $CBS_DROPDOWNLIST)
 	GUICtrlSetData(-1, $Value_httpApiUser_1_Name & $ListViewSeperator & $Value_httpApiUser_2_Name & $ListViewSeperator & $Value_httpApiUser_3_Name & $ListViewSeperator & $Value_httpApiUser_4_Name & $ListViewSeperator & $Value_httpApiUser_5_Name & $ListViewSeperator & "" & $ListViewSeperator, $Value_httpApi_GroupAdminUser_Name_1)
@@ -1665,11 +1768,11 @@ Func _GUI_Button_Users()
 	GuiCtrlSetTip($TAB_6_Button1, "Open Server.cfg File")
 	GUICtrlSetOnEvent($TAB_6_Button1, "_TAB_6_Button1")
 
-	Global $TAB_6_Button2 = GUICtrlCreateButton("Test 1", 50, 386, 65, 35, $BS_BITMAP)
-	GUICtrlSetOnEvent($TAB_6_Button2, "_TAB_6_Button2")
+	;Global $TAB_6_Button2 = GUICtrlCreateButton("Test 1", 50, 386, 65, 35, $BS_BITMAP)
+	;GUICtrlSetOnEvent($TAB_6_Button2, "_TAB_6_Button2")
 
-	Global $TAB_6_Button3 = GUICtrlCreateButton("Test 2", 120, 386, 65, 35, $BS_BITMAP)
-	GUICtrlSetOnEvent($TAB_6_Button3, "_TAB_6_Button3")
+	;Global $TAB_6_Button3 = GUICtrlCreateButton("Test 2", 120, 386, 65, 35, $BS_BITMAP)
+	;GUICtrlSetOnEvent($TAB_6_Button3, "_TAB_6_Button3")
 
 	Global $TAB_6_Button4 = GUICtrlCreateButton("Speichern", 600, 386, 35, 35, $BS_BITMAP)
 	_GUICtrlButton_SetImage($TAB_6_Button4, $gfx & "Speichern.bmp")
@@ -2383,12 +2486,7 @@ Func _TAB_6_Button4()
 
 	MsgBox(0,"", $msgbox_12, 3)
 
-	If FileExists($install_dir & "PCDSG.exe") Then
-		;ShellExecute($install_dir & "PCDSG.exe")
-	Else
-		;ShellExecute($install_dir & "PCDSG.au3")
-	EndIf
-
+	_Restart_PCDSG()
 EndFunc
 
 
@@ -2405,7 +2503,8 @@ Func _Blacklist_Dowpdown()
 EndFunc
 
 
-Func _Werte_Server_CFG_Read()
+
+Func _Werte_Server_CFG_Read__Backup()
 
 
 	$Dedi_config_cfg = $Dedi_Installations_Verzeichnis & "server.cfg"
@@ -2435,71 +2534,88 @@ Func _Werte_Server_CFG_Read()
 		$Check_Line = StringSplit($CFG_Line, ':', $STR_ENTIRESPLIT)
 		If IsArray($Check_Line) Then $Check_Line_1 = $Check_Line[1]
 		If $Check_Line[0] > 1 Then $Check_Line_2 = StringReplace($Check_Line[2], ',', '')
-		$Check_Line_2 = StringReplace($Check_Line_2, ' ', '')
+		If StringLeft($Check_Line_2, 1) = " " Then $Check_Line_2 = StringTrimLeft($Check_Line_2, 1)
+		If StringRight($Check_Line_2, 1) = " " Then $Check_Line_2 = StringTrimRight($Check_Line_2, 1)
 		$Check_Line_2 = StringReplace($Check_Line_2, '"', '')
 
 		If $Check_Line_1 = 'logLevel ' Then
 			If $Check_Line_2 <> "" Then Global $Wert_logLevel = $Check_Line_2
+			IniWrite($config_ini, "Server_Einstellungen", "loglevel", $Wert_logLevel)
 		EndIf
 
 		If $Check_Line_1 = 'eventsLogSize ' Then
 			If $Check_Line_2 <> "" Then Global $Wert_eventsLogSize = $Check_Line_2
+			IniWrite($config_ini, "Server_Einstellungen", "eventsLogSize", $Wert_logLevel)
 		EndIf
 
 		If $Check_Line_1 = 'name ' Then
 			If $Check_Line_2 <> "" Then Global $Wert_name = $Check_Line_2
+			IniWrite($config_ini, "Server_Einstellungen", "name", $Wert_name)
 		EndIf
 
 		If $Check_Line_1 = 'secure ' Then
 			If $Check_Line_2 <> "" Then Global $Wert_secure = $Check_Line_2
+			IniWrite($config_ini, "Server_Einstellungen", "secure", $Wert_secure)
 		EndIf
 
 		If $Check_Line_1 = 'password ' Then
 			If $Check_Line_2 <> "" Then Global $Wert_password = $Check_Line_2
+			IniWrite($config_ini, "Server_Einstellungen", "password", $Wert_password)
 		EndIf
 
 		If $Check_Line_1 = 'maxPlayerCount ' Then
 			If $Check_Line_2 <> "" Then Global $Wert_maxPlayerCount = $Check_Line_2
+			IniWrite($config_ini, "Server_Einstellungen", "maxPlayerCount", $Wert_maxPlayerCount)
 		EndIf
 
 		If $Check_Line_1 = 'bindIP ' Then
 			If $Check_Line_2 <> "" Then Global $Wert_bindIP = $Check_Line_2
+			IniWrite($config_ini, "Server_Einstellungen", "bindIP", $Wert_bindIP)
 		EndIf
 
 		If $Check_Line_1 = 'steamPort ' Then
 			If $Check_Line_2 <> "" Then Global $Wert_steamPort = $Check_Line_2
+			IniWrite($config_ini, "Server_Einstellungen", "steamPort", $Wert_steamPort)
 		EndIf
 
 		If $Check_Line_1 = 'hostPort ' Then
 			If $Check_Line_2 <> "" Then Global $Wert_hostPort = $Check_Line_2
+			IniWrite($config_ini, "Server_Einstellungen", "hostPort", $Wert_hostPort)
 		EndIf
 
 		If $Check_Line_1 = 'queryPort ' Then
 			If $Check_Line_2 <> "" Then Global $Wert_queryPort = $Check_Line_2
+			IniWrite($config_ini, "Server_Einstellungen", "queryPort", $Wert_queryPort)
 		EndIf
 
 		If $Check_Line_1 = 'sleepWaiting ' Then
 			If $Check_Line_2 <> "" Then Global $Wert_sleepWaiting = $Check_Line_2
+			IniWrite($config_ini, "Server_Einstellungen", "sleepWaiting", $Wert_sleepWaiting)
 		EndIf
 
 		If $Check_Line_1 = 'sleepActive ' Then
 			If $Check_Line_2 <> "" Then Global $Wert_sleepActive = $Check_Line_2
+			IniWrite($config_ini, "Server_Einstellungen", "sleepActive", $Wert_sleepActive)
 		EndIf
 
 		If $Check_Line_1 = 'enableHttpApi ' Then
 			If $Check_Line_2 <> "" Then Global $Wert_enableHttpApi = $Check_Line_2
+			IniWrite($config_ini, "Server_Einstellungen", "enableHttpApi", $Wert_enableHttpApi)
 		EndIf
 
 		If $Check_Line_1 = 'httpApiLogLevel ' Then
 			If $Check_Line_2 <> "" Then Global $Wert_httpApiLogLevel = $Check_Line_2
+			IniWrite($config_ini, "Server_Einstellungen", "httpApiLogLevel", $Wert_httpApiLogLevel)
 		EndIf
 
 		If $Check_Line_1 = 'httpApiInterface ' Then
 			If $Check_Line_2 <> "" Then Global $Wert_httpApiInterface = $Check_Line_2
+			IniWrite($config_ini, "Server_Einstellungen", "httpApiInterface", $Wert_httpApiInterface)
 		EndIf
 
 		If $Check_Line_1 = 'httpApiPort ' Then
 			If $Check_Line_2 <> "" Then Global $Wert_httpApiPort = $Check_Line_2
+			IniWrite($config_ini, "Server_Einstellungen", "httpApiPort", $Wert_httpApiPort)
 		EndIf
 
 		If $Check_Line_1 = 'httpApiAccessLevels ' Then
@@ -2516,17 +2632,20 @@ Func _Werte_Server_CFG_Read()
 			$Check_Line_plus_4_2 = StringReplace($Check_Line_plus_4_2, '"', '')
 			If $Check_Line_plus_4_2 <> "" Then Global $Value_httpApiAccessLevels = $Check_Line_plus_4_2
 			If $Check_Status_1 = "false" Then $Value_httpApiAccessLevels = " // " & $Check_Line_plus_4_2
+			IniWrite($config_ini, "Server_Einstellungen", "httpApiAccessLevel", $Check_httpApiAccessLevels_1)
 		EndIf
 
 		If $Check_Line_1 = '    // "status" ' Then
 			$Check_Status_1 = "false"
 			$Check_Line_2 = $Check_Line_2
 			Global $Value_httpApi_status = $Check_Line_2
+			IniWrite($config_ini, "Server_Einstellungen", "Activate_status", $Check_Status_1)
 		EndIf
 
 		If $Check_Line_1 = '    "status" ' Then
 			$Check_Status_1 = "true"
 			If $Check_Line_2 <> "" Then Global $Value_httpApi_status = $Check_Line_2
+			IniWrite($config_ini, "Server_Einstellungen", "Activate_status", $Check_Status_1)
 		EndIf
 
 		If $Check_Line_1 = 'httpApiAccessFilters ' Then
@@ -2538,6 +2657,7 @@ Func _Werte_Server_CFG_Read()
 			$Check_Line_plus_4_2 = StringReplace($Check_Line_plus_4_2, '"', '')
 			$Check_Line_plus_4_2 = StringReplace($Check_Line_plus_4_2, '}', '')
 			If $Check_Line_plus_4_2 <> "" Then Global $Value_httpApiAccessFilters = $Check_Line_plus_4_2
+			IniWrite($config_ini, "Server_Einstellungen", "httpApiAccessFilters", $Value_httpApiAccessFilters)
 		EndIf
 
 		If $Check_Line_1 = 'httpApiUsers ' Then
@@ -2716,38 +2836,790 @@ Func _Werte_Server_CFG_Read()
 
 		If $Check_Line_1 = 'allowEmptyJoin ' Then
 			If $Check_Line_2 <> "" Then Global $Wert_allowEmptyJoin = $Check_Line_2
+			IniWrite($config_ini, "Server_Einstellungen", "allowEmptyJoin", $Wert_allowEmptyJoin)
 		EndIf
 
 		If $Check_Line_1 = 'controlGameSetup ' Then
 			If $Check_Line_2 <> "" Then Global $Wert_controlGameSetup = $Check_Line_2
+			IniWrite($config_ini, "Server_Einstellungen", "controlGameSetup", $Wert_allowEmptyJoin)
 		EndIf
 
 		If $Check_Line_1 = '    "ServerControlsTrack" ' Then
 			If $Check_Line_2 <> "" Then Global $Wert_ServerControlsTrack = $Check_Line_2
+			IniWrite($config_ini, "Server_Einstellungen", "ServerControlsTrack", $Wert_ServerControlsTrack)
 		EndIf
 
 		If $Check_Line_1 = '    "ServerControlsVehicleClass" ' Then
 			If $Check_Line_2 <> "" Then Global $Wert_ServerControlsVehicleClass = $Check_Line_2
+			IniWrite($config_ini, "Server_Einstellungen", "ServerControlsVehicleClass", $Wert_ServerControlsVehicleClass)
+		EndIf
+
+		;MsgBox(0, "$Check_Line_1", $Check_Line_1)
+
+		If $Check_Line_1 = '    // "sms_rotate",' Then
+			;MsgBox(0, "// sms_rotate", "// sms_rotate")
+			$Check_Status_1 = "false"
+			$Check_Line_2 = $Check_Line_2
+			Global $Value_httpApi_status = $Check_Line_2
+			IniWrite($config_ini, "Server_Einstellungen", "sms_rotate", $Check_Status_1)
+		EndIf
+
+		If $Check_Line_1 = '    "sms_rotate",' Then
+			;MsgBox(0, "sms_rotate", "sms_rotate")
+			$Check_Status_1 = "true"
+			If $Check_Line_2 <> "" Then Global $Value_httpApi_status = $Check_Line_2
+			IniWrite($config_ini, "Server_Einstellungen", "sms_rotate", $Check_Status_1)
 		EndIf
 	Next
 EndFunc
 
-Func _config_cfg_erstellen()
+Func _Werte_Server_CFG_Read()
+	If FileExists($Dedi_config_cfg) Then
+		$Server_CFG_Array = FileReadToArray($Dedi_config_cfg)
+		$NR_Lines_config_cfg = _FileCountLines($Dedi_config_cfg) - 1
+
+		For $Loop = 0 To $NR_Lines_config_cfg
+			$Wert_Line = $Server_CFG_Array[$Loop]
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, 'logLevel : ')
+			If $StringInStr_Check_1 <> 0 Then
+				If StringLeft($Wert_Line, 1) = "L" Then
+					$Wert_Line = StringReplace($Wert_Line, 'logLevel : ', '')
+					$Wert_Line = StringReplace($Wert_Line, '"', '')
+					$Wert_Line = StringReplace($Wert_Line, ',', '')
+					$Wert_logLevel = $Wert_Line
+					IniWrite($config_ini, "Server_Einstellungen", "logLevel", $Wert_Line)
+				EndIf
+			EndIf
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, 'eventsLogSize : ')
+			If $StringInStr_Check_1 <> 0 Then
+				$Wert_Line = StringReplace($Wert_Line, 'eventsLogSize : ', '')
+				$Wert_Line = StringReplace($Wert_Line, '"', '')
+				$Wert_Line = StringReplace($Wert_Line, ',', '')
+				$Wert_eventsLogSize = $Wert_Line
+				IniWrite($config_ini, "Server_Einstellungen", "eventsLogSize", $Wert_Line)
+			EndIf
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, 'name : ')
+			If $StringInStr_Check_1 <> 0 Then
+				$Wert_Line = StringReplace($Wert_Line, 'name : ', '')
+				$Wert_Line = StringReplace($Wert_Line, '"', '')
+				$Wert_Line = StringReplace($Wert_Line, ',', '')
+				$Wert_name = $Wert_Line
+				IniWrite($config_ini, "Server_Einstellungen", "name", $Wert_Line)
+			EndIf
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, 'secure : ')
+			If $StringInStr_Check_1 <> 0 Then
+				$Wert_Line = StringReplace($Wert_Line, 'secure : ', '')
+				$Wert_Line = StringReplace($Wert_Line, '"', '')
+				$Wert_Line = StringReplace($Wert_Line, ',', '')
+				$Wert_secure = $Wert_Line
+				IniWrite($config_ini, "Server_Einstellungen", "secure", $Wert_Line)
+			EndIf
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, 'password : ')
+			If $StringInStr_Check_1 <> 0 Then
+				$Wert_Line = StringReplace($Wert_Line, 'password : ', '')
+				$Wert_Line = StringReplace($Wert_Line, '"', '')
+				$Wert_Line = StringReplace($Wert_Line, ',', '')
+				$Wert_password = $Wert_Line
+				IniWrite($config_ini, "Server_Einstellungen", "password", $Wert_Line)
+			EndIf
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, 'maxPlayerCount : ')
+			If $StringInStr_Check_1 <> 0 Then
+				$Wert_Line = StringReplace($Wert_Line, 'maxPlayerCount : ', '')
+				$Wert_Line = StringReplace($Wert_Line, '"', '')
+				$Wert_Line = StringReplace($Wert_Line, ',', '')
+				$Wert_maxPlayerCount = $Wert_Line
+				IniWrite($config_ini, "Server_Einstellungen", "maxPlayerCount", $Wert_Line)
+			EndIf
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, 'bindIP : ')
+			If $StringInStr_Check_1 <> 0 Then
+				$Wert_Line = StringReplace($Wert_Line, 'bindIP : ', '')
+				$Wert_Line = StringReplace($Wert_Line, '"', '')
+				$Wert_Line = StringReplace($Wert_Line, ',', '')
+				$Wert_bindIP = $Wert_Line
+				IniWrite($config_ini, "Server_Einstellungen", "bindIP", $Wert_Line)
+			EndIf
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, 'steamPort : ')
+			If $StringInStr_Check_1 <> 0 Then
+				$Wert_Line = StringReplace($Wert_Line, 'steamPort : ', '')
+				$Wert_Line = StringReplace($Wert_Line, '"', '')
+				$Wert_Line = StringReplace($Wert_Line, ',', '')
+				$Wert_steamPort = $Wert_Line
+				IniWrite($config_ini, "Server_Einstellungen", "steamPort", $Wert_Line)
+			EndIf
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, 'hostPort : ')
+			If $StringInStr_Check_1 <> 0 Then
+				$Wert_Line = StringReplace($Wert_Line, 'hostPort : ', '')
+				$Wert_Line = StringReplace($Wert_Line, '"', '')
+				$Wert_Line = StringReplace($Wert_Line, ',', '')
+				$Wert_hostPort = $Wert_Line
+				IniWrite($config_ini, "Server_Einstellungen", "hostPort", $Wert_Line)
+			EndIf
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, 'queryPort : ')
+			If $StringInStr_Check_1 <> 0 Then
+				$Wert_Line = StringReplace($Wert_Line, 'queryPort : ', '')
+				$Wert_Line = StringReplace($Wert_Line, '"', '')
+				$Wert_Line = StringReplace($Wert_Line, ',', '')
+				$Wert_queryPort = $Wert_Line
+				IniWrite($config_ini, "Server_Einstellungen", "queryPort", $Wert_Line)
+			EndIf
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, 'sleepWaiting : ')
+			If $StringInStr_Check_1 <> 0 Then
+				$Wert_Line = StringReplace($Wert_Line, 'sleepWaiting : ', '')
+				$Wert_Line = StringReplace($Wert_Line, '"', '')
+				$Wert_Line = StringReplace($Wert_Line, ',', '')
+				$Wert_sleepWaiting = $Wert_Line
+				IniWrite($config_ini, "Server_Einstellungen", "sleepWaiting", $Wert_Line)
+			EndIf
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, 'sleepActive : ')
+			If $StringInStr_Check_1 <> 0 Then
+				$Wert_Line = StringReplace($Wert_Line, 'sleepActive : ', '')
+				$Wert_Line = StringReplace($Wert_Line, '"', '')
+				$Wert_Line = StringReplace($Wert_Line, ',', '')
+				$Wert_sleepActive = $Wert_Line
+				IniWrite($config_ini, "Server_Einstellungen", "sleepActive", $Wert_Line)
+			EndIf
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, 'sportsPlay : ')
+			If $StringInStr_Check_1 <> 0 Then
+				$Wert_Line = StringReplace($Wert_Line, 'sportsPlay : ', '')
+				$Wert_Line = StringReplace($Wert_Line, '"', '')
+				$Wert_Line = StringReplace($Wert_Line, ',', '')
+				IniWrite($config_ini, "Server_Einstellungen", "sportsPlay", $Wert_Line)
+			EndIf
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, 'enableHttpApi : ')
+			If $StringInStr_Check_1 <> 0 Then
+				$Wert_Line = StringReplace($Wert_Line, 'enableHttpApi : ', '')
+				$Wert_Line = StringReplace($Wert_Line, '"', '')
+				$Wert_Line = StringReplace($Wert_Line, ',', '')
+				$Wert_enableHttpApi = $Wert_Line
+				IniWrite($config_ini, "Server_Einstellungen", "enableHttpApi", $Wert_Line)
+			EndIf
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, 'httpApiLogLevel : "')
+			If $StringInStr_Check_1 <> 0 Then
+				$Wert_Line = StringReplace($Wert_Line, 'httpApiLogLevel : "', '')
+				$Wert_Line = StringReplace($Wert_Line, '"', '')
+				$Wert_Line = StringReplace($Wert_Line, ',', '')
+				;$Wert_httpApiLogLevel = $Wert_Line
+				IniWrite($config_ini, "Server_Einstellungen", "httpApiLogLevel", $Wert_Line)
+			EndIf
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, 'httpApiInterface : "')
+			If $StringInStr_Check_1 <> 0 Then
+				$Wert_Line = StringReplace($Wert_Line, 'httpApiInterface : ', '')
+				$Wert_Line = StringReplace($Wert_Line, '"', '')
+				$Wert_Line = StringReplace($Wert_Line, ',', '')
+				$Wert_httpApiInterface = $Wert_Line
+				IniWrite($config_ini, "Server_Einstellungen", "httpApiInterface", $Wert_Line)
+			EndIf
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, 'httpApiPort : ')
+			If $StringInStr_Check_1 <> 0 Then
+				$Wert_Line = StringReplace($Wert_Line, 'httpApiPort : ', '')
+				$Wert_Line = StringReplace($Wert_Line, '"', '')
+				$Wert_Line = StringReplace($Wert_Line, ',', '')
+				$Wert_httpApiPort = $Wert_Line
+				IniWrite($config_ini, "Server_Einstellungen", "httpApiPort", $Wert_Line)
+			EndIf
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, '    "status" : ')
+			If $StringInStr_Check_1 <> 0 Then
+				$Wert_Line = "true"
+				$Value_httpApi_status  = $Wert_Line
+				IniWrite($config_ini, "Server_Einstellungen", "Activate_status", $Wert_Line)
+			EndIf
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, '    // "status" ')
+			If $StringInStr_Check_1 <> 0 Then
+				$Wert_Line = "false"
+				$Value_httpApi_status = $Wert_Line
+				IniWrite($config_ini, "Server_Einstellungen", "Activate_status", $Wert_Line)
+			EndIf
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, 'enableLuaApi : ')
+			If $StringInStr_Check_1 <> 0 Then
+				$Wert_Line = StringReplace($Wert_Line, 'enableLuaApi : ', '')
+				$Wert_Line = StringReplace($Wert_Line, '"', '')
+				$Wert_Line = StringReplace($Wert_Line, ',', '')
+				IniWrite($config_ini, "Server_Einstellungen", "enableLuaApi", $Wert_Line)
+			EndIf
+
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, 'luaAddonRoot : ')
+			If $StringInStr_Check_1 <> 0 Then
+				$Wert_Line = StringReplace($Wert_Line, 'luaAddonRoot : ', '')
+				$Wert_Line = StringReplace($Wert_Line, '"', '')
+				$Wert_Line = StringReplace($Wert_Line, ',', '')
+				IniWrite($config_ini, "Server_Einstellungen", "luaAddonRoot", $Wert_Line)
+			EndIf
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, '    "sms_rotate",')
+			If $StringInStr_Check_1 <> 0 Then
+				$Wert_Line = "true"
+				;$Value_httpApi_status = $Wert_Line
+				IniWrite($config_ini, "Server_Einstellungen", "SMS_Rotate", $Wert_Line)
+			EndIf
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, '    //"sms_rotate",')
+			If $StringInStr_Check_1 <> 0 Then
+				$Wert_Line = "false"
+				;$Value_httpApi_status = $Wert_Line
+				IniWrite($config_ini, "Server_Einstellungen", "SMS_Rotate", $Wert_Line)
+			EndIf
+
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, 'httpApiAccessLevels : {')
+			If $StringInStr_Check_1 <> 0 Then
+				$CFG_Line_plus_4 = $Server_CFG_Array[$Loop + 4]
+				$Check_Line_plus_4 = StringSplit($CFG_Line_plus_4, ':', $STR_ENTIRESPLIT)
+				$Check_Status_1 = StringReplace($Check_Line_plus_4[1], '"', '')
+				$Check_Status_1 = StringReplace($Check_Status_1, '*', '')
+				$Check_Status_1 = StringReplace($Check_Status_1, ' ', '')
+				If $Check_Status_1 = "//" Then $Check_httpApiAccessLevels_1 = "false"
+				If $Check_Status_1 <> "//" Then $Check_httpApiAccessLevels_1 = "true"
+				If IsArray($Check_Line_plus_4) Then $Check_Line_plus_4_1 = $Check_Line_plus_4[1]
+				If $Check_Line_plus_4[0] > 1 Then $Check_Line_plus_4_2 = StringReplace($Check_Line_plus_4[2], ',', '')
+				$Check_Line_plus_4_2 = StringReplace($Check_Line_plus_4_2, ' ', '')
+				$Check_Line_plus_4_2 = StringReplace($Check_Line_plus_4_2, '"', '')
+				If $Check_Line_plus_4_2 <> "" Then Global $Value_httpApiAccessLevels = $Check_Line_plus_4_2
+				If $Check_Status_1 = "false" Then $Value_httpApiAccessLevels = " //" & $Check_Line_plus_4_2
+				IniWrite($config_ini, "Server_Einstellungen", "httpApiAccessLevel", $Check_httpApiAccessLevels_1)
+			EndIf
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, '    //"status" : "')
+			If $StringInStr_Check_1 <> 0 Then
+				$Check_Status_1 = "false"
+				Global $Value_httpApi_status = $Check_Status_1
+				IniWrite($config_ini, "Server_Einstellungen", "Activate_status", $Check_Status_1)
+				$Wert_Line = StringReplace($Wert_Line, '    //"status" : ', '')
+				$Wert_Line = StringReplace($Wert_Line, '"', '')
+				$Wert_Line = StringReplace($Wert_Line, ',', '')
+				IniWrite($config_ini, "Server_Einstellungen", "httpApistatus", $Wert_Line)
+			EndIf
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, '    "status" : "')
+			If $StringInStr_Check_1 <> 0 Then
+				$Check_Status_1 = "true"
+				Global $Value_httpApi_status = $Check_Status_1
+				MsgBox(0, "", $Value_httpApi_status & @CRLF & $Check_Status_1)
+				IniWrite($config_ini, "Server_Einstellungen", "Activate_status", $Check_Status_1)
+				$Wert_Line = StringReplace($Wert_Line, '    "status" : ', '')
+				$Wert_Line = StringReplace($Wert_Line, '"', '')
+				$Wert_Line = StringReplace($Wert_Line, ',', '')
+				IniWrite($config_ini, "Server_Einstellungen", "httpApistatus", $Wert_Line)
+			EndIf
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, 'httpApiAccessFilters : {')
+			If $StringInStr_Check_1 <> 0 Then
+				$Wert_Line = $Server_CFG_Array[$Loop + 4]
+				$Check_Line_plus_4_2 = StringReplace($Wert_Line, '        { "type" : "', '')
+				$Check_Line_plus_4_2 = StringReplace($Check_Line_plus_4_2, '"', '')
+				$Check_Line_plus_4_2 = StringReplace($Check_Line_plus_4_2, ' ', '')
+				$Check_Line_plus_4_2 = StringReplace($Check_Line_plus_4_2, '}', '')
+				If $Check_Line_plus_4_2 <> "" Then Global $Value_httpApiAccessFilters = $Check_Line_plus_4_2
+				;MsgBox(0, "httpApiAccessFilters", $Check_Line_plus_4_2)
+				IniWrite($config_ini, "Server_Einstellungen", "httpApiAccessFilters", $Value_httpApiAccessFilters)
+			EndIf
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, 'httpApiUsers : {')
+			If $StringInStr_Check_1 <> 0 Then
+				$Check_Checkbox_User_1 = "false"
+				$Check_Checkbox_User_2 = "false"
+				$Check_Checkbox_User_3 = "false"
+				$Check_Checkbox_User_4 = "false"
+				$Check_Checkbox_User_5 = "false"
+
+				$CFG_Line_plus_1 = $Server_CFG_Array[$Loop + 1]
+
+				$Check_Line_plus_1 = StringSplit($CFG_Line_plus_1, ':', $STR_ENTIRESPLIT)
+				If IsArray($Check_Line_plus_1) Then $Check_Line_plus_1_1 = $Check_Line_plus_1[1]
+
+				If $Check_Line_plus_1[0] > 1 Then $Check_Line_plus_1_2 = StringReplace($Check_Line_plus_1[2], ',', '')
+				$Check_Line_plus_1_1 = StringReplace($Check_Line_plus_1_1, ' ', '')
+				$Check_Line_plus_1_1 = StringReplace($Check_Line_plus_1_1, '"', '')
+				$Check_Line_plus_1_1 = StringReplace($Check_Line_plus_1_1, '//', '')
+				$Check_Line_plus_1_2 = StringReplace($Check_Line_plus_1_2, ' ', '')
+				$Check_Line_plus_1_2 = StringReplace($Check_Line_plus_1_2, '"', '')
+				$Check_Line_plus_1_2 = StringReplace($Check_Line_plus_1_2, ',', '')
+				If $Check_Line_plus_1_1 <> "" and $Check_Line_plus_1_1 <> "}" and $Check_Line_plus_1_1 <> "{type" and $Check_Line_plus_1_1 <> "Usergroups.Mapfromgroupnamestolistsofusersinsaidgroups." and $Check_Line_plus_1_2 <> "accept" Then Global $Value_httpApiUser_1_Name = $Check_Line_plus_1_1
+				If $Check_Line_plus_1_2 <> "" and $Check_Line_plus_1_1 <> "}" and $Check_Line_plus_1_1 <> "{type" and $Check_Line_plus_1_1 <> "Usergroups.Mapfromgroupnamestolistsofusersinsaidgroups." and $Check_Line_plus_1_2 <> "accept" Then Global $Value_httpApiUser_1_Password = $Check_Line_plus_1_2
+				If $Check_Line_plus_1_2 <> "" and $Check_Line_plus_1_1 <> "}" and $Check_Line_plus_1_1 <> "{type" and $Check_Line_plus_1_1 <> "Usergroups.Mapfromgroupnamestolistsofusersinsaidgroups." and $Check_Line_plus_1_2 <> "accept" Then Global $Check_Checkbox_User_1 = "true"
+
+				$CFG_Line_plus_2 = $Server_CFG_Array[$Loop + 2]
+				$Check_Line_plus_2 = StringSplit($CFG_Line_plus_2, ':', $STR_ENTIRESPLIT)
+				If IsArray($Check_Line_plus_1) Then $Check_Line_plus_2_1 = $Check_Line_plus_2[1]
+				If $Check_Line_plus_2[0] > 1 Then $Check_Line_plus_2_2 = StringReplace($Check_Line_plus_2[2], ',', '')
+				$Check_Line_plus_2_1 = StringReplace($Check_Line_plus_2_1, ' ', '')
+				$Check_Line_plus_2_1 = StringReplace($Check_Line_plus_2_1, '"', '')
+				$Check_Line_plus_2_1 = StringReplace($Check_Line_plus_2_1, '//', '')
+				$Check_Line_plus_2_2 = StringReplace($Check_Line_plus_2_2, ' ', '')
+				$Check_Line_plus_2_2 = StringReplace($Check_Line_plus_2_2, '"', '')
+				$Check_Line_plus_2_2 = StringReplace($Check_Line_plus_2_2, ',', '')
+				If $Check_Line_plus_2_1 <> "" and $Check_Line_plus_2_1 <> "}" and $Check_Line_plus_2_1 <> "{type" and $Check_Line_plus_2_1 <> "Usergroups.Mapfromgroupnamestolistsofusersinsaidgroups." and $Check_Line_plus_2_2 <> "accept" Then Global $Value_httpApiUser_2_Name = $Check_Line_plus_2_1
+				If $Check_Line_plus_2_2 <> "" and $Check_Line_plus_2_1 <> "}" and $Check_Line_plus_2_1 <> "{type" and $Check_Line_plus_2_1 <> "Usergroups.Mapfromgroupnamestolistsofusersinsaidgroups." and $Check_Line_plus_2_2 <> "accept" Then Global $Value_httpApiUser_2_Password = $Check_Line_plus_2_2
+				If $Check_Line_plus_2_2 <> "" and $Check_Line_plus_2_1 <> "}" and $Check_Line_plus_2_1 <> "{type" and $Check_Line_plus_2_1 <> "Usergroups.Mapfromgroupnamestolistsofusersinsaidgroups." and $Check_Line_plus_2_2 <> "accept" Then Global $Check_Checkbox_User_2 = "true"
+
+				$CFG_Line_plus_3 = $Server_CFG_Array[$Loop + 3]
+				$Check_Line_plus_3 = StringSplit($CFG_Line_plus_3, ':', $STR_ENTIRESPLIT)
+				If IsArray($Check_Line_plus_3) Then $Check_Line_plus_3_1 = $Check_Line_plus_3[1]
+				If $Check_Line_plus_3[0] > 1 Then $Check_Line_plus_3_2 = StringReplace($Check_Line_plus_3[2], ',', '')
+				$Check_Line_plus_3_1 = StringReplace($Check_Line_plus_3_1, ' ', '')
+				$Check_Line_plus_3_1 = StringReplace($Check_Line_plus_3_1, '"', '')
+				$Check_Line_plus_3_1 = StringReplace($Check_Line_plus_3_1, '//', '')
+				$Check_Line_plus_3_2 = StringReplace($Check_Line_plus_3_2, ' ', '')
+				$Check_Line_plus_3_2 = StringReplace($Check_Line_plus_3_2, '"', '')
+				$Check_Line_plus_3_2 = StringReplace($Check_Line_plus_3_2, ',', '')
+				If $Check_Line_plus_3_1 <> "" and $Check_Line_plus_3_1 <> "}" and $Check_Line_plus_3_1 <> "{type" and $Check_Line_plus_3_1 <> "Usergroups.Mapfromgroupnamestolistsofusersinsaidgroups." and $Check_Line_plus_3_2 <> "accept" Then Global $Value_httpApiUser_3_Name = $Check_Line_plus_3_1
+				If $Check_Line_plus_3_2 <> "" and $Check_Line_plus_3_1 <> "}" and $Check_Line_plus_3_1 <> "{type" and $Check_Line_plus_3_1 <> "Usergroups.Mapfromgroupnamestolistsofusersinsaidgroups." and $Check_Line_plus_3_2 <> "accept" Then Global $Value_httpApiUser_3_Password = $Check_Line_plus_3_2
+				If $Check_Line_plus_3_2 <> "" and $Check_Line_plus_3_1 <> "}" and $Check_Line_plus_3_1 <> "{type" and $Check_Line_plus_3_1 <> "Usergroups.Mapfromgroupnamestolistsofusersinsaidgroups." and $Check_Line_plus_3_2 <> "accept" Then Global $Check_Checkbox_User_3 = "true"
+
+				$CFG_Line_plus_4 = $Server_CFG_Array[$Loop + 4]
+				$Check_Line_plus_4 = StringSplit($CFG_Line_plus_4, ':', $STR_ENTIRESPLIT)
+				If IsArray($Check_Line_plus_4) Then $Check_Line_plus_4_1 = $Check_Line_plus_4[1]
+				If $Check_Line_plus_4[0] > 1 Then $Check_Line_plus_4_2 = StringReplace($Check_Line_plus_4[2], ',', '')
+				$Check_Line_plus_4_1 = StringReplace($Check_Line_plus_4_1, ' ', '')
+				$Check_Line_plus_4_1 = StringReplace($Check_Line_plus_4_1, '"', '')
+				$Check_Line_plus_4_1 = StringReplace($Check_Line_plus_4_1, '//', '')
+				$Check_Line_plus_4_2 = StringReplace($Check_Line_plus_4_2, ' ', '')
+				$Check_Line_plus_4_2 = StringReplace($Check_Line_plus_4_2, '"', '')
+				$Check_Line_plus_4_2 = StringReplace($Check_Line_plus_4_2, ',', '')
+				If $Check_Line_plus_4_1 <> "" and $Check_Line_plus_4_1 <> "}" and $Check_Line_plus_4_1 <> "{type" and $Check_Line_plus_4_1 <> "Usergroups.Mapfromgroupnamestolistsofusersinsaidgroups." and $Check_Line_plus_4_2 <> "accept" Then Global $Value_httpApiUser_4_Name = $Check_Line_plus_4_1
+				If $Check_Line_plus_4_2 <> "" and $Check_Line_plus_4_1 <> "}" and $Check_Line_plus_4_1 <> "{type" and $Check_Line_plus_4_1 <> "Usergroups.Mapfromgroupnamestolistsofusersinsaidgroups." and $Check_Line_plus_4_2 <> "accept" Then Global $Value_httpApiUser_4_Password = $Check_Line_plus_4_2
+				If $Check_Line_plus_4_2 <> "" and $Check_Line_plus_4_1 <> "}" and $Check_Line_plus_4_1 <> "{type" and $Check_Line_plus_4_1 <> "Usergroups.Mapfromgroupnamestolistsofusersinsaidgroups." and $Check_Line_plus_4_2 <> "accept" Then Global $Check_Checkbox_User_4 = "true"
+
+				$CFG_Line_plus_5 = $Server_CFG_Array[$Loop + 5]
+				$Check_Line_plus_5 = StringSplit($CFG_Line_plus_5, ':', $STR_ENTIRESPLIT)
+				If IsArray($Check_Line_plus_5) Then $Check_Line_plus_5_1 = $Check_Line_plus_5[1]
+				If $Check_Line_plus_5[0] > 1 Then $Check_Line_plus_5_2 = StringReplace($Check_Line_plus_5[2], ',', '')
+				$Check_Line_plus_5_1 = StringReplace($Check_Line_plus_5_1, ' ', '')
+				$Check_Line_plus_5_1 = StringReplace($Check_Line_plus_5_1, '"', '')
+				$Check_Line_plus_5_1 = StringReplace($Check_Line_plus_5_1, '//', '')
+				$Check_Line_plus_5_2 = StringReplace($Check_Line_plus_5_2, ' ', '')
+				$Check_Line_plus_5_2 = StringReplace($Check_Line_plus_5_2, '"', '')
+				$Check_Line_plus_5_2 = StringReplace($Check_Line_plus_5_2, ',', '')
+				If $Check_Line_plus_5_1 <> "" and $Check_Line_plus_5_1 <> "}" and $Check_Line_plus_5_1 <> "{type" and $Check_Line_plus_5_1 <> "Usergroups.Mapfromgroupnamestolistsofusersinsaidgroups." and $Check_Line_plus_5_2 <> "accept" Then Global $Value_httpApiUser_5_Name = $Check_Line_plus_5_1
+				If $Check_Line_plus_5_2 <> "" and $Check_Line_plus_5_1 <> "}" and $Check_Line_plus_5_1 <> "{type" and $Check_Line_plus_5_1 <> "Usergroups.Mapfromgroupnamestolistsofusersinsaidgroups." and $Check_Line_plus_5_2 <> "accept" Then Global $Value_httpApiUser_5_Password = $Check_Line_plus_5_2
+				If $Check_Line_plus_5_2 <> "" and $Check_Line_plus_5_1 <> "}" and $Check_Line_plus_5_1 <> "{type" and $Check_Line_plus_5_1 <> "Usergroups.Mapfromgroupnamestolistsofusersinsaidgroups." and $Check_Line_plus_5_2 <> "accept" Then Global $Check_Checkbox_User_5 = "true"
+			EndIf
+
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, 'httpApiGroups : {')
+			If $StringInStr_Check_1 <> 0 Then
+				$CFG_Line_plus_1 = $Server_CFG_Array[$Loop + 1]
+				$Check_Line_plus_1 = StringSplit($CFG_Line_plus_1, ':', $STR_ENTIRESPLIT)
+				If IsArray($Check_Line_plus_1) Then $Check_Line_plus_1_1 = $Check_Line_plus_1[1]
+				If $Check_Line_plus_1[0] > 1 Then $Check_Users = StringSplit($Check_Line_plus_1[2], ',', $STR_ENTIRESPLIT)
+				If $Check_Users[0] > 1 Then $Check_User_1 = $Check_Users[1]
+				If $Check_Users[0] > 2 Then $Check_User_2 = $Check_Users[2]
+				If $Check_Users[0] > 3 Then $Check_User_3 = $Check_Users[3]
+				If $Check_Users[0] > 4 Then $Check_User_4 = $Check_Users[4]
+				If $Check_Users[0] > 5 Then $Check_User_5 = $Check_Users[5]
+
+				If $Check_Line_plus_1[0] > 1 Then
+					$Check_User_1 = StringReplace($Check_User_1, '[', '')
+					$Check_User_1 = StringReplace($Check_User_1, ']', '')
+					$Check_User_1 = StringReplace($Check_User_1, '"', '')
+					$Check_User_1 = StringReplace($Check_User_1, ' ', '')
+					$Check_User_2 = StringReplace($Check_User_2, '[', '')
+					$Check_User_2 = StringReplace($Check_User_2, ']', '')
+					$Check_User_2 = StringReplace($Check_User_2, '"', '')
+					$Check_User_2 = StringReplace($Check_User_2, ' ', '')
+					$Check_User_3 = StringReplace($Check_User_3, '[', '')
+					$Check_User_3 = StringReplace($Check_User_3, ']', '')
+					$Check_User_3 = StringReplace($Check_User_3, '"', '')
+					$Check_User_3 = StringReplace($Check_User_3, ' ', '')
+					$Check_User_4 = StringReplace($Check_User_4, '[', '')
+					$Check_User_4 = StringReplace($Check_User_4, ']', '')
+					$Check_User_4 = StringReplace($Check_User_4, '"', '')
+					$Check_User_4 = StringReplace($Check_User_4, ' ', '')
+					$Check_User_5 = StringReplace($Check_User_5, '[', '')
+					$Check_User_5 = StringReplace($Check_User_5, ']', '')
+					$Check_User_5 = StringReplace($Check_User_5, '"', '')
+					$Check_User_5 = StringReplace($Check_User_5, ' ', '')
+
+					$Value_httpApi_GroupUser_Name_1 = $Check_User_1
+					$Value_httpApi_GroupUser_Name_2 = $Check_User_2
+					$Value_httpApi_GroupUser_Name_3 = $Check_User_3
+					$Value_httpApi_GroupUser_Name_4 = $Check_User_4
+					$Value_httpApi_GroupUser_Name_5 = $Check_User_5
+				EndIf
+
+				$CFG_Line_plus_2 = $Server_CFG_Array[$Loop + 2]
+				$Check_Line_plus_2 = StringSplit($CFG_Line_plus_2, ':', $STR_ENTIRESPLIT)
+				If IsArray($Check_Line_plus_2) Then $Check_Line_plus_2_1 = $Check_Line_plus_2[1]
+				If $Check_Line_plus_2[0] > 1 Then $Check_AdminUsers = StringSplit($Check_Line_plus_2[2], ',', $STR_ENTIRESPLIT)
+
+				If $Check_AdminUsers[0] > 1 Then $Check_AdminUser_1 = $Check_AdminUsers[1]
+				If $Check_AdminUsers[0] > 2 Then $Check_AdminUser_2 = $Check_AdminUsers[2]
+				If $Check_AdminUsers[0] > 3 Then $Check_AdminUser_3 = $Check_AdminUsers[3]
+				If $Check_AdminUsers[0] > 4 Then $Check_AdminUser_4 = $Check_AdminUsers[4]
+				If $Check_AdminUsers[0] > 5 Then $Check_AdminUser_5 = $Check_AdminUsers[5]
+
+				If $Check_Line_plus_1[0] > 1 Then
+					If $Check_AdminUsers[0] > 1 Then
+						$Check_AdminUser_1 = StringReplace($Check_AdminUser_1, '[', '')
+						$Check_AdminUser_1 = StringReplace($Check_AdminUser_1, ']', '')
+						$Check_AdminUser_1 = StringReplace($Check_AdminUser_1, '"', '')
+						$Check_AdminUser_1 = StringReplace($Check_AdminUser_1, ' ', '')
+					EndIf
+
+					If $Check_AdminUsers[0] > 2 Then
+						$Check_AdminUser_2 = StringReplace($Check_AdminUser_2, '[', '')
+						$Check_AdminUser_2 = StringReplace($Check_AdminUser_2, ']', '')
+						$Check_AdminUser_2 = StringReplace($Check_AdminUser_2, '"', '')
+						$Check_AdminUser_2 = StringReplace($Check_AdminUser_2, ' ', '')
+					EndIf
+
+					If $Check_AdminUsers[0] > 3 Then
+						$Check_AdminUser_3 = StringReplace($Check_AdminUser_3, '[', '')
+						$Check_AdminUser_3 = StringReplace($Check_AdminUser_3, ']', '')
+						$Check_AdminUser_3 = StringReplace($Check_AdminUser_3, '"', '')
+						$Check_AdminUser_3 = StringReplace($Check_AdminUser_3, ' ', '')
+					EndIf
+
+					If $Check_AdminUsers[0] > 4 Then
+						$Check_AdminUser_4 = StringReplace($Check_AdminUser_4, '[', '')
+						$Check_AdminUser_4 = StringReplace($Check_AdminUser_4, ']', '')
+						$Check_AdminUser_4 = StringReplace($Check_AdminUser_4, '"', '')
+						$Check_AdminUser_4 = StringReplace($Check_AdminUser_4, ' ', '')
+					EndIf
+
+					If $Check_AdminUsers[0] > 5 Then
+						$Check_AdminUser_5 = StringReplace($Check_AdminUser_5, '[', '')
+						$Check_AdminUser_5 = StringReplace($Check_AdminUser_5, ']', '')
+						$Check_AdminUser_5 = StringReplace($Check_AdminUser_5, '"', '')
+						$Check_AdminUser_5 = StringReplace($Check_AdminUser_5, ' ', '')
+					EndIf
+
+					$Value_httpApi_GroupAdminUser_Name_1 = $Check_AdminUser_1
+					$Value_httpApi_GroupAdminUser_Name_2 = $Check_AdminUser_2
+					$Value_httpApi_GroupAdminUser_Name_3 = $Check_AdminUser_3
+					$Value_httpApi_GroupAdminUser_Name_4 = $Check_AdminUser_4
+					$Value_httpApi_GroupAdminUser_Name_5 = $Check_AdminUser_5
+				EndIf
+
+			EndIf
+
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, 'allowEmptyJoin : ')
+			If $StringInStr_Check_1 <> 0 Then
+				$Wert_Line = StringReplace($Wert_Line, 'allowEmptyJoin : ', '')
+				$Wert_Line = StringReplace($Wert_Line, '"', '')
+				$Wert_Line = StringReplace($Wert_Line, ',', '')
+				$Wert_allowEmptyJoin = $Wert_Line
+				IniWrite($config_ini, "Server_Einstellungen", "allowEmptyJoin", $Wert_Line)
+			EndIf
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, 'controlGameSetup : ')
+			If $StringInStr_Check_1 <> 0 Then
+				$Wert_Line = StringReplace($Wert_Line, 'controlGameSetup : ', '')
+				$Wert_Line = StringReplace($Wert_Line, '"', '')
+				$Wert_Line = StringReplace($Wert_Line, ',', '')
+				$Wert_controlGameSetup = $Wert_Line
+				IniWrite($config_ini, "Server_Einstellungen", "controlGameSetup", $Wert_Line)
+			EndIf
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, '    "ServerControlsTrack" : ')
+			If $StringInStr_Check_1 <> 0 Then
+				$Wert_Line = StringReplace($Wert_Line, '    "ServerControlsTrack" : ', '')
+				$Wert_Line = StringReplace($Wert_Line, '"', '')
+				$Wert_Line = StringReplace($Wert_Line, ',', '')
+				$Wert_ServerControlsTrack = $Wert_Line
+				IniWrite($config_ini, "Server_Einstellungen", "ServerControlsTrack", $Wert_Line)
+			EndIf
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, '    "ServerControlsVehicleClass" : ')
+			If $StringInStr_Check_1 <> 0 Then
+				$Wert_Line = StringReplace($Wert_Line, '    "ServerControlsVehicleClass" : ', '')
+				$Wert_Line = StringReplace($Wert_Line, '"', '')
+				$Wert_Line = StringReplace($Wert_Line, ',', '')
+				$Wert_ServerControlsVehicleClass = $Wert_Line
+				IniWrite($config_ini, "Server_Einstellungen", "ServerControlsVehicleClass", $Wert_Line)
+			EndIf
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, '    "ServerControlsVehicle" : ')
+			If $StringInStr_Check_1 <> 0 Then
+				$Wert_Line = StringReplace($Wert_Line, '    "ServerControlsVehicle" : ', '')
+				$Wert_Line = StringReplace($Wert_Line, '"', '')
+				$Wert_Line = StringReplace($Wert_Line, ',', '')
+				$Wert_ServerControlsVehicle = $Wert_Line
+				IniWrite($config_ini, "Server_Einstellungen", "ServerControlsVehicle", $Wert_Line)
+			EndIf
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, '    "GridSize" : ')
+			If $StringInStr_Check_1 <> 0 Then
+				$Wert_Line = StringReplace($Wert_Line, '    "GridSize" : ', '')
+				$Wert_Line = StringReplace($Wert_Line, '"', '')
+				$Wert_Line = StringReplace($Wert_Line, ',', '')
+				$Wert_GridSize = $Wert_Line
+				IniWrite($config_ini, "Server_Einstellungen", "GridSize", $Wert_Line)
+			EndIf
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, '    "MaxPlayers" : ')
+			If $StringInStr_Check_1 <> 0 Then
+				$Wert_Line = StringReplace($Wert_Line, '    "MaxPlayers" : ', '')
+				$Wert_Line = StringReplace($Wert_Line, '"', '')
+				$Wert_Line = StringReplace($Wert_Line, ',', '')
+				IniWrite($config_ini, "Server_Einstellungen", "MaxPlayers", $Wert_Line)
+			EndIf
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, '    "Practice1Length" : ')
+			If $StringInStr_Check_1 <> 0 Then
+				$Wert_Line = StringReplace($Wert_Line, '    "Practice1Length" : ', '')
+				$Wert_Line = StringReplace($Wert_Line, '"', '')
+				$Wert_Line = StringReplace($Wert_Line, ',', '')
+				IniWrite($config_ini, "Server_Einstellungen", "Practice1Length", $Wert_Line)
+			EndIf
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, '    "Practice2Length" : ')
+			If $StringInStr_Check_1 <> 0 Then
+				$Wert_Line = StringReplace($Wert_Line, '    "Practice2Length" : ', '')
+				$Wert_Line = StringReplace($Wert_Line, '"', '')
+				$Wert_Line = StringReplace($Wert_Line, ',', '')
+				IniWrite($config_ini, "Server_Einstellungen", "Practice2Length", $Wert_Line)
+			EndIf
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, '    "QualifyLength" : ')
+			If $StringInStr_Check_1 <> 0 Then
+				$Wert_Line = StringReplace($Wert_Line, '    "QualifyLength" : ', '')
+				$Wert_Line = StringReplace($Wert_Line, '"', '')
+				$Wert_Line = StringReplace($Wert_Line, ',', '')
+				IniWrite($config_ini, "Server_Einstellungen", "QualifyLength", $Wert_Line)
+			EndIf
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, '    "WarmupLength" : ')
+			If $StringInStr_Check_1 <> 0 Then
+				$Wert_Line = StringReplace($Wert_Line, '    "WarmupLength" : ', '')
+				$Wert_Line = StringReplace($Wert_Line, '"', '')
+				$Wert_Line = StringReplace($Wert_Line, ',', '')
+				IniWrite($config_ini, "Server_Einstellungen", "WarmupLength", $Wert_Line)
+			EndIf
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, '    "Race1Length" : ')
+			If $StringInStr_Check_1 <> 0 Then
+				$Wert_Line = StringReplace($Wert_Line, '    "Race1Length" : ', '')
+				$Wert_Line = StringReplace($Wert_Line, '"', '')
+				$Wert_Line = StringReplace($Wert_Line, ',', '')
+				IniWrite($config_ini, "Server_Einstellungen", "Race1Length", $Wert_Line)
+			EndIf
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, '    "Flags" : ')
+			If $StringInStr_Check_1 <> 0 Then
+				$Wert_Line = StringReplace($Wert_Line, '    "Flags" : ', '')
+				$Wert_Line = StringReplace($Wert_Line, '"', '')
+				$Wert_Line = StringReplace($Wert_Line, ',', '')
+				IniWrite($config_ini, "Server_Einstellungen", "Flags", $Wert_Line)
+			EndIf
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, '    "DamageType" : ')
+			If $StringInStr_Check_1 <> 0 Then
+				$Wert_Line = StringReplace($Wert_Line, '    "DamageType" : ', '')
+				$Wert_Line = StringReplace($Wert_Line, '"', '')
+				$Wert_Line = StringReplace($Wert_Line, ',', '')
+				IniWrite($config_ini, "Server_Einstellungen", "DamageType", $Wert_Line)
+			EndIf
+
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, '    "TireWearType" : ')
+			If $StringInStr_Check_1 <> 0 Then
+				$Wert_Line = StringReplace($Wert_Line, '    "TireWearType" : ', '')
+				$Wert_Line = StringReplace($Wert_Line, '"', '')
+				$Wert_Line = StringReplace($Wert_Line, ',', '')
+				IniWrite($config_ini, "Server_Einstellungen", "TireWearType", $Wert_Line)
+			EndIf
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, '    "FuelUsageType" : ')
+			If $StringInStr_Check_1 <> 0 Then
+				$Wert_Line = StringReplace($Wert_Line, '    "FuelUsageType" : ', '')
+				$Wert_Line = StringReplace($Wert_Line, '"', '')
+				$Wert_Line = StringReplace($Wert_Line, ',', '')
+				IniWrite($config_ini, "Server_Einstellungen", "FuelUsageType", $Wert_Line)
+			EndIf
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, '    "PenaltiesType" : ')
+			If $StringInStr_Check_1 <> 0 Then
+				$Wert_Line = StringReplace($Wert_Line, '    "PenaltiesType" : ', '')
+				$Wert_Line = StringReplace($Wert_Line, '"', '')
+				$Wert_Line = StringReplace($Wert_Line, ',', '')
+				IniWrite($config_ini, "Server_Einstellungen", "PenaltiesType", $Wert_Line)
+			EndIf
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, '    "AllowedViews" : ')
+			If $StringInStr_Check_1 <> 0 Then
+				$Wert_Line = StringReplace($Wert_Line, '    "AllowedViews" : ', '')
+				$Wert_Line = StringReplace($Wert_Line, '"', '')
+				$Wert_Line = StringReplace($Wert_Line, ',', '')
+				IniWrite($config_ini, "Server_Einstellungen", "AllowedViews", $Wert_Line)
+			EndIf
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, '    "TrackId" : ')
+			If $StringInStr_Check_1 <> 0 Then
+				$Wert_Line = StringReplace($Wert_Line, '    "TrackId" : ', '')
+				$Wert_Line = StringReplace($Wert_Line, '"', '')
+				$Wert_Line = StringReplace($Wert_Line, ',', '')
+				IniWrite($config_ini, "Server_Einstellungen", "TrackId", $Wert_Line)
+			EndIf
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, '    "VehicleClassId" : ')
+			If $StringInStr_Check_1 <> 0 Then
+				$Wert_Line = StringReplace($Wert_Line, '    "VehicleClassId" : ', '')
+				$Wert_Line = StringReplace($Wert_Line, '"', '')
+				$Wert_Line = StringReplace($Wert_Line, ',', '')
+				IniWrite($config_ini, "Server_Einstellungen", "VehicleClassId", $Wert_Line)
+			EndIf
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, '    "VehicleModelId" : ')
+			If $StringInStr_Check_1 <> 0 Then
+				$Wert_Line = StringReplace($Wert_Line, '    "VehicleModelId" : ', '')
+				$Wert_Line = StringReplace($Wert_Line, '"', '')
+				$Wert_Line = StringReplace($Wert_Line, ',', '')
+				IniWrite($config_ini, "Server_Einstellungen", "VehicleModelId", $Wert_Line)
+			EndIf
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, '    "DateYear" : ')
+			If $StringInStr_Check_1 <> 0 Then
+				$Wert_Line = StringReplace($Wert_Line, '    "DateYear" : ', '')
+				$Wert_Line = StringReplace($Wert_Line, '"', '')
+				$Wert_Line = StringReplace($Wert_Line, ',', '')
+				IniWrite($config_ini, "Server_Einstellungen", "DateYear", $Wert_Line)
+			EndIf
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, '    "DateMonth" : ')
+			If $StringInStr_Check_1 <> 0 Then
+				$Wert_Line = StringReplace($Wert_Line, '    "DateMonth" : ', '')
+				$Wert_Line = StringReplace($Wert_Line, '"', '')
+				$Wert_Line = StringReplace($Wert_Line, ',', '')
+				IniWrite($config_ini, "Server_Einstellungen", "DateMonth", $Wert_Line)
+			EndIf
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, '    "DateDay" : ')
+			If $StringInStr_Check_1 <> 0 Then
+				$Wert_Line = StringReplace($Wert_Line, '    "DateDay" : ', '')
+				$Wert_Line = StringReplace($Wert_Line, '"', '')
+				$Wert_Line = StringReplace($Wert_Line, ',', '')
+				IniWrite($config_ini, "Server_Einstellungen", "DateDay", $Wert_Line)
+			EndIf
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, '    "DateHour" : ')
+			If $StringInStr_Check_1 <> 0 Then
+				$Wert_Line = StringReplace($Wert_Line, '    "DateHour" : ', '')
+				$Wert_Line = StringReplace($Wert_Line, '"', '')
+				$Wert_Line = StringReplace($Wert_Line, ',', '')
+				IniWrite($config_ini, "Server_Einstellungen", "DateHour", $Wert_Line)
+			EndIf
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, '    "DateMinute" : ')
+			If $StringInStr_Check_1 <> 0 Then
+				$Wert_Line = StringReplace($Wert_Line, '    "DateMinute" : ', '')
+				$Wert_Line = StringReplace($Wert_Line, '"', '')
+				$Wert_Line = StringReplace($Wert_Line, ',', '')
+				IniWrite($config_ini, "Server_Einstellungen", "DateMinute", $Wert_Line)
+			EndIf
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, '    "DateProgression" : ')
+			If $StringInStr_Check_1 <> 0 Then
+				$Wert_Line = StringReplace($Wert_Line, '    "DateProgression" : ', '')
+				$Wert_Line = StringReplace($Wert_Line, '"', '')
+				$Wert_Line = StringReplace($Wert_Line, ',', '')
+				IniWrite($config_ini, "Server_Einstellungen", "DateProgression", $Wert_Line)
+			EndIf
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, '    "ForecastProgression" : ')
+			If $StringInStr_Check_1 <> 0 Then
+				$Wert_Line = StringReplace($Wert_Line, '    "ForecastProgression" : ', '')
+				$Wert_Line = StringReplace($Wert_Line, '"', '')
+				$Wert_Line = StringReplace($Wert_Line, ',', '')
+				IniWrite($config_ini, "Server_Einstellungen", "ForecastProgression", $Wert_Line)
+			EndIf
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, '    "WeatherSlots" : ')
+			If $StringInStr_Check_1 <> 0 Then
+				$Wert_Line = StringReplace($Wert_Line, '    "WeatherSlots" : ', '')
+				$Wert_Line = StringReplace($Wert_Line, '"', '')
+				$Wert_Line = StringReplace($Wert_Line, ',', '')
+				IniWrite($config_ini, "Server_Einstellungen", "WeatherSlots", $Wert_Line)
+			EndIf
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, '    "WeatherSlot1" : ')
+			If $StringInStr_Check_1 <> 0 Then
+				$Wert_Line = StringReplace($Wert_Line, '    "WeatherSlot1" : ', '')
+				$Wert_Line = StringReplace($Wert_Line, '"', '')
+				$Wert_Line = StringReplace($Wert_Line, ',', '')
+				IniWrite($config_ini, "Server_Einstellungen", "WeatherSlot1", $Wert_Line)
+			EndIf
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, '    "WeatherSlot2" : ')
+			If $StringInStr_Check_1 <> 0 Then
+				$Wert_Line = StringReplace($Wert_Line, '    "WeatherSlot2" : ', '')
+				$Wert_Line = StringReplace($Wert_Line, '"', '')
+				$Wert_Line = StringReplace($Wert_Line, ',', '')
+				IniWrite($config_ini, "Server_Einstellungen", "WeatherSlot2", $Wert_Line)
+			EndIf
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, '    "WeatherSlot3" : ')
+			If $StringInStr_Check_1 <> 0 Then
+				$Wert_Line = StringReplace($Wert_Line, '    "WeatherSlot3" : ', '')
+				$Wert_Line = StringReplace($Wert_Line, '"', '')
+				$Wert_Line = StringReplace($Wert_Line, ',', '')
+				IniWrite($config_ini, "Server_Einstellungen", "WeatherSlot3", $Wert_Line)
+			EndIf
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, '    "WeatherSlot1" : ')
+			If $StringInStr_Check_1 <> 0 Then
+				$Wert_Line = StringReplace($Wert_Line, '    "WeatherSlot1" : ', '')
+				$Wert_Line = StringReplace($Wert_Line, '"', '')
+				$Wert_Line = StringReplace($Wert_Line, ',', '')
+				IniWrite($config_ini, "Server_Einstellungen", "WeatherSlot1", $Wert_Line)
+			EndIf
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, 'blackList : [ "blackList.cfg" ]')
+			If $StringInStr_Check_1 <> 0 Then
+				$Wert_Line = "true"
+				IniWrite($config_ini, "Server_Einstellungen", "Blacklist", $Wert_Line)
+				IniWrite($config_ini, "Server_Einstellungen", "Whitelist", "false")
+			EndIf
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, 'whiteList : [ "whiteList.cfg" ]')
+			If $StringInStr_Check_1 <> 0 Then
+				$Wert_Line = "true"
+				IniWrite($config_ini, "Server_Einstellungen", "whiteList", $Wert_Line)
+				IniWrite($config_ini, "Server_Einstellungen", "Blacklist", "false")
+			EndIf
+		Next
+	EndIf
+EndFunc
+
+
+
+Func _config_cfg_erstellen__Backup()
 	$Dedi_config_whiteList_cfg = $Dedi_Verzeichnis & "\whiteList.cfg"
 	$Dedi_config_blackList_cfg = $Dedi_Verzeichnis & "\blackList.cfg"
 
-	$Lesen_Auswahl_loglevel = GUICtrlRead($Auswahl_Sprachdatei)
+	;$Lesen_Auswahl_loglevel = GUICtrlRead($Auswahl_Sprachdatei)
 	$Lesen_Auswahl_eventsLogSize = GUICtrlRead($Auswaehlen_eventsLogSize)
 	$Lesen_Auswahl_name = GUICtrlRead($Eingabe_name)
 	$Lesen_Auswahl_secure = GUICtrlRead($Auswahl_secure)
 	$Lesen_Auswahl_password = GUICtrlRead($Eingabe_password)
 	$Lesen_Auswahl_maxPlayerCount = GUICtrlRead($Auswaehlen_maxPlayerCount)
-	$Lesen_Auswahl_bindIP = GUICtrlRead($Eingabe_bindIP)
+	;$Lesen_Auswahl_bindIP = GUICtrlRead($Eingabe_bindIP)
 	$Lesen_Auswahl_steamPort = GUICtrlRead($Auswaehlen_steamPort)
 	$Lesen_Auswahl_hostPort = GUICtrlRead($Auswaehlen_hostPort)
 	$Lesen_Auswahl_queryPort = GUICtrlRead($Auswaehlen_queryPort)
 	$Lesen_Auswahl_enableHttpApi = GUICtrlRead($Auswahl_enableHttpApi)
-	$Lesen_Auswahl_httpApiLogLevel = GUICtrlRead($Auswahl_httpApiLogLevel)
+	;$Lesen_Auswahl_httpApiLogLevel = GUICtrlRead($Auswahl_httpApiLogLevel)
 	$Lesen_Auswahl_httpApiInterface = GUICtrlRead($Eingabe_httpApiInterface)
 	$Lesen_Auswahl_httpApiPort = GUICtrlRead($Auswaehlen_httpApiPort)
 	$Lesen_Auswahl_whitelist = GUICtrlRead($Auswahl_Whitelist)
@@ -2801,6 +3673,17 @@ Func _config_cfg_erstellen()
 
 	If $Status_Checkbox_PCDSG_settings_8 = "true" Then
 		$PCDSG_IP = @IPAddress1
+		If $PCDSG_IP = "0.0.0.0" Then $PCDSG_IP = @IPAddress2
+		If $PCDSG_IP = "0.0.0.0" Then $PCDSG_IP = @IPAddress3
+		If $PCDSG_IP = "0.0.0.0" Then $PCDSG_IP = @IPAddress4
+
+		If $PCDSG_Network_Card_IP <> "" Then
+			If $PCDSG_Network_Card_IP = "1" Then $PCDSG_IP = @IPAddress1
+			If $PCDSG_Network_Card_IP = "2" Then $PCDSG_IP = @IPAddress2
+			If $PCDSG_Network_Card_IP = "3" Then $PCDSG_IP = @IPAddress3
+			If $PCDSG_Network_Card_IP = "4" Then $PCDSG_IP = @IPAddress4
+			If $PCDSG_Network_Card_IP = "" Then $PCDSG_IP = @IPAddress1
+		EndIf
 	EndIf
 
 	If $Status_Checkbox_PCDSG_settings_9 = "true" Then
@@ -2856,7 +3739,7 @@ Func _config_cfg_erstellen()
 	$Dedi_config_whiteList_cfg = @ScriptDir & "\whiteList.cfg"
 	$Dedi_config_blackList_cfg = @ScriptDir & "\blackList.cfg"
 
-	FileCopy($Dedi_Installations_Verzeichnis & "server.cfg", $install_dir & "server.cfg", $FC_OVERWRITE)
+	;FileCopy($Dedi_Installations_Verzeichnis & "server.cfg", $install_dir & "server.cfg", $FC_OVERWRITE)
 	FileCopy($Dedi_config_whiteList_cfg, $Dedi_Verzeichnis & "whiteList.cfg", $FC_OVERWRITE)
 	FileCopy($Dedi_config_blackList_cfg, $Dedi_Verzeichnis & "blackList.cfg", $FC_OVERWRITE)
 
@@ -2866,9 +3749,185 @@ Func _config_cfg_erstellen()
 	FileWriteLine($PCDSG_LOG_ini, "BlackList_cfg_copied_" & $NowTime & "=" & "BlackList File copied to: " & $Dedi_Verzeichnis & "blackList.cfg" & " | " & "Date - Time: " & $NowDate & " - " & $NowTime)
 EndFunc
 
+Func _config_cfg_erstellen()
+	_Preparing_Data_GUI()
+	GUICtrlSetData($Anzeige_Fortschrittbalken, 10)
+
+	Local $Dedi_config_whiteList_cfg_Path = $Dedi_Verzeichnis & "\whiteList.cfg"
+	Local $Dedi_config_blackList_cfg_Path = $Dedi_Verzeichnis & "\blackList.cfg"
+
+	$Value_Read_eventsLogSize = GUICtrlRead($Auswaehlen_eventsLogSize)
+	$Value_Read_name = GUICtrlRead($Eingabe_name)
+	$Value_Read_secure = GUICtrlRead($Auswahl_secure)
+
+	$Value_Read_password = GUICtrlRead($Eingabe_password)
+	$Value_Read_maxPlayerCount = GUICtrlRead($Auswaehlen_maxPlayerCount)
+	$Value_Read_steamPort = GUICtrlRead($Auswaehlen_steamPort)
+	$Value_Read_hostPort = GUICtrlRead($Auswaehlen_hostPort)
+	$Value_Read_queryPort = GUICtrlRead($Auswaehlen_queryPort)
+
+	$Value_Read_enableHttpApi = GUICtrlRead($Auswahl_enableHttpApi)
+	$Value_Read_httpApiInterface = GUICtrlRead($Eingabe_httpApiInterface)
+	$Value_Read_httpApiPort = GUICtrlRead($Auswaehlen_httpApiPort)
+	$Value_Read_allowEmptyJoin = GUICtrlRead($Auswahl_allowEmptyJoin)
+	$Value_Read_controlGameSetup = GUICtrlRead($Auswahl_controlGameSetup)
+	$Value_Read_ServerControlsTrack = GUICtrlRead($Auswahl_ServerControlsTrack)
+		If $Value_Read_ServerControlsTrack = "true" Then $Value_Read_ServerControlsTrack = "1"
+		If $Value_Read_ServerControlsTrack <> "true" Then $Value_Read_ServerControlsTrack = "0"
+	$Value_Read_ServerControlsVehicleClass = GUICtrlRead($Auswahl_ServerControlsVehicleClass)
+		If $Value_Read_ServerControlsVehicleClass = "true" Then $Value_Read_ServerControlsVehicleClass = "1"
+		If $Value_Read_ServerControlsVehicleClass <> "true" Then $Value_Read_ServerControlsVehicleClass = "0"
+	$Value_Read_ServerControlsVehicle = GUICtrlRead($Auswahl_ServerControlsVehicle)
+		If $Value_Read_ServerControlsVehicle = "true" Then $Value_Read_ServerControlsVehicle = "1"
+		If $Value_Read_ServerControlsVehicle <> "true" Then $Value_Read_ServerControlsVehicle = "0"
+
+	$Value_Read_GridSize = GUICtrlRead($Auswaehlen_GridSize)
+
+	$Value_Read_DS_Domain_IP = GUICtrlRead($Eingabe_DS_Domain_or_IP)
+
+	$Value_Read_whitelist = GUICtrlRead($Auswahl_Whitelist)
+	$Value_Read_blacklist = GUICtrlRead($Auswahl_Blacklist)
+
+
+	If FileExists($Dedi_config_cfg) Then
+		$Server_CFG_Array = FileReadToArray($Dedi_config_cfg)
+		$NR_Lines_config_cfg = _FileCountLines($Dedi_config_cfg) - 1
+
+		$EmptyFile = FileOpen($Dedi_config_cfg, 2)
+		FileWrite($EmptyFile, "")
+		FileClose($EmptyFile)
+
+		For $Schleife_2 = 0 To $NR_Lines_config_cfg
+			Local $Value_ProgressBar = $Schleife_2 * 100 / $NR_Lines_config_cfg
+			GUICtrlSetData($Anzeige_Fortschrittbalken, $Value_ProgressBar)
+			GUICtrlSetData($Anzeige_Fortschrittbalken, $Value_ProgressBar)
+			$Wert_Line = $Server_CFG_Array[$Schleife_2]
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, 'eventsLogSize : ')
+			If $StringInStr_Check_1 <> 0 Then $Wert_Line = 'eventsLogSize : ' & $Value_Read_eventsLogSize & ''
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, 'name : "')
+			If $StringInStr_Check_1 <> 0 Then $Wert_Line = 'name : "' & $Value_Read_name & '"'
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, 'secure : ')
+			If $StringInStr_Check_1 <> 0 Then $Wert_Line = 'secure : ' & $Value_Read_secure & ''
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, 'password : "')
+			If $StringInStr_Check_1 <> 0 Then $Wert_Line = 'password : "' & $Value_Read_password & '"'
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, 'maxPlayerCount : ')
+			If $StringInStr_Check_1 <> 0 Then $Wert_Line = 'maxPlayerCount : ' & $Value_Read_maxPlayerCount & ''
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, 'steamPort : ')
+			If $StringInStr_Check_1 <> 0 Then $Wert_Line = 'steamPort : ' & $Value_Read_steamPort & ''
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, 'hostPort : ')
+			If $StringInStr_Check_1 <> 0 Then $Wert_Line = 'hostPort : ' & $Value_Read_hostPort & ''
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, 'queryPort : ')
+			If $StringInStr_Check_1 <> 0 Then $Wert_Line = 'queryPort : ' & $Value_Read_queryPort & ''
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, 'enableHttpApi : ')
+			If $StringInStr_Check_1 <> 0 Then $Wert_Line = 'enableHttpApi : ' & $Value_Read_enableHttpApi & ''
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, 'httpApiInterface : "')
+			If $StringInStr_Check_1 <> 0 Then $Wert_Line = 'httpApiInterface : "' & $Value_Read_httpApiInterface & '"'
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, 'httpApiPort : ')
+			If $StringInStr_Check_1 <> 0 Then $Wert_Line = 'httpApiPort : ' & $Value_Read_httpApiPort & ''
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, 'allowEmptyJoin : ')
+			If $StringInStr_Check_1 <> 0 Then $Wert_Line = 'allowEmptyJoin : ' & $Value_Read_allowEmptyJoin & ''
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, 'controlGameSetup : ')
+			If $StringInStr_Check_1 <> 0 Then $Wert_Line = 'controlGameSetup : ' & $Value_Read_controlGameSetup & ''
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, '    "ServerControlsTrack" : ')
+			If $StringInStr_Check_1 <> 0 Then $Wert_Line = '    "ServerControlsTrack" : ' & $Value_Read_ServerControlsTrack & ','
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, '    "ServerControlsVehicleClass" : ')
+			If $StringInStr_Check_1 <> 0 Then $Wert_Line = '    "ServerControlsVehicleClass" : ' & $Value_Read_ServerControlsVehicleClass & ','
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, '    "ServerControlsVehicle" : ')
+			If $StringInStr_Check_1 <> 0 Then $Wert_Line = '    "ServerControlsVehicle" : ' & $Value_Read_ServerControlsVehicle & ','
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, '    "GridSize" : ')
+			If $StringInStr_Check_1 <> 0 Then $Wert_Line = '    "GridSize" : ' & $Value_Read_GridSize & ','
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, '    "MaxPlayers" : ')
+			If $StringInStr_Check_1 <> 0 Then $Wert_Line = '    "MaxPlayers" : ' & $Value_Read_maxPlayerCount & ','
+
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, 'blackList : [ "blackList.cfg" ]')
+			If $StringInStr_Check_1 <> 0 Then
+				If $Value_Read_whitelist = "true" Then
+					$Wert_Line = 'whiteList : [ "whiteList.cfg" ]'
+				Else
+					If $Value_Read_blacklist = "true" Then
+						$Wert_Line = 'blackList : [ "blackList.cfg" ]'
+					Else
+						$Wert_Line = '// blackList : [ "blackList.cfg" ]'
+					EndIf
+				EndIf
+			EndIf
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, 'whiteList : [ "whiteList.cfg" ]')
+			If $StringInStr_Check_1 <> 0 Then
+				If $Value_Read_whitelist = "true" Then
+					$Wert_Line = 'whiteList : [ "whiteList.cfg" ]'
+				Else
+					If $Value_Read_blacklist = "true" Then
+						$Wert_Line = 'blackList : [ "blackList.cfg" ]'
+					Else
+						$Wert_Line = '// blackList : [ "blackList.cfg" ]'
+					EndIf
+				EndIf
+			EndIf
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, '// blackList : [ "blackList.cfg" ]')
+			If $StringInStr_Check_1 <> 0 Then
+				If $Value_Read_whitelist = "true" Then
+					$Wert_Line = 'whiteList : [ "whiteList.cfg" ]'
+				Else
+					If $Value_Read_blacklist = "true" Then
+						$Wert_Line = 'blackList : [ "blackList.cfg" ]'
+					Else
+						$Wert_Line = '// blackList : [ "blackList.cfg" ]'
+					EndIf
+				EndIf
+			EndIf
+
+			Local $StringInStr_Check_1 = StringInStr($Wert_Line, '// whiteList : [ "whiteList.cfg" ]')
+			If $StringInStr_Check_1 <> 0 Then
+				If $Value_Read_whitelist = "true" Then
+					$Wert_Line = 'whiteList : [ "whiteList.cfg" ]'
+				Else
+					If $Value_Read_blacklist = "true" Then
+						$Wert_Line = 'blackList : [ "blackList.cfg" ]'
+					Else
+						$Wert_Line = '// blackList : [ "blackList.cfg" ]'
+					EndIf
+				EndIf
+			EndIf
+
+			FileWriteLine($Dedi_config_cfg, $Wert_Line)
+		Next
+	EndIf
+
+	Sleep(700)
+	GUICtrlSetData($Anzeige_Fortschrittbalken, 0)
+	GUIDelete($GUI_Loading)
+EndFunc
+
+
+
+
+
 Func _LUA_erstellen()
-	DirCopy($Dedi_Installations_Verzeichnis & "lua\", $install_dir & "lua\", $FC_OVERWRITE)
-	DirCopy($Dedi_Installations_Verzeichnis & "lua_config\", $install_dir & "lua_config\", $FC_OVERWRITE)
+	;DirCopy($Dedi_Installations_Verzeichnis & "Templates\lua\", $install_dir & "lua\", $FC_OVERWRITE)
+	;DirCopy($Dedi_Installations_Verzeichnis & "Templates\lua_config\", $install_dir & "lua_config\", $FC_OVERWRITE)
+	DirCopy($install_dir & "Templates\lua\", $Dedi_Installations_Verzeichnis & "\lua\", $FC_OVERWRITE)
+	DirCopy($install_dir & "Templates\lua_config\", $Dedi_Installations_Verzeichnis & "\lua_config\", $FC_OVERWRITE)
 	FileWriteLine($PCDSG_LOG_ini, "LUA_copied_" & $NowTime & "=" & "LUA Files copied to: " & $install_dir & "lua\" & " | " & "Date - Time: " & $NowDate & " - " & $NowTime)
 	FileWriteLine($PCDSG_LOG_ini, "LUA_config_copied_" & $NowTime & "=" & "LUA config copied to: " & $install_dir & "lua_config\" & " | " & "Date - Time: " & $NowDate & " - " & $NowTime)
 EndFunc
@@ -2886,7 +3945,7 @@ EndFunc
 Func StartUp_settings()
 	IniWrite($config_ini, "PC_Server", "Checkbox_PCDSG_settings_5", "false")
 
-    Local $hGUI = GUICreate("PCDSG Startup settings", 400, 240, -1, -1, $WS_EX_TOPMOST)
+    Local $hGUI = GUICreate("PCDSG Startup settings", 400, 245, -1, -1, $WS_EX_TOPMOST)
 	GUISetIcon(@AutoItExe, -2, $hGUI)
     GUISetState(@SW_SHOW, $hGUI)
 
@@ -2895,16 +3954,20 @@ Func StartUp_settings()
 	GUICtrlCreateLabel("How will you use your Steam Dedicated Server?", 5, 5, 395, 20)
 		GUICtrlSetFont(-1, 12, 600, 6, $font_StartUp_arial)
 
-	$StartUp_Radio_1 = GUICtrlCreateRadio("Local DS, running on this PC", 5, 30, 185)
-		GUICtrlSetOnEvent($StartUp_Radio_1, "_StartUp_Radio_1")
-	$StartUp_Radio_2 = GUICtrlCreateRadio("Remote DS, not running on this PC ", 205, 30, 185)
-		GUICtrlSetOnEvent($StartUp_Radio_2, "_StartUp_Radio_2")
+	Global $StartUp_Radio_1 = GUICtrlCreateCheckbox("Local DS, launching the server and run it on this PC", 5, 30, 385)
+		;GUICtrlSetOnEvent($StartUp_Radio_1, "_StartUp_Radio_1")
+	Global $StartUp_Radio_2 = GUICtrlCreateCheckbox("Remote DS, connecting to a server that is not running on this PC", 5, 50, 385)
+		;GUICtrlSetOnEvent($StartUp_Radio_2, "_StartUp_Radio_2")
+
+	Global $StartUp_Next_Button = GUICtrlCreateButton("Next", 5, 75, 385, 30)
+	GUICtrlSetFont(-1, 12, 600, 2, $font_StartUp_arial)
+	GUICtrlSetColor(-1, "0x006600")
+	GUICtrlSetOnEvent($StartUp_Next_Button, "_StartUp_Next_Button")
 
     While 1
         Switch GUIGetMsg()
             Case $GUI_EVENT_CLOSE
                 ExitLoop
-
         EndSwitch
     WEnd
 
@@ -2913,6 +3976,27 @@ Func StartUp_settings()
     GUIDelete($hGUI)
     GUIDelete($hChild)
 EndFunc
+
+
+Func _StartUp_Next_Button()
+	If GUICtrlRead($StartUp_Radio_1) <> 1 And GUICtrlRead($StartUp_Radio_2) <> 1 Then
+		MsgBox(0, "Selection", "Select at least one of the options.")
+	Else
+		GUICtrlDelete($StartUp_Next_Button)
+	EndIf
+
+	If GUICtrlRead($StartUp_Radio_1) = 1 Then _StartUp_Radio_1()
+	Sleep(1000)
+	If GUICtrlRead($StartUp_Radio_2) = 1 Then
+		If GUICtrlRead($StartUp_Radio_1) <> 1 Then
+			_StartUp_Radio_2()
+		Else
+			_StartUp_Public_IP()
+		EndIf
+	EndIf
+EndFunc
+
+
 
 Func _StartUp_Radio_1()
 	MsgBox(0, "Steam DS folder", "Choose the local folder where the Steam DS app is installed.")
@@ -2926,38 +4010,36 @@ Func _StartUp_Radio_1()
 		IniWrite($config_ini, "PC_Server", "DS_PublicIP", "")
 		IniWrite($config_ini, "PC_Server", "DS_API_Port", "")
 
-		IniWrite($config_ini, "Server_Einstellungen", "httpApiInterface", "127.0.0.1")
+		IniWrite($config_ini, "Server_Einstellungen", "httpApiInterface", "localhost") ; 127.0.0.1
 		IniWrite($config_ini, "Server_Einstellungen", "httpApiPort", "9000")
 
-		GUICtrlCreateLabel("Steam Dedicated Server folder:", 5, 55, 395, 20)
+		GUICtrlCreateLabel("Steam Dedicated Server folder:", 5, 75, 395, 20)
 			GUICtrlSetFont(-1, 12, 600, 6, $font_StartUp_arial)
-		GUICtrlCreateLabel($Auswahl_Verzeichnis & "\", 5, 75, 395, 40)
+		GUICtrlCreateLabel($Auswahl_Verzeichnis & "\", 5, 95, 395, 40)
 	EndIf
 
-	MsgBox(0, "Steam DS folder:", $Auswahl_Verzeichnis & "\" & @CRLF & @CRLF & "This folder will be saved for use in PCDSG.")
+	;MsgBox(0, "Steam DS folder:", $Auswahl_Verzeichnis & "\" & @CRLF & @CRLF & "This folder will be saved for use in PCDSG.")
 
-	Sleep(2000)
+	Sleep(1000)
 
-	Local $StartUp_Next_Button = GUICtrlCreateButton("Complete StartUp, Start PCDSG", 5, 175, 385, 30)
-		GUICtrlSetFont(-1, 12, 600, 2, $font_StartUp_arial)
-		GUICtrlSetColor(-1, "0x006600")
-		GUICtrlSetOnEvent($StartUp_Next_Button, "_StartUp_New_ServerCFG")
+	If GUICtrlRead($StartUp_Radio_2) <> 1 Then _Complete_StartUp_Button()
+
 EndFunc
 
 Func _StartUp_Radio_2()
 	MsgBox(0, "Local server.cfg folder", "Choose the local folder for your server.cfg.")
 
-	$Auswahl_Verzeichnis = FileSelectFolder("Choose local server.cfg folder:", "")
+	$Auswahl_Verzeichnis = FileSelectFolder("Choose local server.cfg folder:", $install_dir)
 
 	If $Auswahl_Verzeichnis <> "" Then
-		IniWrite($config_ini, "PC_Server", "DS_Mode", "remote")
+		IniWrite($config_ini, "PC_Server", "DS_Mode", "local")
 		IniWrite($config_ini, "Einstellungen", "Dedi_Installations_Verzeichnis", $Auswahl_Verzeichnis & "\")
-		GUICtrlCreateLabel("Local server.cfg folder:", 5, 55, 395, 20)
+		GUICtrlCreateLabel("Local server.cfg folder:", 5, 75, 395, 20)
 			GUICtrlSetFont(-1, 12, 600, 6, $font_StartUp_arial)
-		GUICtrlCreateLabel($Auswahl_Verzeichnis & "\", 5, 75, 395, 40)
+		GUICtrlCreateLabel($Auswahl_Verzeichnis & "\", 5, 95, 395, 40)
 	EndIf
 
-	MsgBox(0, "Local server.cfg folder:", $Auswahl_Verzeichnis & "\" & @CRLF & @CRLF & "This folder will be saved for use in PCDSG.")
+	;MsgBox(0, "Local server.cfg folder:", $Auswahl_Verzeichnis & "\" & @CRLF & @CRLF & "This folder will be saved for use in PCDSG.")
 
 	Sleep(1000)
 
@@ -2965,23 +4047,27 @@ Func _StartUp_Radio_2()
 EndFunc
 
 Func _StartUp_Public_IP()
-	MsgBox(0, "Public IP", "Enter your Public IP, it is needed for PCDSG to connect, receive and send data/informations to and from remote DS.")
+	GUICtrlCreateLabel("Domain Name or Public IP:", 5, 125, 395, 20)
+	GUICtrlSetFont(-1, 12, 600, 6, $font_StartUp_arial)
+	Sleep(1000)
 
-	$Eingabe_PublicIP = InputBox ( "Public IP", "Enter the Public IP for the remote DS.")
+	MsgBox(0, "Public IP", "Enter domain name or public IP of the Dedicated Server you want to connect to.")
+
+	$Eingabe_PublicIP = InputBox ( "Public IP", "Enter domain name or public IP.")
 
 	If $Eingabe_PublicIP <> "" Then
 		IniWrite($config_ini, "PC_Server", "DS_PublicIP", $Eingabe_PublicIP)
-		IniWrite($config_ini, "Server_Einstellungen", "httpApiInterface", $Eingabe_PublicIP)
-		GUICtrlCreateLabel("DS Public IP:", 5, 95, 395, 20)
-			GUICtrlSetFont(-1, 12, 600, 6, $font_StartUp_arial)
-		GUICtrlCreateLabel($Eingabe_PublicIP, 5, 115, 395, 20)
+		IniWrite($config_ini, "Server_Einstellungen", "DS_Domain_or_IP", $Eingabe_PublicIP)
+		;IniWrite($config_ini, "Server_Einstellungen", "httpApiInterface", $Eingabe_PublicIP)
+		GUICtrlCreateLabel($Eingabe_PublicIP, 5, 145, 395, 20)
 	EndIf
 
-	MsgBox(0, "Public IP", $Eingabe_PublicIP & @CRLF & @CRLF & "You will also need to enter this public IP into the server.cfg that is used by the remote DS." & @CRLF & @CRLF & "httpApiInterface : " & $Eingabe_PublicIP)
+	;MsgBox(0, "Public IP", $Eingabe_PublicIP & @CRLF & @CRLF & "You will also need to enter this public IP into the server.cfg that is used by the remote DS." & @CRLF & @CRLF & "httpApiInterface : " & $Eingabe_PublicIP)
 
 	Sleep(1000)
 
-	_StartUp_API_Port()
+	;_StartUp_API_Port()
+	_Complete_StartUp_Button()
 EndFunc
 
 Func _StartUp_API_Port()
@@ -3002,11 +4088,17 @@ Func _StartUp_API_Port()
 
 	Sleep(2000)
 
-	Local $StartUp_Next_Button = GUICtrlCreateButton("Complete StartUp, Start PCDSG", 5, 175, 385, 30)
-		GUICtrlSetFont(-1, 12, 600, 2, $font_StartUp_arial)
-		GUICtrlSetColor(-1, "0x006600")
-		GUICtrlSetOnEvent($StartUp_Next_Button, "_StartUp_New_ServerCFG")
+	_Complete_StartUp_Button()
 EndFunc
+
+
+Func _Complete_StartUp_Button()
+	Local $StartUp_Next_Button = GUICtrlCreateButton("Complete StartUp, Start PCDSG", 5, 175, 385, 30)
+	GUICtrlSetFont(-1, 12, 600, 2, $font_StartUp_arial)
+	GUICtrlSetColor(-1, "0x006600")
+	GUICtrlSetOnEvent($StartUp_Next_Button, "_StartUp_New_ServerCFG")
+EndFunc
+
 
 Func _StartUp_New_ServerCFG()
 	$Abfrage = MsgBox(4, "Server.cfg", "Do you want to use a NEW clean server.cfg File?" & @CRLF & @CRLF & "This will overwrite your existing File but avoid errors due to server.cfg values not been read or written correctly.")
@@ -3016,6 +4108,12 @@ Func _StartUp_New_ServerCFG()
 		$Dedi_configCFG_sample = $install_dir & "server_sample.cfg"
 		FileCopy($Dedi_configCFG_sample, $Dedi_Installations_Verzeichnis & "server.cfg", $FC_OVERWRITE)
 		FileCopy($Dedi_configCFG_sample, $install_dir & "server.cfg", $FC_OVERWRITE)
+	EndIf
+
+	$Abfrage = MsgBox(4, "LUA config Files", "Do you want to use NEW and clean LUA config Files?" & @CRLF & @CRLF & "This will overwrite your existing Files but avoid errors due to LUA config Files values not been read or written correctly.")
+
+	If $Abfrage = 6 Then
+		_LUA_erstellen()
 	EndIf
 
 	_StartUp_Exit()
@@ -3029,7 +4127,8 @@ Func _StartUp_Autostart_Check()
 
 	If $Checkbox_PCDSG_settings_1 = "true" Then
 		_PC_Server_starten()
-		Sleep(3000)
+		;Sleep(3000)
+		_Hide_Windows()
 	EndIf
 
 	If $Checkbox_PCDSG_settings_2 = "true" Then
@@ -3059,93 +4158,277 @@ Func _StartUp_Exit()
 EndFunc
 
 Func _CFG_FTP_Upload()
-	$DS_Server_CFG = $Dedi_Installations_Verzeichnis & "server.cfg"
+	;Local $DS_Server_CFG = $Dedi_Installations_Verzeichnis & "server.cfg"
 
-	$FTP_Upload = IniRead($config_ini, "PC_Server", "FTP_Upload_CFG", "")
+	Local $FTP_Username = IniRead($config_ini, "FTP", "FTP_Username", "")
+	Local $FTP_Passwort = IniRead($config_ini, "FTP", "FTP_Password", "")
+	Local $FTP_Server_Name_IP = IniRead($config_ini, "FTP", "FTP_Server_Name_IP", "")
+	Local $FTP_Port = IniRead($config_ini, "FTP", "FTP_Port", "")
+	Local $FTP_Passive= IniRead($config_ini, "FTP", "FTP_Passive", "")
 
-	$FTP_Username = IniRead($config_ini, "FTP", "FTP_Username", "")
-	$FTP_Passwort = IniRead($config_ini, "FTP", "FTP_Password", "")
-	$FTP_Server_Name_IP = IniRead($config_ini, "FTP", "FTP_Server_Name_IP", "")
-	$FTP_Port = IniRead($config_ini, "FTP", "FTP_Port", "")
-	$FTP_folder= IniRead($config_ini, "FTP", "FTP_folder", "")
-	$FTP_Passive= IniRead($config_ini, "FTP", "FTP_Passive", "")
+	Local $FTP_Upload_DS_Path = IniRead($config_ini, "PC_Server", "FTP_Upload_DS_Path", "")
+	Local $FTP_Upload_FTP_LUA_Config_Folder = IniRead($config_ini, "PC_Server", "FTP_Upload_FTP_LUA_Config_Folder", "")
+	Local $FTP_Upload_Stats_Results = IniRead($config_ini, "PC_Server", "FTP_Upload_Stats_Results", "")
+
+	Local $FTP_DS_Path= IniRead($config_ini, "FTP", "FTP_DS_Path", "")
+	Local $FTP_LUA_Config_Folder= IniRead($config_ini, "FTP", "FTP_LUA_Config_Folder", "")
+	;Local $FTP_Stats_Results_Folder= IniRead($config_ini, "FTP", "FTP_Stats_Results_Folder", "")
 
 	Sleep(100)
 
-	Local $Datum = @YEAR & "-" & @MON & "-" & @MDAY
+	;Local $Datum = @YEAR & "-" & @MON & "-" & @MDAY
 
-    Local $s_ServerName = $FTP_Server_Name_IP
-    Local $s_Username = $FTP_Username
-	Local $Eingabe_FTP_Password
-
-	If $FTP_Passwort = "" Then $Eingabe_FTP_Password = InputBox ( "Enter FTP Password", "Enter FTP Password to confirm FTP File Upload.")
-	If $FTP_Passwort <> "" Then $Eingabe_FTP_Password = $FTP_Passwort
-
-    Local $s_Password = $Eingabe_FTP_Password
-
-	Local $s_LocalFolder = $Dedi_Installations_Verzeichnis
-	Local $Zielordner = $FTP_folder
-
-    Local $i_Passive = $FTP_Passive
-    Local $l_InternetSession, $l_FTPSession, $errOpen, $errFTP
-
-	Local $FileList = _FileListToArray($s_LocalFolder , "*.cfg" , 1)
-    $l_InternetSession = _FTP_Open('AuoItZilla')
-    $errOpen = @error
-
-	$l_FTPSession = _FTP_Connect($l_InternetSession, $s_ServerName, $s_Username, $s_Password, $i_Passive)
-	_FTP_DirSetCurrent($l_FTPSession, $Zielordner)
-
-
-	If $FileList <> "" Then
-		For $NR = 1 To $FileList[0]
-
-		Local $s_RemoteFile = $Zielordner & $FileList[$NR]
-
-		If Not @error Then
-				$l_FTPSession = _FTP_Connect($l_InternetSession, $s_ServerName, $s_Username, $s_Password, $i_Passive)
-				$errFTP = @error
-				If Not @error Then
-
-					If $FileList[$NR] = "server.cfg" Then
-							If _FTP_FilePut($l_FTPSession, $s_LocalFolder & $FileList[$NR], $s_RemoteFile) Then
-								MsgBox(0, "FTP Upload finished", "server.cfg Upload: successfully", 2)
-							Else
-								MsgBox(0, "FTP Upload finished", "server.cfg Upload: Failed", 5)
-							EndIf
-					EndIf
-
-					If $FileList[$NR] = "blackList.cfg" Then
-							If _FTP_FilePut($l_FTPSession, $s_LocalFolder & $FileList[$NR], $s_RemoteFile) Then
-								MsgBox(0, "FTP Upload finished", "blackList.cfg Upload: successfully", 2)
-							Else
-								MsgBox(0, "FTP Upload finished", "blackList.cfg Upload: Failed", 5)
-							EndIf
-					EndIf
-
-					If $FileList[$NR] = "whiteList.cfg" Then
-							If _FTP_FilePut($l_FTPSession, $s_LocalFolder & $FileList[$NR], $s_RemoteFile) Then
-								MsgBox(0, "FTP Upload finished", "whiteList.cfg Upload: successfully", 2)
-							Else
-								MsgBox(0, "FTP Upload finished", "whiteList.cfg Upload: Failed", 5)
-							EndIf
-					EndIf
-
-				Else
-					MsgBox(0, "Connect", "Failed", 10)
-				EndIf
-
-		Else
-			MsgBox(0, "Open", "Failed", 10)
-		EndIf
-
-		Next
+	If $FTP_Passwort = "" Then
+		Local $FTP_Password = InputBox ( "Enter FTP Password", "Enter FTP Password to confirm FTP File Upload.")
+	Else
+		Local $FTP_Password = $FTP_Passwort
 	EndIf
 
-	If $FileList = "" Then MsgBox(0, "", ".cfg Files not found...", 5)
 
-    _FTP_Close($l_InternetSession) ;schliesst die FTP-Sitzng
+
+
+
+
+	Local $l_InternetSession = _FTP_Open('AuoItZilla')
+	Local $errOpen = @error
+	If Not @error Then
+		Local $l_FTPSession = _FTP_Connect($l_InternetSession, $FTP_Server_Name_IP, $FTP_Username, $FTP_Password, $FTP_Passive)
+		Local $errOpen = @error
+		If Not @error Then
+			For $Loop = 1 To 2
+				If $Loop = 1 Then
+					Local $LocalFolder = $Dedi_Installations_Verzeichnis
+					Local $Zielordner = $FTP_DS_Path
+					Local $TargetFile_1 = "server.cfg"
+					Local $TargetFile_2 = "blackList.cfg"
+					Local $TargetFile_3 = "whiteList.cfg"
+				EndIf
+				If $Loop = 2 Then
+					Local $LocalFolder = $Dedi_Installations_Verzeichnis & "lua_config\"
+					Local $Zielordner = $FTP_LUA_Config_Folder
+					Local $TargetFile_1 = "sms_rotate_config.json"
+					Local $TargetFile_2 = ""
+					Local $TargetFile_3 = ""
+				EndIf
+
+				Local $FileList = _FileListToArray($LocalFolder , "*.cfg" , 1)
+				_FTP_DirSetCurrent($l_FTPSession, $Zielordner)
+
+				If $FileList <> "" Then
+					For $NR = 1 To $FileList[0]
+						Local $RemoteFile = $Zielordner & $FileList[$NR]
+
+						$l_FTPSession = _FTP_Connect($l_InternetSession, $FTP_Server_Name_IP, $FTP_Username, $FTP_Password, $FTP_Passive)
+						Local $errFTP = @error
+						If Not @error Then
+							If $TargetFile_1 <> "" Then
+								If $FileList[$NR] = $TargetFile_1 Then
+									If _FTP_FilePut($l_FTPSession, $LocalFolder & $FileList[$NR], $RemoteFile) Then
+										MsgBox(0, "FTP Upload finished", "server.cfg Upload: successfully", 2)
+									Else
+										MsgBox(0, "FTP Upload finished", "server.cfg Upload: Failed", 5)
+										ExitLoop
+									EndIf
+								EndIf
+							EndIf
+							If $TargetFile_2 <> "" Then
+								If $FileList[$NR] = $TargetFile_2 Then
+									If _FTP_FilePut($l_FTPSession, $LocalFolder & $FileList[$NR], $RemoteFile) Then
+										MsgBox(0, "FTP Upload finished", "blackList.cfg Upload: successfully", 2)
+									Else
+										MsgBox(0, "FTP Upload finished", "blackList.cfg Upload: Failed", 5)
+										ExitLoop
+									EndIf
+								EndIf
+							EndIf
+							If $TargetFile_3 <> "" Then
+								If $FileList[$NR] = $TargetFile_3 Then
+									If _FTP_FilePut($l_FTPSession, $LocalFolder & $FileList[$NR], $RemoteFile) Then
+										MsgBox(0, "FTP Upload finished", "whiteList.cfg Upload: successfully", 2)
+									Else
+										MsgBox(0, "FTP Upload finished", "whiteList.cfg Upload: Failed", 5)
+										ExitLoop
+									EndIf
+								EndIf
+							EndIf
+						Else
+							MsgBox(0, "FTP 'Connect'", "Failed", 10)
+							$Loop = 2
+							ExitLoop
+						EndIf
+					Next
+				Else
+					If $FileList = "" Then MsgBox(0, "", "Files not found...", 5)
+				EndIf
+			Next
+			_FTP_Close($l_InternetSession) ;schliesst die FTP-Sitzng
+			Sleep(500)
+		Else
+			MsgBox(0, "FTP 'Connect'", "Failed", 10)
+		EndIf
+	Else
+		MsgBox(0, "FTP 'Open'", "Failed", 10)
+	EndIf
 EndFunc
+
+Func _FTP_Upload()
+	;Local $DS_Server_CFG = $Dedi_Installations_Verzeichnis & "server.cfg"
+
+	Local $FTP_Username = IniRead($config_ini, "FTP", "FTP_Username", "")
+	Local $FTP_Passwort = IniRead($config_ini, "FTP", "FTP_Password", "")
+	Local $FTP_Server_Name_IP = IniRead($config_ini, "FTP", "FTP_Server_Name_IP", "")
+	Local $FTP_Port = IniRead($config_ini, "FTP", "FTP_Port", "")
+	Local $FTP_Passive= IniRead($config_ini, "FTP", "FTP_Passive", "")
+
+	Local $FTP_Upload_DS_Path = IniRead($config_ini, "PC_Server", "FTP_Upload_DS_Path", "")
+	Local $FTP_Upload_FTP_LUA_Config_Folder = IniRead($config_ini, "PC_Server", "FTP_Upload_FTP_LUA_Config_Folder", "")
+	Local $FTP_Upload_Stats_Results = IniRead($config_ini, "PC_Server", "FTP_Upload_Stats_Results", "")
+
+	Local $FTP_DS_Path= IniRead($config_ini, "FTP", "FTP_DS_Path", "")
+	Local $FTP_LUA_Config_Folder= IniRead($config_ini, "FTP", "FTP_LUA_Config_Folder", "")
+	;Local $FTP_Stats_Results_Folder= IniRead($config_ini, "FTP", "FTP_Stats_Results_Folder", "")
+
+	Sleep(100)
+
+	;Local $Datum = @YEAR & "-" & @MON & "-" & @MDAY
+
+	If $FTP_Passwort = "" Then
+		Local $FTP_Password = InputBox ( "Enter FTP Password", "Enter FTP Password to confirm FTP File Upload.")
+	Else
+		Local $FTP_Password = $FTP_Passwort
+	EndIf
+
+
+
+
+
+
+	Local $l_InternetSession = _FTP_Open('AuoItZilla')
+	Local $errOpen = @error
+	If Not @error Then
+		Local $l_FTPSession = _FTP_Connect($l_InternetSession, $FTP_Server_Name_IP, $FTP_Username, $FTP_Password, $FTP_Passive)
+		Local $errOpen = @error
+		If Not @error Then
+			For $Loop = 1 To 2
+
+				$Value_Progress = $Loop * 100 / 2
+				GUICtrlSetData($Anzeige_Fortschrittbalken, $Value_Progress)
+
+				If $Loop = 1 Then
+					Local $LocalFolder = $Dedi_Installations_Verzeichnis
+					Local $Zielordner = $FTP_DS_Path
+					Local $TargetFile_1 = "server.cfg"
+					Local $TargetFile_2 = "blackList.cfg"
+					Local $TargetFile_3 = "whiteList.cfg"
+				EndIf
+				If $Loop = 2 Then
+					Local $LocalFolder = $Dedi_Installations_Verzeichnis & "lua_config\"
+					Local $Zielordner = $FTP_LUA_Config_Folder
+					Local $TargetFile_1 = "sms_rotate_config.json"
+					Local $TargetFile_2 = ""
+					Local $TargetFile_3 = ""
+				EndIf
+
+				If $Loop = 1 Then Local $FileList = _FileListToArray($LocalFolder , "*.cfg" , 1)
+				If $Loop = 2 Then Local $FileList = _FileListToArray($LocalFolder , "*.json" , 1)
+				_FTP_DirSetCurrent($l_FTPSession, $Zielordner)
+
+				If $FileList <> "" Then
+					For $NR = 1 To $FileList[0]
+						;MsgBox(0, "$FileList[$NR]", $FileList[$NR])
+						Local $RemoteFile = $Zielordner & $FileList[$NR]
+
+						$l_FTPSession = _FTP_Connect($l_InternetSession, $FTP_Server_Name_IP, $FTP_Username, $FTP_Password, $FTP_Passive)
+						Local $errFTP = @error
+						If Not @error Then
+							If $TargetFile_1 <> "" Then
+								If $FileList[$NR] = $TargetFile_1 Then
+									If _FTP_FilePut($l_FTPSession, $LocalFolder & $FileList[$NR], $RemoteFile) Then
+										If $Loop = 1 Then _GUICtrlStatusBar_SetText($Statusbar, "server.cfg Upload: successfully")
+										If $Loop = 2 Then _GUICtrlStatusBar_SetText($Statusbar, "sms_rotate_config.json Upload: successfully")
+										;If $Loop = 1 Then MsgBox(0, "FTP Upload finished", "server.cfg Upload: successfully", 2)
+										;If $Loop = 2 Then MsgBox(0, "FTP Upload finished", "sms_rotate_config.json Upload: successfully", 2)
+									Else
+										If $Loop = 1 Then _GUICtrlStatusBar_SetText($Statusbar, "server.cfg Upload: Failed")
+										If $Loop = 2 Then _GUICtrlStatusBar_SetText($Statusbar, "sms_rotate_config.json Upload: Failed")
+										;If $Loop = 1 Then MsgBox(0, "FTP Upload finished", "server.cfg Upload: Failed", 5)
+										;If $Loop = 2 Then MsgBox(0, "FTP Upload finished", "sms_rotate_config.json Upload: Failed", 5)
+										ExitLoop
+									EndIf
+								EndIf
+							EndIf
+							Sleep(200)
+							If $TargetFile_2 <> "" Then
+								If $FileList[$NR] = $TargetFile_2 Then
+									If _FTP_FilePut($l_FTPSession, $LocalFolder & $FileList[$NR], $RemoteFile) Then
+										If $Loop = 1 Then _GUICtrlStatusBar_SetText($Statusbar, "blackList.cfg Upload: successfully")
+										;MsgBox(0, "FTP Upload finished", "blackList.cfg Upload: successfully", 2)
+									Else
+										If $Loop = 1 Then _GUICtrlStatusBar_SetText($Statusbar, "blackList.cfg Upload: Failed")
+										;MsgBox(0, "FTP Upload finished", "blackList.cfg Upload: Failed", 5)
+										ExitLoop
+									EndIf
+								EndIf
+							EndIf
+							Sleep(200)
+							If $TargetFile_3 <> "" Then
+								If $FileList[$NR] = $TargetFile_3 Then
+									If _FTP_FilePut($l_FTPSession, $LocalFolder & $FileList[$NR], $RemoteFile) Then
+										If $Loop = 1 Then _GUICtrlStatusBar_SetText($Statusbar, "whiteList.cfg Upload: successfully")
+										;MsgBox(0, "FTP Upload finished", "whiteList.cfg Upload: successfully", 2)
+									Else
+										If $Loop = 1 Then _GUICtrlStatusBar_SetText($Statusbar, "whiteList.cfg Upload: Failed")
+										;MsgBox(0, "FTP Upload finished", "whiteList.cfg Upload: Failed", 5)
+										ExitLoop
+									EndIf
+								EndIf
+							EndIf
+							Sleep(200)
+						Else
+							_GUICtrlStatusBar_SetText($Statusbar, "FTP 'Connect' - Failed")
+							MsgBox(0, "FTP 'Connect'", "Failed", 10)
+							$Loop = 2
+							ExitLoop
+						EndIf
+					Next
+				Else
+					If $FileList = "" Then MsgBox(0, "", "Files not found...", 5)
+					If $FileList = "" Then _GUICtrlStatusBar_SetText($Statusbar, "Files not found...")
+				EndIf
+			Next
+			_FTP_Close($l_InternetSession) ;schliesst die FTP-Sitzng
+			_GUICtrlStatusBar_SetText($Statusbar, "FTP Upload finished" & @TAB & _NowDate( ) & @TAB & $Aktuelle_Version & "' " & '[' & $PCDSG_DS_Mode & " Mode]")
+			Sleep(600)
+		Else
+			_GUICtrlStatusBar_SetText($Statusbar, "FTP 'Connect' - Failed")
+			MsgBox(0, "FTP 'Connect'", "Failed", 10)
+		EndIf
+		Else
+		_GUICtrlStatusBar_SetText($Statusbar, "FTP 'Open' - Failed")
+		MsgBox(0, "FTP 'Open'", "Failed", 10)
+	EndIf
+	Sleep(600)
+	GUICtrlSetData($Anzeige_Fortschrittbalken, 0)
+
+	Local $DS_Mode_Temp = IniRead($config_ini, "PC_Server", "DS_Mode", "local")
+	Local $PC_Server_Status = IniRead($config_ini, "PC_Server", "Status", "")
+
+	If $DS_Mode_Temp = "remote" Then
+		If $PC_Server_Status = "PC_Server_gestartet" Then
+			$Abfrage = MsgBox(4, "Restart Dedicated Server", "You will need to restart the Dedicated Server for the settings to apply." & @CRLF & @CRLF & _
+														"Do you want to Restart the Dedicated Server?")
+
+			If $Abfrage = 6 Then
+				_Restart_DS_Remote()
+			EndIf
+		EndIf
+	Else
+		Sleep(200)
+	EndIf
+
+	_GUICtrlStatusBar_SetText($Statusbar, "IP: " & $PCDSG_IP & @TAB & @TAB & $Statusbar_welcome_msg_2 & " " & $Aktuelle_Version & "' " & '[' & $PCDSG_DS_Mode & " Mode]")
+EndFunc
+
 
 Func _Check_TaskBarPos()
 	Opt('WINTITLEMATCHMODE', 4)
@@ -3164,31 +4447,28 @@ EndFunc
 
 Func _Info()
 	If FileExists($install_dir & "PCDSG StartUp Guide.pdf") Then
-		;ShellExecute($install_dir & "PCDSG StartUp Guide.pdf")
+		ShellExecute($install_dir & "PCDSG StartUp Guide.pdf")
 	Else
-		ShellExecute("http://www.cogent.myds.me/PCDSGwiki/lib/exe/fetch.php?media=pcdsg_startup_guide.pdf")
+		ShellExecute("https://github.com/CogentHub/PCDSG/blob/master/PCDSG%20StartUp%20Guide.pdf")
 	EndIf
 
-	Sleep(2000)
+	Sleep(1000)
 
 	$Abfrage = MsgBox(4, "INFO", "PCDSG made by cogent (alias Atlan)" & @CRLF & @CRLF & _
 						"Visit PCDSGwiki page for more information: " & @CRLF & _
 						"http://www.cogent.myds.me/PCDSGwiki/doku.php" & @CRLF & @CRLF & _
-						"German Forum Thread:" & @CRLF & _
-						"http://evo-x.de/wbb3/board352-pc-mobile-misc/board245-pc-mac-linux/219329-project-cars-dedicated-server-gui/" & @CRLF & @CRLF & _
 						"English Forum Thread:" & @CRLF & _
 						"http://forum.projectcarsgame.com/showthread.php?31634-Project-Cars-Dedicated-Server-GUI-Launcher-with-%93live-timing%93-(results-timetable-)" & @CRLF & @CRLF & _
 						"27.08.2016" & @CRLF & @CRLF & @CRLF & _
 						"Do you want to open the Forum Thread in your Internet Explorer?" & @CRLF & @CRLF & @CRLF, 20)
 
 	If $Abfrage = 6 Then
-		ShellExecute($install_dir & "PCDSG StartUp Guide.pdf")
-		ShellExecute("http://evo-x.de/wbb3/board352-pc-mobile-misc/board245-pc-mac-linux/219329-project-cars-dedicated-server-gui/")
+		;ShellExecute($install_dir & "PCDSG StartUp Guide.pdf")
 		ShellExecute("http://forum.projectcarsgame.com/showthread.php?31634-Project-Cars-Dedicated-Server-GUI-Launcher-with-%93live-timing%93-(results-timetable-)")
 	EndIf
 
 	If $Abfrage = 7 Then
-		ShellExecute($install_dir & "PCDSG StartUp Guide.pdf")
+		;ShellExecute($install_dir & "PCDSG StartUp Guide.pdf")
 	EndIf
 EndFunc
 
@@ -3212,6 +4492,144 @@ Func _Show_Windows()
 	WinSetState($Dedi_Installations_Verzeichnis & "DedicatedServerCmd.exe", "", @SW_SHOW)
 EndFunc
 
+
+Func _Start_DS_EXE()
+	$PC_Server_Status = IniRead($config_ini, "PC_Server", "Status", "")
+	$PCDSG_DS_Mode = IniRead($config_ini,"PC_Server", "DS_Mode", "")
+
+	If $PCDSG_DS_Mode = "local" Then
+		If WinExists("Project Cars - Dedicated Server GUI") Then
+			If NOT WinExists($Dedi_Installations_Verzeichnis & "DedicatedServerCmd.exe") Then
+				$PC_Server_Status = IniRead($config_ini, "PC_Server", "Status", "")
+				If $PC_Server_Status <> "PC_Server_beendet" Then
+					ShellExecute($Dedi_Installations_Verzeichnis & "DedicatedServerCmd.exe", "", $Dedi_Installations_Verzeichnis, "")
+				EndIf
+			EndIf
+		EndIf
+	EndIf
+EndFunc
+
+Func _Start_PCDSG_Lapper()
+	If FileExists($Programm_Verzeichnis & "StartPCarsDS.exe") Then
+		ShellExecute($Programm_Verzeichnis & "StartPCarsDS.exe")
+	Else
+		ShellExecute($Programm_Verzeichnis & "StartPCarsDS.au3")
+	EndIf
+EndFunc
+
+
+Func _Loading_GUI()
+	Local Const $PG_WS_POPUP = 0x80000000
+	Local Const $PG_WS_DLGFRAME = 0x00400000
+	Local $DesktopWidth = @DesktopWidth
+	Local $DesktopHeight = @DesktopHeight ; - 75
+	Local $POS_X_GUI = 4
+
+	Local $POS_X_Loading_GUI = ($DesktopWidth / 2) - 152
+
+	$GUI_Loading = GUICreate("Loading...please wait...", 250, 65, $POS_X_Loading_GUI, -1, BitOR($PG_WS_DLGFRAME, $PG_WS_POPUP))
+	GUISetIcon(@AutoItExe, -2, $GUI_Loading)
+	GUISetBkColor("0x00BFFF")
+
+	$font = "arial"
+	GUICtrlCreateLabel("...Loading...", 66, 5, 160, 25)
+	GUICtrlSetFont(-1, 17, 800, 1, $font)
+	GUICtrlSetColor(-1, $COLOR_RED)
+	GUICtrlCreateLabel("...Please wait...", 49, 32, 160, 25)
+	GUICtrlSetFont(-1, 17, 800, 1, $font)
+	GUICtrlSetColor(-1, $COLOR_RED)
+
+	GUISetState(@SW_SHOW, $GUI_Loading)
+	WinSetOnTop("Loading...please wait...", "", $WINDOWS_ONTOP)
+EndFunc   ;==>_Loading_GUI
+
+Func _Preparing_Data_GUI()
+	Local Const $PG_WS_POPUP = 0x80000000
+	Local Const $PG_WS_DLGFRAME = 0x00400000
+	Local $DesktopWidth = @DesktopWidth
+	Local $DesktopHeight = @DesktopHeight ; - 75
+	Local $POS_X_GUI = 4
+
+	Local $POS_X_Loading_GUI = ($DesktopWidth / 2) - 152
+
+	$GUI_Loading = GUICreate("Preparing data...Please wait...", 250, 65, $POS_X_Loading_GUI, -1, BitOR($PG_WS_DLGFRAME, $PG_WS_POPUP))
+	GUISetIcon(@AutoItExe, -2, $GUI_Loading)
+	GUISetBkColor("0x00BFFF")
+
+	$font = "arial"
+	GUICtrlCreateLabel("...Preparing Data...", 31, 5, 200, 25)
+	GUICtrlSetFont(-1, 17, 800, 1, $font)
+	GUICtrlSetColor(-1, $COLOR_RED)
+	GUICtrlCreateLabel("...Please Wait...", 49, 32, 160, 25)
+	GUICtrlSetFont(-1, 17, 800, 1, $font)
+	GUICtrlSetColor(-1, $COLOR_RED)
+
+	GUISetState(@SW_SHOW, $GUI_Loading)
+	WinSetOnTop("Loading...please wait...", "", $WINDOWS_ONTOP)
+EndFunc   ;==>_Loading_GUI
+
+Func _Check_for_Backups()
+	If Not FileExists($Backup_dir & "server.cfg") Then
+		Local $Result = FileCopy($Dedi_Installations_Verzeichnis & "server.cfg", $Backup_dir & "server.cfg", $FC_OVERWRITE)
+		FileCopy($Dedi_Installations_Verzeichnis & "server.cfg", $Dedi_Installations_Verzeichnis & "server.cfg" & ".bak", $FC_OVERWRITE)
+		If $Result = 1 Then
+			MsgBox(0 + $MB_ICONINFORMATION, "Backup Successful" & " [1 / 4]", "Backup of config.ini File successfully created." & @CRLF & @CRLF & $Backup_dir & "server.cfg")
+		Else
+			MsgBox(0 + $MB_ICONWARNING, "Backup Failure" & " [1 / 4]", "Failure." & @CRLF & "Backup of the config.ini File could not be created.")
+		EndIf
+	EndIf
+
+	If Not FileExists($Backup_dir & "lua\") Then
+		Local $Result = DirCopy($Dedi_Installations_Verzeichnis & "lua\", $Backup_dir & "lua\", $FC_OVERWRITE)
+		If $Result = 1 Then
+			MsgBox(0 + $MB_ICONINFORMATION, "Backup Successful" & " [2 / 4]", "Backup of config.ini File successfully created." & @CRLF & @CRLF & $Backup_dir & "lua\")
+		Else
+			MsgBox(0 + $MB_ICONWARNING, "Backup Failure" & " [2 / 4]", "Failure." & @CRLF & "Backup of the config.ini File could not be created.")
+		EndIf
+	EndIf
+
+	If Not FileExists($Backup_dir & "lua_config\") Then
+		Local $Result = DirCopy($Dedi_Installations_Verzeichnis & "lua_config\", $Backup_dir & "lua_config\", $FC_OVERWRITE)
+		If $Result = 1 Then
+			MsgBox(0 + $MB_ICONINFORMATION, "Backup Successful" & " [3 / 4]", "Backup of config.ini File successfully created." & @CRLF & @CRLF & $Backup_dir & "lua_config\")
+		Else
+			MsgBox(0 + $MB_ICONWARNING, "Backup Failure" & " [3 / 4]", "Failure." & @CRLF & "Backup of the config.ini File could not be created.")
+		EndIf
+	EndIf
+
+	If Not FileExists($Dedi_Installations_Verzeichnis & "lua_config\sms_rotate_config.json.bak") Then
+		Local $Result = FileCopy($Dedi_Installations_Verzeichnis & "lua_config\sms_rotate_config.json", $Dedi_Installations_Verzeichnis & "lua_config\sms_rotate_config.json.bak", $FC_OVERWRITE)
+		If $Result = 1 Then
+			MsgBox(0 + $MB_ICONINFORMATION, "Backup Successful" & " [4 / 4]", "Backup of sms_rotate_config.json File successfully created." & @CRLF & @CRLF & $Backup_dir & "sms_rotate_config.json")
+		Else
+			MsgBox(0 + $MB_ICONWARNING, "Backup Failure" & " [4 / 4]", "Failure." & @CRLF & "Backup of the sms_rotate_config.json File could not be created.")
+		EndIf
+	EndIf
+EndFunc
+
+Func _Restart_DS_Remote() ; REMOTE
+	$URL = 'http://' & $Lesen_Auswahl_httpApiInterface & ":" & $Lesen_Auswahl_httpApiPort & '/api/restart'
+	$download = InetGet($URL, $System_Dir & "Restart.txt", 16, 0)
+
+	If FileExists($System_Dir & "Restart.txt") Then
+		Local $OK_Check = FileReadLine($System_Dir & "Restart.txt", 2)
+		If $OK_Check = '  "result" : "ok"' Then
+			MsgBox(0 + $MB_ICONINFORMATION, "Restart", "Restart of Dedicated Server successful.", 3)
+			FileDelete($System_Dir & "Restart.txt")
+		Else
+			MsgBox(0 + $MB_ICONWARNING, "Restart", "Restart of Dedicated Server failed.")
+			FileDelete($System_Dir & "Restart.txt")
+		EndIf
+	EndIf
+EndFunc
+
+Func _Restart_PCDSG()
+	If FileExists($install_dir & "PCDSG.exe") Then
+		ShellExecute($install_dir & "PCDSG.exe")
+	Else
+		ShellExecute($install_dir & "PCDSG.au3")
+	EndIf
+EndFunc
 
 Func _Beenden()
 	_GUICtrlStatusBar_SetText($Statusbar, $Statusbar_welcome_msg_30)

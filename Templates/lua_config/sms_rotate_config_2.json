@@ -1,0 +1,538 @@
+
+	// The rotation. Array of setups to rotate. If empty, just the default setup will be used with no actual rotation happening.
+	//
+	// These setups are applied on top of the default setup, then applied to the game. Previous setup in the rotation is never used.
+	// So for example if you wanted to repeat the same track in multiple consecutive setups, different from the default track,
+	// each of those setups needs to explicitly include that track. Also remember that apart from the flags nothing can be "removed"
+	// from the default setup, so if the default setup contains a track, some track will always be enforced (either the default one,
+	// or the setup-specific one). And one last thing, these override setups can never include an attribute that's not specified in
+	// the default setup - it can just override some of the default attributes, not add new ones. The only exception are the
+	// track/vehicle/class attributes.
+	//
+	// Attributes in these setups can have a special attribute RemoveFlags set, which will remove the specified flags from the default
+	// setup instead of adding them to it (which is what the Flags attribute will do)
+
+	"rotation" : [
+
+		// WEC Track Rotation Reference 2017: Monza, Silverstone Int, Spa, Le Mans 24h, Nurburgring GP, COTA, Fuji, Shanghai, Bahrain
+		// WEC Dates in order MM/DD: 3/25, 4/16, 5/6, 6/17, 7/16, 9/3, 9/16, 10/15, 11/5, 11/18
+
+		// GTE Track Rotation Reference 2017: Same as GT3
+		// GTE Dates in order MM/DD: Same as GT3
+
+		// GT3 Blancpain Track Rotation 2017: Paul Ricard, Zolder, Monza, Brands Hatch GP, Silverstone Int, Paul Ricard, Misano, Spa, Spa24hr, Budapest, Nurburgring GP, Barcelona
+		// GT3 Dates in order MM/DD: 3/13-14, 4/6-8, 4/21-22, 5/5-6, 5/19-20, 6/1-2, 6/22-24, 7/3, 7/26-29, 8/31-9/2, 9/14-16, 9/29-30
+		
+		// GT4 Euro Series North Cup Track Rotation 2017: Misano, Red Bull Ring GP, Brands Hatch GP, Slovakia Ring, Zandvoort, Nurburgring GP
+		// GT4 Dates in order MM/DD:  3/31-4/2, 6/9-11, 5/6-7, 6/14-16, 8/19-20, 9/15-17
+
+		// -- You can override any of the defaults listed above by specifying them per track/rotation as desired --
+		// -- Use [ "RemoveFlags" : "FLAGS_TO_REMOVE" ] to remove a flag e.g. (TC_ENABLED) from a particular track/car combo in the rotation
+
+		// Race 1 Azure Coast
+		{
+			"TrackId" : "Azure Coast",
+
+			// --------------- MULTI CLASS CONFIG ----------------- //
+			// ------ COPY/PASTE TO OTHER TRACKS IN ROTATION ------ //
+			// ------ COMMENT OUT THE ABOVE "VehicleClassId" ------ //
+			// ---------------------------------------------------- //
+
+			// "VehicleClassId" : "Group A",
+
+			// Popular Car Classes Name/Value for easy Switch
+			// See /api/list/vehicle_classes/ via HTTP (http://127.0.0.1:9000/api/list/vehicle_classes/)
+
+			// "GT1" = 1323122160
+			// "GT3" = -112887377
+			// "GT4" = 1553262379
+			// "GTE" = 1740243009
+			// "LMP1" = -1289517523
+			// "LMP2" = -564539194
+			// "LMP3" = 974854672
+			// "LMP900" = 1543160927
+			// "Touring Car" = 52697193
+			// "TC1" --Clio Cup-- = -1529501352
+			// "Group A" = -1270088329
+
+			// Default Multi Class settings
+			// -- The first class of car is set by VehicleClassId above, then you can set 3 additional classes here
+			// -- Don't forget to uncomment the RemoveFlags and Flags lines below
+			// ------------------------------------------------------- //
+			// -- MUST USE "value" for cars, can't use ENUM NAME :( -- //
+			// -- 			Fixed if using my sms_base.lua			-- //
+			// ------------------------------------------------------- //
+			// "MultiClassSlots" : 3,
+			// "MultiClassSlot1" : "GTE", //1740243009,
+			// "MultiClassSlot2" : "GT3", //-112887377,
+			// "MultiClassSlot3" : "GT4", //1553262379,
+
+			"Flags" : "ABS_ALLOWED",
+			"RemoveFlags" : "TCS_ALLOWED",
+
+			// If enabled the the Formation lap and Rolling start are player controlled.
+			"ManualRollingStarts" : 0,
+
+			// Rolling start options for Multi Class racing, set both to 1 to enable a Rolling start
+			"RaceRollingStart" : 0,
+			"RaceFormationLap" : 0,
+
+			// -------------- END MULTI CLASS CONFIG -------------- //
+
+			"PracticeLength" : 10,
+			"PracticeDateHour" : 12,
+
+			"PracticeWeatherSlots" : 4,
+			"PracticeWeatherSlot1" : "Clear",
+			"PracticeWeatherSlot2" : "LightCloud",
+			"PracticeWeatherSlot3" : "MediumCloud",
+			"PracticeWeatherSlot4" : "HeavyCloud",
+
+			"QualifyLength" : 10,
+			"QualifyDateHour" : 12,
+
+			"QualifyWeatherSlots" : 4,
+			"QualifyWeatherSlot1" : "LightRain",
+			"QualifyWeatherSlot2" : "Rain",
+			"QualifyWeatherSlot3" : "Overcast",
+			"QualifyWeatherSlot4" : "Clear",
+
+			"RaceLength" : 1,
+
+			"RaceDateYear" : 2018,
+			"RaceDateMonth" : 8,
+			"RaceDateDay" : 10,
+			"RaceDateHour" : 12,
+
+			"RaceWeatherSlots" : 4,
+			"RaceWeatherSlot1" : "HeavyCloud",
+			"RaceWeatherSlot2" : "MediumCloud",
+			"RaceWeatherSlot3" : "LightCloud",
+			"RaceWeatherSlot4" : "Clear",
+		},
+		// Race 2 Silverstone International
+		{
+			"TrackId" : "Silverstone International",
+			// "VehicleClassId" : "Group A",
+			
+			// "MultiClassSlots" : 3,
+			// "MultiClassSlot1" : "GTE", //1740243009,
+			// "MultiClassSlot2" : "GT3", //-112887377,
+			// "MultiClassSlot3" : "GT4", //1553262379,
+
+			"Flags" : "ABS_ALLOWED",
+			"RemoveFlags" : "TCS_ALLOWED",
+
+			// If enabled the the Formation lap and Rolling start are player controlled.
+			"ManualRollingStarts" : 0,
+
+			// Rolling start options for Multi Class racing, set both to 1 to enable a Rolling start
+			"RaceRollingStart" : 0,
+			"RaceFormationLap" : 0,
+
+			// -------------- END MULTI CLASS CONFIG -------------- //
+
+			"PracticeLength" : 10,
+			"PracticeDateHour" : 12,
+
+			"PracticeWeatherSlots" : 4,
+			"PracticeWeatherSlot1" : "Clear",
+			"PracticeWeatherSlot2" : "LightCloud",
+			"PracticeWeatherSlot3" : "MediumCloud",
+			"PracticeWeatherSlot4" : "HeavyCloud",
+
+			"QualifyLength" : 10,
+			"QualifyDateHour" : 12,
+
+			"QualifyWeatherSlots" : 4,
+			"QualifyWeatherSlot1" : "LightRain",
+			"QualifyWeatherSlot2" : "Rain",
+			"QualifyWeatherSlot3" : "Overcast",
+			"QualifyWeatherSlot4" : "Clear",
+
+			"RaceLength" : 5,
+
+			"RaceDateYear" : 2018,
+			"RaceDateMonth" : 8,
+			"RaceDateDay" : 10,
+			"RaceDateHour" : 12,
+
+			"RaceWeatherSlots" : 4,
+			"RaceWeatherSlot1" : "HeavyCloud",
+			"RaceWeatherSlot2" : "MediumCloud",
+			"RaceWeatherSlot3" : "LightCloud",
+			"RaceWeatherSlot4" : "Clear",
+		},
+		// Race 3 Circuit de Spa-Francorchamps GP
+		{
+			"TrackId" : "Circuit de Spa-Francorchamps GP",
+			// "VehicleClassId" : "Group A",
+			
+			// "MultiClassSlots" : 3,
+			// "MultiClassSlot1" : "GTE", //1740243009,
+			// "MultiClassSlot2" : "GT3", //-112887377,
+			// "MultiClassSlot3" : "GT4", //1553262379,	
+
+			"Flags" : "ABS_ALLOWED",
+			"RemoveFlags" : "TCS_ALLOWED",
+
+			// If enabled the the Formation lap and Rolling start are player controlled.
+			"ManualRollingStarts" : 0,
+
+			// Rolling start options for Multi Class racing, set both to 1 to enable a Rolling start
+			"RaceRollingStart" : 0,
+			"RaceFormationLap" : 0,
+
+			// -------------- END MULTI CLASS CONFIG -------------- //
+
+			"PracticeLength" : 10,
+			"PracticeDateHour" : 12,
+
+			"PracticeWeatherSlots" : 4,
+			"PracticeWeatherSlot1" : "Clear",
+			"PracticeWeatherSlot2" : "LightCloud",
+			"PracticeWeatherSlot3" : "MediumCloud",
+			"PracticeWeatherSlot4" : "HeavyCloud",
+
+			"QualifyLength" : 10,
+			"QualifyDateHour" : 12,
+
+			"QualifyWeatherSlots" : 4,
+			"QualifyWeatherSlot1" : "LightRain",
+			"QualifyWeatherSlot2" : "Rain",
+			"QualifyWeatherSlot3" : "Overcast",
+			"QualifyWeatherSlot4" : "Clear",
+
+			"RaceLength" : 5,
+
+			"RaceDateYear" : 2018,
+			"RaceDateMonth" : 8,
+			"RaceDateDay" : 10,
+			"RaceDateHour" : 12,
+
+			"RaceWeatherSlots" : 4,
+			"RaceWeatherSlot1" : "HeavyCloud",
+			"RaceWeatherSlot2" : "MediumCloud",
+			"RaceWeatherSlot3" : "LightCloud",
+			"RaceWeatherSlot4" : "Clear",
+		},
+		// Race 4 Donington Park GP
+		{
+			"TrackId" : "Donington Park GP",
+			// "VehicleClassId" : "Group A",
+			
+			// "MultiClassSlots" : 3,
+			// "MultiClassSlot1" : "GTE", //1740243009,
+			// "MultiClassSlot2" : "GT3", //-112887377,
+			// "MultiClassSlot3" : "GT4", //1553262379,	
+
+			"Flags" : "ABS_ALLOWED",
+			"RemoveFlags" : "TCS_ALLOWED",
+
+			// If enabled the the Formation lap and Rolling start are player controlled.
+			"ManualRollingStarts" : 0,
+
+			// Rolling start options for Multi Class racing, set both to 1 to enable a Rolling start
+			"RaceRollingStart" : 0,
+			"RaceFormationLap" : 0,
+
+			// -------------- END MULTI CLASS CONFIG -------------- //
+
+			"PracticeLength" : 10,
+			"PracticeDateHour" : 12,
+
+			"PracticeWeatherSlots" : 4,
+			"PracticeWeatherSlot1" : "Clear",
+			"PracticeWeatherSlot2" : "LightCloud",
+			"PracticeWeatherSlot3" : "MediumCloud",
+			"PracticeWeatherSlot4" : "HeavyCloud",
+
+			"QualifyLength" : 10,
+			"QualifyDateHour" : 12,
+
+			"QualifyWeatherSlots" : 4,
+			"QualifyWeatherSlot1" : "LightRain",
+			"QualifyWeatherSlot2" : "Rain",
+			"QualifyWeatherSlot3" : "Overcast",
+			"QualifyWeatherSlot4" : "Clear",
+
+			"RaceLength" : 5,
+
+			"RaceDateYear" : 2018,
+			"RaceDateMonth" : 8,
+			"RaceDateDay" : 10,
+			"RaceDateHour" : 12,
+
+			"RaceWeatherSlots" : 4,
+			"RaceWeatherSlot1" : "HeavyCloud",
+			"RaceWeatherSlot2" : "MediumCloud",
+			"RaceWeatherSlot3" : "LightCloud",
+			"RaceWeatherSlot4" : "Clear",
+		},
+		// Race 5 Nurburgring GP
+		{
+			"TrackId" : -945967394,
+			// "VehicleClassId" : "Group A",
+			
+			// "MultiClassSlots" : 3,
+			// "MultiClassSlot1" : "GTE", //1740243009,
+			// "MultiClassSlot2" : "GT3", //-112887377,
+			// "MultiClassSlot3" : "GT4", //1553262379,	
+
+			"Flags" : "ABS_ALLOWED",
+			"RemoveFlags" : "TCS_ALLOWED",
+
+			// If enabled the the Formation lap and Rolling start are player controlled.
+			"ManualRollingStarts" : 0,
+
+			// Rolling start options for Multi Class racing, set both to 1 to enable a Rolling start
+			"RaceRollingStart" : 0,
+			"RaceFormationLap" : 0,
+
+			// -------------- END MULTI CLASS CONFIG -------------- //
+
+			"PracticeLength" : 10,
+			"PracticeDateHour" : 12,
+
+			"PracticeWeatherSlots" : 4,
+			"PracticeWeatherSlot1" : "Clear",
+			"PracticeWeatherSlot2" : "LightCloud",
+			"PracticeWeatherSlot3" : "MediumCloud",
+			"PracticeWeatherSlot4" : "HeavyCloud",
+
+			"QualifyLength" : 10,
+			"QualifyDateHour" : 12,
+
+			"QualifyWeatherSlots" : 4,
+			"QualifyWeatherSlot1" : "LightRain",
+			"QualifyWeatherSlot2" : "Rain",
+			"QualifyWeatherSlot3" : "Overcast",
+			"QualifyWeatherSlot4" : "Clear",
+
+			"RaceLength" : 5,
+
+			"RaceDateYear" : 2018,
+			"RaceDateMonth" : 8,
+			"RaceDateDay" : 10,
+			"RaceDateHour" : 12,
+
+			"RaceWeatherSlots" : 4,
+			"RaceWeatherSlot1" : "HeavyCloud",
+			"RaceWeatherSlot2" : "MediumCloud",
+			"RaceWeatherSlot3" : "LightCloud",
+			"RaceWeatherSlot4" : "Clear",
+		},
+		// Race 6 COTA
+		{
+			"TrackId" : "Circuit of the Americas GP",
+			// "VehicleClassId" : "Group A",
+			
+			// "MultiClassSlots" : 3,
+			// "MultiClassSlot1" : "GTE", //1740243009,
+			// "MultiClassSlot2" : "GT3", //-112887377,
+			// "MultiClassSlot3" : "GT4", //1553262379,	
+
+			"Flags" : "ABS_ALLOWED",
+			"RemoveFlags" : "TCS_ALLOWED",
+
+			// If enabled the the Formation lap and Rolling start are player controlled.
+			"ManualRollingStarts" : 0,
+
+			// Rolling start options for Multi Class racing, set both to 1 to enable a Rolling start
+			"RaceRollingStart" : 0,
+			"RaceFormationLap" : 0,
+
+			// -------------- END MULTI CLASS CONFIG -------------- //
+
+			"PracticeLength" : 10,
+			"PracticeDateHour" : 12,
+
+			"PracticeWeatherSlots" : 4,
+			"PracticeWeatherSlot1" : "Clear",
+			"PracticeWeatherSlot2" : "LightCloud",
+			"PracticeWeatherSlot3" : "MediumCloud",
+			"PracticeWeatherSlot4" : "HeavyCloud",
+
+			"QualifyLength" : 10,
+			"QualifyDateHour" : 12,
+
+			"QualifyWeatherSlots" : 4,
+			"QualifyWeatherSlot1" : "LightRain",
+			"QualifyWeatherSlot2" : "Rain",
+			"QualifyWeatherSlot3" : "Overcast",
+			"QualifyWeatherSlot4" : "Clear",
+
+			"RaceLength" : 5,
+
+			"RaceDateYear" : 2018,
+			"RaceDateMonth" : 8,
+			"RaceDateDay" : 10,
+			"RaceDateHour" : 12,
+
+			"RaceWeatherSlots" : 4,
+			"RaceWeatherSlot1" : "HeavyCloud",
+			"RaceWeatherSlot2" : "MediumCloud",
+			"RaceWeatherSlot3" : "LightCloud",
+			"RaceWeatherSlot4" : "Clear",
+		},
+		// Race 7 Fuji
+		{
+			"TrackId" : "Fuji GP",
+			// "VehicleClassId" : "Group A",
+			
+			// "MultiClassSlots" : 3,
+			// "MultiClassSlot1" : "GTE", //1740243009,
+			// "MultiClassSlot2" : "GT3", //-112887377,
+			// "MultiClassSlot3" : "GT4", //1553262379,	
+
+			"Flags" : "ABS_ALLOWED",
+			"RemoveFlags" : "TCS_ALLOWED",
+
+			// If enabled the the Formation lap and Rolling start are player controlled.
+			"ManualRollingStarts" : 0,
+
+			// Rolling start options for Multi Class racing, set both to 1 to enable a Rolling start
+			"RaceRollingStart" : 0,
+			"RaceFormationLap" : 0,
+
+			// -------------- END MULTI CLASS CONFIG -------------- //
+
+			"PracticeLength" : 10,
+			"PracticeDateHour" : 12,
+
+			"PracticeWeatherSlots" : 4,
+			"PracticeWeatherSlot1" : "Clear",
+			"PracticeWeatherSlot2" : "LightCloud",
+			"PracticeWeatherSlot3" : "MediumCloud",
+			"PracticeWeatherSlot4" : "HeavyCloud",
+
+			"QualifyLength" : 10,
+			"QualifyDateHour" : 12,
+
+			"QualifyWeatherSlots" : 4,
+			"QualifyWeatherSlot1" : "LightRain",
+			"QualifyWeatherSlot2" : "Rain",
+			"QualifyWeatherSlot3" : "Overcast",
+			"QualifyWeatherSlot4" : "Clear",
+
+			"RaceLength" : 5,
+
+			"RaceDateYear" : 2018,
+			"RaceDateMonth" : 8,
+			"RaceDateDay" : 10,
+			"RaceDateHour" : 12,
+
+			"RaceWeatherSlots" : 4,
+			"RaceWeatherSlot1" : "HeavyCloud",
+			"RaceWeatherSlot2" : "MediumCloud",
+			"RaceWeatherSlot3" : "LightCloud",
+			"RaceWeatherSlot4" : "Clear",
+		},
+		// Race 8 Zhuhai
+		{
+			"TrackId" : "Zhuhai International Circuit",
+			// "VehicleClassId" : "Group A",
+			
+			// "MultiClassSlots" : 3,
+			// "MultiClassSlot1" : "GTE", //1740243009,
+			// "MultiClassSlot2" : "GT3", //-112887377,
+			// "MultiClassSlot3" : "GT4", //1553262379,	
+
+			"Flags" : "ABS_ALLOWED",
+			"RemoveFlags" : "TCS_ALLOWED",
+
+			// If enabled the the Formation lap and Rolling start are player controlled.
+			"ManualRollingStarts" : 0,
+
+			// Rolling start options for Multi Class racing, set both to 1 to enable a Rolling start
+			"RaceRollingStart" : 0,
+			"RaceFormationLap" : 0,
+
+			// -------------- END MULTI CLASS CONFIG -------------- //
+
+			"PracticeLength" : 10,
+			"PracticeDateHour" : 12,
+
+			"PracticeWeatherSlots" : 4,
+			"PracticeWeatherSlot1" : "Clear",
+			"PracticeWeatherSlot2" : "LightCloud",
+			"PracticeWeatherSlot3" : "MediumCloud",
+			"PracticeWeatherSlot4" : "HeavyCloud",
+
+			"QualifyLength" : 10,
+			"QualifyDateHour" : 12,
+
+			"QualifyWeatherSlots" : 4,
+			"QualifyWeatherSlot1" : "LightRain",
+			"QualifyWeatherSlot2" : "Rain",
+			"QualifyWeatherSlot3" : "Overcast",
+			"QualifyWeatherSlot4" : "Clear",
+
+			"RaceLength" : 5,
+
+			"RaceDateYear" : 2018,
+			"RaceDateMonth" : 8,
+			"RaceDateDay" : 10,
+			"RaceDateHour" : 12,
+
+			"RaceWeatherSlots" : 4,
+			"RaceWeatherSlot1" : "HeavyCloud",
+			"RaceWeatherSlot2" : "MediumCloud",
+			"RaceWeatherSlot3" : "LightCloud",
+			"RaceWeatherSlot4" : "Clear",
+		},
+		// Race 9 Baharain -> Red Bull Ring GP
+		{
+			"TrackId" : "Red Bull Ring GP",
+			// "VehicleClassId" : "Group A",
+			
+			// "MultiClassSlots" : 3,
+			// "MultiClassSlot1" : "GTE", //1740243009,
+			// "MultiClassSlot2" : "GT3", //-112887377,
+			// "MultiClassSlot3" : "GT4", //1553262379,	
+
+			"Flags" : "ABS_ALLOWED",
+			"RemoveFlags" : "TCS_ALLOWED",
+
+			// If enabled the the Formation lap and Rolling start are player controlled.
+			"ManualRollingStarts" : 0,
+
+			// Rolling start options for Multi Class racing, set both to 1 to enable a Rolling start
+			"RaceRollingStart" : 0,
+			"RaceFormationLap" : 0,
+
+			// -------------- END MULTI CLASS CONFIG -------------- //
+
+			"PracticeLength" : 10,
+			"PracticeDateHour" : 12,
+
+			"PracticeWeatherSlots" : 4,
+			"PracticeWeatherSlot1" : "Clear",
+			"PracticeWeatherSlot2" : "LightCloud",
+			"PracticeWeatherSlot3" : "MediumCloud",
+			"PracticeWeatherSlot4" : "HeavyCloud",
+
+			"QualifyLength" : 10,
+			"QualifyDateHour" : 12,
+
+			"QualifyWeatherSlots" : 4,
+			"QualifyWeatherSlot1" : "LightRain",
+			"QualifyWeatherSlot2" : "Rain",
+			"QualifyWeatherSlot3" : "Overcast",
+			"QualifyWeatherSlot4" : "Clear",
+
+			"RaceLength" : 5,
+
+			"RaceDateYear" : 2018,
+			"RaceDateMonth" : 8,
+			"RaceDateDay" : 10,
+			"RaceDateHour" : 12,
+
+			"RaceWeatherSlots" : 4,
+			"RaceWeatherSlot1" : "HeavyCloud",
+			"RaceWeatherSlot2" : "MediumCloud",
+			"RaceWeatherSlot3" : "LightCloud",
+			"RaceWeatherSlot4" : "Clear",
+		}
+	]
+}

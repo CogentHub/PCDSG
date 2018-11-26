@@ -1,17 +1,4 @@
-#Region ;**** Directives created by AutoIt3Wrapper_GUI ****
-#AutoIt3Wrapper_Icon=..\ICONS\PC_Server_starten.ico
-#EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
-#cs ----------------------------------------------------------------------------
 
- AutoIt Version: 3.3.8.1
- Author:         myName
-
- Script Function:
-	Template AutoIt script.
-
-#ce ----------------------------------------------------------------------------
-
-; Script Start - Add your code below here
 #include <File.au3>
 #include <FTPEx.au3>
 #include <SQLite.au3>
@@ -90,6 +77,7 @@ Global $DB_path_Server = IniRead($config_ini, "Einstellungen", "DB_path_Server",
 Global $DB_path_FTP = IniRead($config_ini, "Einstellungen", "DB_path_FTP", "") & "Database.sqlite"
 
 Global $Check_Checkbox_PCDSG_Stats_path = IniRead($config_ini, "Einstellungen", "Checkbox_PCDSG_Stats_path", "")
+Global $PCDSG_DS_Mode = IniRead($config_ini,"PC_Server", "DS_Mode", "")
 
 Global $LOOP_NR, $LOOP_NR_old
 #endregion Declare Variables/Const
@@ -132,7 +120,12 @@ $GUI_Y_POS = 0
 If $Check_TaskBarPos = "A" Then $GUI_Y_POS = 40
 If $Check_TaskBarPos = "B" Then $GUI_Y_POS = 1
 If $Check_TaskBarPos = "" Then $GUI_Y_POS = 1
-$Return_1 = GUICreate("PCDSG " & $Aktuelle_Version, 4, 398, 1, $GUI_Y_POS, 200)
+
+Global $GUI_Name = "PCDSG " & $Aktuelle_Version & " local"
+If $PCDSG_DS_Mode = "local" Then $GUI_Name = "PCDSG " & $Aktuelle_Version & " - local"
+If $PCDSG_DS_Mode = "remote" Then $GUI_Name = "PCDSG " & $Aktuelle_Version & " - remote"
+
+$Return_1 = GUICreate($GUI_Name, 4, 398, 1, $GUI_Y_POS, 200)
 
 ; PROGRESS BAR
 $Anzeige_Fortschrittbalken = GUICtrlCreateProgress(0, 325, 130, 5)
@@ -294,12 +287,45 @@ If $Status_Checkbox_PCDSG_settings_6 = "true" Then
 	GUISetBkColor(Random(0, 32767, 1), $Return_1)
 EndIf
 
-;Server http settings
-Global $Lesen_Auswahl_httpApiInterface = IniRead($config_ini, "Server_Einstellungen", "httpApiInterface", "")
-Global $Lesen_Auswahl_httpApiPort = IniRead($config_ini, "Server_Einstellungen", "httpApiPort", "")
+;Server http settings lesen
+Global $Name_Password = ""
+If IniRead($config_ini, "Server_Einstellungen", "Group_Admin_1", "") <> "" Then
+	Local $Name_User = IniRead($config_ini, "Server_Einstellungen", "Group_Admin_1", "")
+	Local $Password_User = IniRead($config_ini, "Server_Einstellungen", "password_User_1", "")
+	$Name_Password = $Name_User & ":" & $Password_User & "@"
+EndIf
 
-If $Lesen_Auswahl_httpApiInterface = "" Then Global $Lesen_Auswahl_httpApiInterface = "127.0.0.1"
-If $Lesen_Auswahl_httpApiPort = "" Then Global $Lesen_Auswahl_httpApiPort = "9000"
+Local $DS_Mode_Temp = IniRead($config_ini, "PC_Server", "DS_Mode", "local")
+If $DS_Mode_Temp = "local" Then
+	If $Name_User <> "" And $Password_User <> "" Then
+		Global $Lesen_Auswahl_httpApiInterface = $Name_Password & IniRead($config_ini, "Server_Einstellungen", "httpApiInterface", "")
+		Global $Lesen_Auswahl_httpApiPort = IniRead($config_ini, "Server_Einstellungen", "httpApiPort", "")
+
+		If IniRead($config_ini, "Server_Einstellungen", "httpApiInterface", "") = "" Then Global $Lesen_Auswahl_httpApiInterface = $Name_Password & "localhost" ; "127.0.0.1"
+		If $Lesen_Auswahl_httpApiPort = "" Then Global $Lesen_Auswahl_httpApiPort = "9000"
+	Else
+		Global $Lesen_Auswahl_httpApiInterface = IniRead($config_ini, "Server_Einstellungen", "httpApiInterface", "")
+		Global $Lesen_Auswahl_httpApiPort = IniRead($config_ini, "Server_Einstellungen", "httpApiPort", "")
+
+		If IniRead($config_ini, "Server_Einstellungen", "httpApiInterface", "") = "" Then Global $Lesen_Auswahl_httpApiInterface = "localhost" ; "127.0.0.1"
+		If $Lesen_Auswahl_httpApiPort = "" Then Global $Lesen_Auswahl_httpApiPort = "9000"
+	EndIf
+EndIf
+If $DS_Mode_Temp = "remote" Then
+	If $Name_User <> "" And $Password_User <> "" Then
+		Global $Lesen_Auswahl_httpApiInterface = $Name_Password & IniRead($config_ini, "Server_Einstellungen", "DS_Domain_or_IP", "")
+		Global $Lesen_Auswahl_httpApiPort = IniRead($config_ini, "Server_Einstellungen", "httpApiPort", "")
+
+		;If IniRead($config_ini, "Server_Einstellungen", "DS_Domain_or_IP", "") = "" Then Global $Lesen_Auswahl_httpApiInterface = $Name_Password & "localhost" ; "127.0.0.1"
+		If $Lesen_Auswahl_httpApiPort = "" Then Global $Lesen_Auswahl_httpApiPort = "9000"
+	Else
+		Global $Lesen_Auswahl_httpApiInterface = IniRead($config_ini, "Server_Einstellungen", "DS_Domain_or_IP", "")
+		Global $Lesen_Auswahl_httpApiPort = IniRead($config_ini, "Server_Einstellungen", "httpApiPort", "")
+
+		;If IniRead($config_ini, "Server_Einstellungen", "DS_Domain_or_IP", "") = "" Then Global $Lesen_Auswahl_httpApiInterface = "localhost" ; "127.0.0.1"
+		If $Lesen_Auswahl_httpApiPort = "" Then Global $Lesen_Auswahl_httpApiPort = "9000"
+	EndIf
+EndIf
 #endregion End Set Globals
 
 #region Start _Restart Check
@@ -482,6 +508,7 @@ If $PC_Server_Status <> "PC_Server_beendet" Then
 		ShellExecuteWait($System_Dir & "UpdateServerData.exe")
 	Else
 		ShellExecuteWait($System_Dir & "UpdateServerData.au3")
+		;MsgBox(0, "UpdateServerData.au3", "UpdateServerData.au3")
 	EndIf
 
 	If Not FileExists($Participants_Data_INI_TEMP_Check_1) Then
@@ -815,12 +842,6 @@ Func _Auto_KICK_Rules()
 
 	If FileExists($Participants_Data_INI_CR_2) Then
 
-	$Lesen_Auswahl_httpApiInterface = IniRead($config_ini, "Server_Einstellungen", "httpApiInterface", "")
-	$Lesen_Auswahl_httpApiPort = IniRead($config_ini, "Server_Einstellungen", "httpApiPort", "")
-
-	If $Lesen_Auswahl_httpApiInterface = "" Then $Lesen_Auswahl_httpApiInterface = "127.0.0.1"
-	If $Lesen_Auswahl_httpApiPort = "" Then $Lesen_Auswahl_httpApiPort = "9000"
-
 	$KICK_USER_NR = 0
 
 	For $Schleife_AutiKickRules = 1 To 32
@@ -889,12 +910,6 @@ Func _Auto_KICK_Rules()
 EndFunc
 
 Func _Auto_KICK_List()
-	$Lesen_Auswahl_httpApiInterface = IniRead($config_ini, "Server_Einstellungen", "httpApiInterface", "")
-	$Lesen_Auswahl_httpApiPort = IniRead($config_ini, "Server_Einstellungen", "httpApiPort", "")
-
-	If $Lesen_Auswahl_httpApiInterface = "" Then $Lesen_Auswahl_httpApiInterface = "127.0.0.1"
-	If $Lesen_Auswahl_httpApiPort = "" Then $Lesen_Auswahl_httpApiPort = "9000"
-
 	$KICK_USER_NR = 0
 
 	For $Kick_Schleife_1 = 1 To _FileCountLines($System_Dir & "KICK_LIST.txt")
@@ -910,12 +925,6 @@ Func _Auto_KICK_List()
 EndFunc
 
 Func _Auto_KICK_PingLimit()
-	$Lesen_Auswahl_httpApiInterface = IniRead($config_ini, "Server_Einstellungen", "httpApiInterface", "")
-	$Lesen_Auswahl_httpApiPort = IniRead($config_ini, "Server_Einstellungen", "httpApiPort", "")
-
-	If $Lesen_Auswahl_httpApiInterface = "" Then $Lesen_Auswahl_httpApiInterface = "127.0.0.1"
-	If $Lesen_Auswahl_httpApiPort = "" Then $Lesen_Auswahl_httpApiPort = "9000"
-
 	$PingLimit = IniRead($config_ini, "Race_Control", "PingLimit", "")
 	$PingLimit = Int($PingLimit)
 
@@ -1667,12 +1676,6 @@ Func _KICK_USER_universal()
 	$refid = IniRead($Members_Data_INI, $KICK_User, "refid", "")
 	$steamid = IniRead($Members_Data_INI, $KICK_User, "steamid", "")
 
-	$Lesen_Auswahl_httpApiInterface = IniRead($config_ini, "Server_Einstellungen", "httpApiInterface", "")
-	$Lesen_Auswahl_httpApiPort = IniRead($config_ini, "Server_Einstellungen", "httpApiPort", "")
-
-	If $Lesen_Auswahl_httpApiInterface = "" Then $Lesen_Auswahl_httpApiInterface = "127.0.0.1"
-	If $Lesen_Auswahl_httpApiPort = "" Then $Lesen_Auswahl_httpApiPort = "9000"
-
 	$URL_KICK = "http://" & $Lesen_Auswahl_httpApiInterface & ":" & $Lesen_Auswahl_httpApiPort & "/api/session/kick?refid=" & $refid
 
 	$download = InetGet($URL_KICK, $KICK_BAN_TXT, 16, 0)
@@ -1687,12 +1690,6 @@ Func _BAN_USER_universal()
 	$index = IniRead($Members_Data_INI, $KICK_User, "index", "")
 	$refid = IniRead($Members_Data_INI, $KICK_User, "refid", "")
 	$steamid = IniRead($Members_Data_INI, $KICK_User, "steamid", "")
-
-	$Lesen_Auswahl_httpApiInterface = IniRead($config_ini, "Server_Einstellungen", "httpApiInterface", "")
-	$Lesen_Auswahl_httpApiPort = IniRead($config_ini, "Server_Einstellungen", "httpApiPort", "")
-
-	If $Lesen_Auswahl_httpApiInterface = "" Then $Lesen_Auswahl_httpApiInterface = "127.0.0.1"
-	If $Lesen_Auswahl_httpApiPort = "" Then $Lesen_Auswahl_httpApiPort = "9000"
 
 	$URL_KICK = "http://" & $Lesen_Auswahl_httpApiInterface & ":" & $Lesen_Auswahl_httpApiPort & "/api/session/kick?refid=" & $refid & "&ban=864000"
 
@@ -1913,7 +1910,7 @@ Func _Start_DS()
 EndFunc
 
 Func _Restart_DS()
-	ShellExecute($DS_folder & "DedicatedServerCmd.exe", "", "", "")
+	ShellExecute($DS_folder & "DedicatedServerCmd.exe", "", $Dedi_Installations_Verzeichnis, "")
 EndFunc
 
 
@@ -2019,22 +2016,26 @@ Func _Close()
 	FileCopy($PCDSG_Status_File, $PCDSG_Status_File_copy_2, $FC_OVERWRITE + $FC_CREATEPATH)
 	FileCopy($PCDSG_Status_picture_offline, $PCDSG_Status_picture_offline_copy_2, $FC_OVERWRITE + $FC_CREATEPATH)
 
-	$Abfrage = MsgBox(4, "Dedicated Server", "Do you also want to close the dedicated server?" & @CRLF, 5)
+	$PCDSG_DS_Mode = IniRead($config_ini,"PC_Server", "DS_Mode", "")
 
-	If $Abfrage = 6 Then
-		WinClose($Dedi_Installations_Verzeichnis & "DedicatedServerCmd.exe")
-		FileWriteLine($PCDSG_LOG_ini, "Close_DedicatedServerCmd.exe_" & $NowTime & "=" & "Close DedicatedServerCmd.exe" & " | " & "Date - Time: " & $NowDate & " - " & $NowTime)
-		_Delete_PitStops()
-		_Delete_CutTrack()
-		_Delete_Impact()
-		_Delete_LapByLap_INI()
-		_Delete_Results_INI()
+	If $PCDSG_DS_Mode = "local" Then
+		$Abfrage = MsgBox(4, "Dedicated Server", "Do you also want to close the dedicated server?" & @CRLF, 5)
+
+		If $Abfrage = 6 Then
+			WinClose($Dedi_Installations_Verzeichnis & "DedicatedServerCmd.exe")
+			FileWriteLine($PCDSG_LOG_ini, "Close_DedicatedServerCmd.exe_" & $NowTime & "=" & "Close DedicatedServerCmd.exe" & " | " & "Date - Time: " & $NowDate & " - " & $NowTime)
+			_Delete_PitStops()
+			_Delete_CutTrack()
+			_Delete_Impact()
+			_Delete_LapByLap_INI()
+			_Delete_Results_INI()
+		EndIf
+		FileWriteLine($PCDSG_LOG_ini, "Close_StartPCarsDS_" & $NowTime & "=" & "Close StartPCarsDS" & " | " & "Date - Time: " & $NowDate & " - " & $NowTime)
 	EndIf
 
-	_SQLite_Close($DB_path)
-	_SQLite_Shutdown()
+	;_SQLite_Close($DB_path)
+	;_SQLite_Shutdown()
 
-	FileWriteLine($PCDSG_LOG_ini, "Close_StartPCarsDS_" & $NowTime & "=" & "Close StartPCarsDS" & " | " & "Date - Time: " & $NowDate & " - " & $NowTime)
 	Exit
 EndFunc
 
