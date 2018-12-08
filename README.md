@@ -8,6 +8,7 @@ PCDSG is a Launcher for the Steam Project Cars Dedicated Server app with some ad
 Please read the PCDSG Guide for further explanations and information to the program.
 
 [PCDSG Starup Guide 1.5.pdf](https://github.com/CogentHub/PCDSG/blob/master/PCDSG_1.5.pdf)
+
 [HomeLoaderGuide.pdf](https://github.com/CogentHub/PCDSG/blob/master/PCDSG%20StartUp%20Guide.pdf)
 
 # Forum Thread:
