@@ -1,5 +1,3 @@
-
-
 #include <GuiConstantsEx.au3>
 #include <WindowsConstants.au3>
 #include <GuiComboBox.au3>

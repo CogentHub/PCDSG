@@ -1,3 +1,6 @@
+#Region ;**** Directives created by AutoIt3Wrapper_GUI ****
+#AutoIt3Wrapper_Icon=..\ICONS\DataUpdate.ico
+#EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
 
 
 #include <InetConstants.au3>
@@ -54,6 +57,8 @@ Global $EP_MAX_Points = IniRead($config_ini, "Race_Control", "Value_Checkbox_Exp
 Global $EP_Variant_Divider = IniRead($config_ini, "Race_Control", "Value_Checkbox_ExperiencePoints_2", "4")
 Global $EP_NR_Groups = IniRead($config_ini, "Race_Control", "Value_Checkbox_ExperiencePoints_3", "5")
 
+Global $Templates_Folder = $install_dir & "Templates\"
+Global $HTML_TEST = IniRead($config_ini, "TEMP", "HTML_TEST", "true")
 
 
 ;Server http settings lesen
@@ -2147,6 +2152,11 @@ Func _Server_Events_LOG()
 						;EndIf
 					EndIf
 
+					If $HTML_TEST = "true" Then
+						_Write_Results_File_HTM_only()
+						Sleep(200)
+					EndIf
+
 					FileWriteLine($PCDSG_LOG_ini, "Results_saved_" & $NowTime & "=" & "Date: " & $NowDate & " | " & "Time: " & $NowTime)
 				EndIf
 
@@ -4188,6 +4198,9 @@ EndFunc
 
 Func _Write_Results_File_HTM_only() ; No Excel
 
+	FileCopy($install_dir & "Templates\HTM\Template\Session.htm", $install_dir & "Templates\HTM\Session.htm", $FC_OVERWRITE + $FC_CREATEPATH)
+	DirCopy($install_dir & "Templates\HTM\Template\Session-Dateien\", $install_dir & "Templates\HTM\Session-Dateien\", $FC_OVERWRITE)
+
 	Global $Content_Sheet001_Array
 	Local $sTitle, $sArrayRange, $iFlags, $vUser_Separator, $sHeader, $iMax_ColWidth
 
@@ -4209,6 +4222,9 @@ Func _Write_Results_File_HTM_only() ; No Excel
 	$Results_NowDate_Folder = $Data_Dir & "Results\" & $NowDate
 	$Results_File_1_HTM = $Results_NowDate_Folder & "\" & $SessionStage_Check & "_" & $NowTime_saved_1 & ".htm" ; $NowTime
 	$Check_Results_File_1_HTM = $SessionStage_Check & "_" & $NowTime_saved_1 & ".htm" ; $NowTime
+
+	Local $HTM_File_Name = $SessionStage_Check & "_" & $NowTime_saved_1 & ".htm"
+	Local $HTM_Folder_Name = $SessionStage_Check & "_" & $NowTime_saved_1 & "-Dateien"
 
 	Global $SessionStage_Check = IniRead($config_ini, "TEMP", "Results_saved_SessionStage", "")
 	If $SessionStage_Check = "" Then $SessionStage_Check = IniRead($Server_Data_INI, "DATA", "SessionStage", "")
@@ -4236,13 +4252,24 @@ Func _Write_Results_File_HTM_only() ; No Excel
 	$Results_File_Files_HTM = $Data_Dir & "Results\" & $NowDate & "\" & $SessionStage_Check & "_" & $NowTime_saved_1 & "-Files\"
 	$Results_File_Fichiers_HTM = $Data_Dir & "Results\" & $NowDate & "\" & $SessionStage_Check & "_" & $NowTime_saved_1 & "-Fichiers\"
 
-	Local $Results_File_Template_Sheet001 = @ScriptDir & "\Session1-Dateien\sheet001.htm"
+	Local $Results_File_Template_Session_File = $Templates_Folder & "HTM\Session.htm"
+	Local $Results_File_Template_Sheet001 = $Templates_Folder & "HTM\Session-Dateien\sheet001.htm"
 
 	Global $CurrentSessionStage = IniRead($Server_Data_INI, "DATA", "SessionStage", "")
 	If $CurrentSessionStage = "" Then $CurrentSessionStage = IniRead($config_ini, "PC_Server", "SessionStage", "")
 
+
+	; Write_Filepath
+	Local $Write_Filepath = StringReplace(FileRead($Results_File_Template_Session_File), "___FolderName___", $HTM_Folder_Name)
+	Local $Delete_File_Content = FileOpen($Results_File_Template_Session_File, 2)
+	FileClose($Delete_File_Content)
+	FileWrite($Results_File_Template_Session_File, $Write_Filepath)
+
+	Local $Write_FileName = StringReplace(FileRead($Results_File_Template_Sheet001), "___FileName___", $HTM_File_Name)
+
 	;Kopfzeile schreiben
-	Local $Results_File_Content = StringReplace(FileRead($Results_File_Template_Sheet001), "Session_Name_Value", $ServerName)
+	;MsgBox(0, "0", $Results_File_Template_Sheet001)
+	Local $Results_File_Content = StringReplace($Write_FileName, "Session_Name_Value", $ServerName)
 	$Results_File_Content = StringReplace($Results_File_Content, "Session_Stage_Value", $SessionStage_Check)
 	$Results_File_Content = StringReplace($Results_File_Content, "Session_Duration_Value", $Session_Duration)
 	$Results_File_Content = StringReplace($Results_File_Content, "Track_Value", $Check_TrackName_Value)
@@ -4255,7 +4282,7 @@ Func _Write_Results_File_HTM_only() ; No Excel
 	$Results_File_Content = StringReplace($Results_File_Content, "Session_Stage_Value", $ServerName)
 
 	Local $Delete_File_Content = FileOpen($Results_File_Template_Sheet001, 2)
-	FileClose($Results_File_Template_Sheet001)
+	FileClose($Delete_File_Content)
 	FileWrite($Results_File_Template_Sheet001, $Results_File_Content)
 
 	For $Schleife_Results_1 = 1 To 32
@@ -4310,17 +4337,19 @@ Func _Write_Results_File_HTM_only() ; No Excel
 
 
 			;Werte
-			Local $Results_File_Content = StringReplace(FileRead($Results_File_Template_Sheet001), "RacePosition_" & $Schleife_Results_1, $Check_RacePosition_Value)
-			$Results_File_Content = StringReplace($Results_File_Content, "Name_" & $Schleife_Results_1, $Check_Name_Value)
-			$Results_File_Content = StringReplace($Results_File_Content, "TotalTime_" & $Schleife_Results_1, $Check_TotalTime_Value)
-			$Results_File_Content = StringReplace($Results_File_Content, "FastestLapTime_" & $Schleife_Results_1, $Check_FastestLapTime_Value)
-			$Results_File_Content = StringReplace($Results_File_Content, "State_" & $Schleife_Results_1, $Check_State_Value)
-			$Results_File_Content = StringReplace($Results_File_Content, "PitStops_" & $Schleife_Results_1, $Check_PitStops_Value)
-			$Results_File_Content = StringReplace($Results_File_Content, "PenaltyPoints_" & $Schleife_Results_1, $Check_PenaltyPoints_Value)
-			$Results_File_Content = StringReplace($Results_File_Content, "ExperiencePoints_" & $Schleife_Results_1, $Check_ExperiencePoints_Value)
-			$Results_File_Content = StringReplace($Results_File_Content, "DistanceTravelled_" & $Schleife_Results_1, $Check_DistanceTravelled_Value)
-			$Results_File_Content = StringReplace($Results_File_Content, "SafetyGroup_" & $Schleife_Results_1, $Check_SafetyGroup_Value)
-			$Results_File_Content = StringReplace($Results_File_Content, "Vehicle_" & $Schleife_Results_1, $Check_VehicleIName_Value)
+			If $Check_Name_Value_bea <> "" Then
+				Local $Results_File_Content = StringReplace(FileRead($Results_File_Template_Sheet001), "RacePosition_" & $Schleife_Results_1, $Check_RacePosition_Value, 1, 0)
+				$Results_File_Content = StringReplace($Results_File_Content, "Name_" & $Schleife_Results_1, $Check_Name_Value, 1, 0)
+				$Results_File_Content = StringReplace($Results_File_Content, "TotalTime_" & $Schleife_Results_1, $Check_TotalTime_Value, 1, 0)
+				$Results_File_Content = StringReplace($Results_File_Content, "FastestLapTime_" & $Schleife_Results_1, $Check_FastestLapTime_Value, 1, 0)
+				$Results_File_Content = StringReplace($Results_File_Content, "State_" & $Schleife_Results_1, $Check_State_Value, 1, 0)
+				$Results_File_Content = StringReplace($Results_File_Content, "PitStops_" & $Schleife_Results_1, $Check_PitStops_Value, 1, 0)
+				$Results_File_Content = StringReplace($Results_File_Content, "PenaltyPoints_" & $Schleife_Results_1, $Check_PenaltyPoints_Value, 1, 0)
+				$Results_File_Content = StringReplace($Results_File_Content, "ExperiencePoints_" & $Schleife_Results_1, $Check_ExperiencePoints_Value, 1, 0)
+				$Results_File_Content = StringReplace($Results_File_Content, "DistanceTravelled_" & $Schleife_Results_1, $Check_DistanceTravelled_Value, 1, 0)
+				$Results_File_Content = StringReplace($Results_File_Content, "SafetyGroup_" & $Schleife_Results_1, $Check_SafetyGroup_Value, 1, 0)
+				$Results_File_Content = StringReplace($Results_File_Content, "Vehicle_" & $Schleife_Results_1, $Check_VehicleIName_Value, 1, 0)
+			EndIf
 
 			Local $Delete_File_Content = FileOpen($Results_File_Template_Sheet001, 2)
 			FileClose($Results_File_Template_Sheet001)
@@ -4381,16 +4410,16 @@ Func _Write_Results_File_HTM_only() ; No Excel
 		$NowTime_saved = StringTrimRight( $NowTime, 3)
 		FileWriteLine($PCDSG_LOG_ini, "Results_saved_XLS_HTM" & "=" & $SessionStage_Check & "_" & $NowTime_saved_1 & ".htm") ; LOG
 
-		Local $TemplatePath_Results_File = $install_dir & "Templates\HTM\Session1.htm"
-		Local $TemplatePath_Results_Folder = $install_dir & "Templates\HTM\Session1-Dateien\"
+		Local $TemplatePath_Results_File = $install_dir & "Templates\HTM\Session.htm"
+		Local $TemplatePath_Results_Folder = $install_dir & "Templates\HTM\Session-Dateien\"
 
 		$date = @MON & "/" & @MDAY & "/" & @YEAR
 		Local $ResultsPath_1 = $install_dir & "data\Results\" & @YEAR & "-" & @MON & "-" & @MDAY & "\" & $SessionStage_Check & "_" & $NowTime_saved_1 & ".htm"
 		Local $ResultsPath_2 = $Results_File_1_HTM_copy_2 & @YEAR & "-" & @MON & "-" & @MDAY & "\" & $SessionStage_Check & "_" & $NowTime_saved_1 & ".htm"
 
-		MsgBox(0, "$ResultsPath_1", $ResultsPath_1)
-		MsgBox(0, "$ResultsPath_2", $ResultsPath_2)
-		MsgBox(0, "DirCopy", $TemplatePath_Results_Folder & @CRLF & @CRLF & $Results_File_1_HTM_copy_2 & $SessionStage_Check & "_" & $NowTime_saved_1)
+		;MsgBox(0, "$ResultsPath_1", $ResultsPath_1)
+		;MsgBox(0, "$ResultsPath_2", $ResultsPath_2)
+		;MsgBox(0, "DirCopy", $TemplatePath_Results_Folder & @CRLF & @CRLF & $Results_File_1_HTM_copy_2 & $SessionStage_Check & "_" & $NowTime_saved_1)
 
 		FileCopy($TemplatePath_Results_File, $ResultsPath_1, $FC_OVERWRITE + $FC_CREATEPATH)
 		FileCopy($TemplatePath_Results_File, $ResultsPath_2, $FC_OVERWRITE + $FC_CREATEPATH)

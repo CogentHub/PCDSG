@@ -1,4 +1,3 @@
-
 #Region Includes
 #include <GUIConstantsEx.au3>
 #include <WindowsConstants.au3>
@@ -2397,7 +2396,7 @@ Func _TAB_6_Button4()
 			$Value_Line_2 = ' '
 			$Value_Line_3 = '    // Public rules. The default is to accept everything.'
 			$Value_Line_4 = '    "public" : ['
-			$Value_Line_5 = '        { "type" : ' & '"' & $Read_Combo_Public_rules & '"'
+			$Value_Line_5 = '        { "type" : ' & '"' & $Read_Combo_Public_rules & '" }'
 			$Value_Line = $Value_Line_1 & @CRLF & $Value_Line_2 & @CRLF & $Value_Line_3 & @CRLF & $Value_Line_4 & @CRLF & $Value_Line_5
 			FileWriteLine($Dedi_config_cfg_test_new, $Value_Line)
 			$Schleife_2 = $Schleife_2 + 4
@@ -2433,6 +2432,7 @@ Func _TAB_6_Button4()
 			EndIf
 
 			$Value_Line = $Value_Line_1 & @CRLF & $Value_Line_2 & @CRLF & $Value_Line_3 & @CRLF & $Value_Line_4 & @CRLF & $Value_Line_5 & @CRLF & $Value_Line_6
+			If StringRight($Value_Line, '1') <> "}" Then $Value_Line = $Value_Line & " }" & @CRLF
 			FileWriteLine($Dedi_config_cfg_test_new, $Value_Line)
 			$Schleife_2 = $Schleife_2 + $Value_NR_Users
 		EndIf
@@ -3157,6 +3157,11 @@ Func _Werte_Server_CFG_Read()
 				If $Check_Line_plus_1_1 <> "" and $Check_Line_plus_1_1 <> "}" and $Check_Line_plus_1_1 <> "{type" and $Check_Line_plus_1_1 <> "Usergroups.Mapfromgroupnamestolistsofusersinsaidgroups." and $Check_Line_plus_1_2 <> "accept" Then Global $Value_httpApiUser_1_Name = $Check_Line_plus_1_1
 				If $Check_Line_plus_1_2 <> "" and $Check_Line_plus_1_1 <> "}" and $Check_Line_plus_1_1 <> "{type" and $Check_Line_plus_1_1 <> "Usergroups.Mapfromgroupnamestolistsofusersinsaidgroups." and $Check_Line_plus_1_2 <> "accept" Then Global $Value_httpApiUser_1_Password = $Check_Line_plus_1_2
 				If $Check_Line_plus_1_2 <> "" and $Check_Line_plus_1_1 <> "}" and $Check_Line_plus_1_1 <> "{type" and $Check_Line_plus_1_1 <> "Usergroups.Mapfromgroupnamestolistsofusersinsaidgroups." and $Check_Line_plus_1_2 <> "accept" Then Global $Check_Checkbox_User_1 = "true"
+				If $Value_httpApiUser_1_Name <> "" Then
+				IniWrite($config_ini, "Server_Einstellungen", "Name_User_1", $Value_httpApiUser_1_Name)
+					IniWrite($config_ini, "Server_Einstellungen", "password_User_1", $Value_httpApiUser_1_Password)
+					;MsgBox(0, "", $Value_httpApiUser_1_Name & @CRLF & @CRLF & $Value_httpApiUser_1_Password)
+				EndIf
 
 				$CFG_Line_plus_2 = $Server_CFG_Array[$Loop + 2]
 				$Check_Line_plus_2 = StringSplit($CFG_Line_plus_2, ':', $STR_ENTIRESPLIT)
@@ -3171,6 +3176,11 @@ Func _Werte_Server_CFG_Read()
 				If $Check_Line_plus_2_1 <> "" and $Check_Line_plus_2_1 <> "}" and $Check_Line_plus_2_1 <> "{type" and $Check_Line_plus_2_1 <> "Usergroups.Mapfromgroupnamestolistsofusersinsaidgroups." and $Check_Line_plus_2_2 <> "accept" Then Global $Value_httpApiUser_2_Name = $Check_Line_plus_2_1
 				If $Check_Line_plus_2_2 <> "" and $Check_Line_plus_2_1 <> "}" and $Check_Line_plus_2_1 <> "{type" and $Check_Line_plus_2_1 <> "Usergroups.Mapfromgroupnamestolistsofusersinsaidgroups." and $Check_Line_plus_2_2 <> "accept" Then Global $Value_httpApiUser_2_Password = $Check_Line_plus_2_2
 				If $Check_Line_plus_2_2 <> "" and $Check_Line_plus_2_1 <> "}" and $Check_Line_plus_2_1 <> "{type" and $Check_Line_plus_2_1 <> "Usergroups.Mapfromgroupnamestolistsofusersinsaidgroups." and $Check_Line_plus_2_2 <> "accept" Then Global $Check_Checkbox_User_2 = "true"
+				If $Value_httpApiUser_2_Name <> "" Then
+					IniWrite($config_ini, "Server_Einstellungen", "Name_User_2", $Value_httpApiUser_2_Name)
+					IniWrite($config_ini, "Server_Einstellungen", "password_User_2", $Value_httpApiUser_2_Password)
+					;MsgBox(0, "", $Value_httpApiUser_2_Name & @CRLF & @CRLF & $Value_httpApiUser_2_Password)
+				EndIf
 
 				$CFG_Line_plus_3 = $Server_CFG_Array[$Loop + 3]
 				$Check_Line_plus_3 = StringSplit($CFG_Line_plus_3, ':', $STR_ENTIRESPLIT)
@@ -3185,6 +3195,11 @@ Func _Werte_Server_CFG_Read()
 				If $Check_Line_plus_3_1 <> "" and $Check_Line_plus_3_1 <> "}" and $Check_Line_plus_3_1 <> "{type" and $Check_Line_plus_3_1 <> "Usergroups.Mapfromgroupnamestolistsofusersinsaidgroups." and $Check_Line_plus_3_2 <> "accept" Then Global $Value_httpApiUser_3_Name = $Check_Line_plus_3_1
 				If $Check_Line_plus_3_2 <> "" and $Check_Line_plus_3_1 <> "}" and $Check_Line_plus_3_1 <> "{type" and $Check_Line_plus_3_1 <> "Usergroups.Mapfromgroupnamestolistsofusersinsaidgroups." and $Check_Line_plus_3_2 <> "accept" Then Global $Value_httpApiUser_3_Password = $Check_Line_plus_3_2
 				If $Check_Line_plus_3_2 <> "" and $Check_Line_plus_3_1 <> "}" and $Check_Line_plus_3_1 <> "{type" and $Check_Line_plus_3_1 <> "Usergroups.Mapfromgroupnamestolistsofusersinsaidgroups." and $Check_Line_plus_3_2 <> "accept" Then Global $Check_Checkbox_User_3 = "true"
+				If $Value_httpApiUser_3_Name <> "" Then
+					IniWrite($config_ini, "Server_Einstellungen", "Name_User_3", $Value_httpApiUser_3_Name)
+					IniWrite($config_ini, "Server_Einstellungen", "password_User_3", $Value_httpApiUser_3_Password)
+					;MsgBox(0, "", $Value_httpApiUser_3_Name & @CRLF & @CRLF & $Value_httpApiUser_3_Password)
+				EndIf
 
 				$CFG_Line_plus_4 = $Server_CFG_Array[$Loop + 4]
 				$Check_Line_plus_4 = StringSplit($CFG_Line_plus_4, ':', $STR_ENTIRESPLIT)
@@ -3199,6 +3214,11 @@ Func _Werte_Server_CFG_Read()
 				If $Check_Line_plus_4_1 <> "" and $Check_Line_plus_4_1 <> "}" and $Check_Line_plus_4_1 <> "{type" and $Check_Line_plus_4_1 <> "Usergroups.Mapfromgroupnamestolistsofusersinsaidgroups." and $Check_Line_plus_4_2 <> "accept" Then Global $Value_httpApiUser_4_Name = $Check_Line_plus_4_1
 				If $Check_Line_plus_4_2 <> "" and $Check_Line_plus_4_1 <> "}" and $Check_Line_plus_4_1 <> "{type" and $Check_Line_plus_4_1 <> "Usergroups.Mapfromgroupnamestolistsofusersinsaidgroups." and $Check_Line_plus_4_2 <> "accept" Then Global $Value_httpApiUser_4_Password = $Check_Line_plus_4_2
 				If $Check_Line_plus_4_2 <> "" and $Check_Line_plus_4_1 <> "}" and $Check_Line_plus_4_1 <> "{type" and $Check_Line_plus_4_1 <> "Usergroups.Mapfromgroupnamestolistsofusersinsaidgroups." and $Check_Line_plus_4_2 <> "accept" Then Global $Check_Checkbox_User_4 = "true"
+				If $Value_httpApiUser_4_Name <> "" Then
+					IniWrite($config_ini, "Server_Einstellungen", "Name_User_4", $Value_httpApiUser_4_Name)
+					IniWrite($config_ini, "Server_Einstellungen", "password_User_4", $Value_httpApiUser_4_Password)
+					MsgBox(0, "", $Value_httpApiUser_4_Name & @CRLF & @CRLF & $Value_httpApiUser_4_Password)
+				EndIf
 
 				$CFG_Line_plus_5 = $Server_CFG_Array[$Loop + 5]
 				$Check_Line_plus_5 = StringSplit($CFG_Line_plus_5, ':', $STR_ENTIRESPLIT)
@@ -3213,6 +3233,11 @@ Func _Werte_Server_CFG_Read()
 				If $Check_Line_plus_5_1 <> "" and $Check_Line_plus_5_1 <> "}" and $Check_Line_plus_5_1 <> "{type" and $Check_Line_plus_5_1 <> "Usergroups.Mapfromgroupnamestolistsofusersinsaidgroups." and $Check_Line_plus_5_2 <> "accept" Then Global $Value_httpApiUser_5_Name = $Check_Line_plus_5_1
 				If $Check_Line_plus_5_2 <> "" and $Check_Line_plus_5_1 <> "}" and $Check_Line_plus_5_1 <> "{type" and $Check_Line_plus_5_1 <> "Usergroups.Mapfromgroupnamestolistsofusersinsaidgroups." and $Check_Line_plus_5_2 <> "accept" Then Global $Value_httpApiUser_5_Password = $Check_Line_plus_5_2
 				If $Check_Line_plus_5_2 <> "" and $Check_Line_plus_5_1 <> "}" and $Check_Line_plus_5_1 <> "{type" and $Check_Line_plus_5_1 <> "Usergroups.Mapfromgroupnamestolistsofusersinsaidgroups." and $Check_Line_plus_5_2 <> "accept" Then Global $Check_Checkbox_User_5 = "true"
+				If $Value_httpApiUser_5_Name <> "" Then
+					IniWrite($config_ini, "Server_Einstellungen", "Name_User_5", $Value_httpApiUser_5_Name)
+					IniWrite($config_ini, "Server_Einstellungen", "password_User_5", $Value_httpApiUser_5_Password)
+					;MsgBox(0, "", $Value_httpApiUser_5_Name & @CRLF & @CRLF & $Value_httpApiUser_5_Password)
+				EndIf
 			EndIf
 
 
@@ -3255,6 +3280,11 @@ Func _Werte_Server_CFG_Read()
 					$Value_httpApi_GroupUser_Name_3 = $Check_User_3
 					$Value_httpApi_GroupUser_Name_4 = $Check_User_4
 					$Value_httpApi_GroupUser_Name_5 = $Check_User_5
+					If $Value_httpApi_GroupUser_Name_1 <> "" Then IniWrite($config_ini, "Server_Einstellungen", "Group_Private_1", $Value_httpApi_GroupUser_Name_1)
+					If $Value_httpApi_GroupUser_Name_2 <> "" Then IniWrite($config_ini, "Server_Einstellungen", "Group_Private_2", $Value_httpApi_GroupUser_Name_2)
+					If $Value_httpApi_GroupUser_Name_3 <> "" Then IniWrite($config_ini, "Server_Einstellungen", "Group_Private_3", $Value_httpApi_GroupUser_Name_3)
+					If $Value_httpApi_GroupUser_Name_4 <> "" Then IniWrite($config_ini, "Server_Einstellungen", "Group_Private_4", $Value_httpApi_GroupUser_Name_4)
+					If $Value_httpApi_GroupUser_Name_5 <> "" Then IniWrite($config_ini, "Server_Einstellungen", "Group_Private_5", $Value_httpApi_GroupUser_Name_5)
 				EndIf
 
 				$CFG_Line_plus_2 = $Server_CFG_Array[$Loop + 2]
@@ -3309,6 +3339,11 @@ Func _Werte_Server_CFG_Read()
 					$Value_httpApi_GroupAdminUser_Name_3 = $Check_AdminUser_3
 					$Value_httpApi_GroupAdminUser_Name_4 = $Check_AdminUser_4
 					$Value_httpApi_GroupAdminUser_Name_5 = $Check_AdminUser_5
+					If $Value_httpApi_GroupAdminUser_Name_1 <> "" Then IniWrite($config_ini, "Server_Einstellungen", "Group_Admin_1", $Value_httpApi_GroupAdminUser_Name_1)
+					If $Value_httpApi_GroupAdminUser_Name_2 <> "" Then IniWrite($config_ini, "Server_Einstellungen", "Group_Admin_2", $Value_httpApi_GroupAdminUser_Name_2)
+					If $Value_httpApi_GroupAdminUser_Name_3 <> "" Then IniWrite($config_ini, "Server_Einstellungen", "Group_Admin_3", $Value_httpApi_GroupAdminUser_Name_3)
+					If $Value_httpApi_GroupAdminUser_Name_4 <> "" Then IniWrite($config_ini, "Server_Einstellungen", "Group_Admin_4", $Value_httpApi_GroupAdminUser_Name_4)
+					If $Value_httpApi_GroupAdminUser_Name_5 <> "" Then IniWrite($config_ini, "Server_Einstellungen", "Group_Admin_5", $Value_httpApi_GroupAdminUser_Name_5)
 				EndIf
 
 			EndIf
@@ -4497,6 +4532,12 @@ Func _Start_DS_EXE()
 	$PC_Server_Status = IniRead($config_ini, "PC_Server", "Status", "")
 	$PCDSG_DS_Mode = IniRead($config_ini,"PC_Server", "DS_Mode", "")
 
+	FileCopy($Dedi_config_cfg, $install_dir & "server.cfg", $FC_OVERWRITE + $FC_CREATEPATH)
+	DirCopy($Dedi_Installations_Verzeichnis & "lua", $install_dir & "lua\", $FC_OVERWRITE)
+	DirCopy($Dedi_Installations_Verzeichnis & "lua_config", $install_dir & "lua_config\", $FC_OVERWRITE)
+
+	Sleep(250)
+
 	If $PCDSG_DS_Mode = "local" Then
 		If WinExists("Project Cars - Dedicated Server GUI") Then
 			If NOT WinExists($Dedi_Installations_Verzeichnis & "DedicatedServerCmd.exe") Then
@@ -4629,6 +4670,7 @@ Func _Restart_PCDSG()
 	Else
 		ShellExecute($install_dir & "PCDSG.au3")
 	EndIf
+	Exit
 EndFunc
 
 Func _Beenden()
