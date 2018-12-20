@@ -77,6 +77,8 @@ Global $sms_rotate_config_json_File = $Dedi_Installations_Verzeichnis & "lua_con
 
 Global $RC_LUA_Settings_ini_File = $System_Dir & "RaceControl\RC_LUA_Settings.ini"
 
+Global $VehicleClassesList_TXT = $System_Dir & "VehicleClassesList.txt"
+
 
 ;Server http settings lesen
 Global $Name_User = ""
@@ -919,8 +921,6 @@ Func _Main()
 		_Disable_Server_MSG_Objects()
 	EndIf
 
-	;GUISetState(@SW_SHOW)
-
 	If $Value_Checkbox_RCS_Lua_Track_Rotation = "false" Then
 		_Disable_ServerControl_Controls()
 	Else
@@ -961,6 +961,8 @@ Func _Main()
 	Else
 		_Enable_ServerControl_Controls()
 	EndIf
+
+	_StartUp_Update_All_Objects()
 
 	GUISetState(@SW_SHOW)
 
@@ -1980,8 +1982,8 @@ EndFunc
 Func _Disable_RRP_Objects_Continuous_record()
 	GUICtrlSetState($Wert_Input_NR_Races, $GUI_DISABLE)
 	GUICtrlSetState($Wert_UpDpwn_NR_Races, $GUI_DISABLE)
-	GUICtrlSetState($Button_Edit_PointsTable, $GUI_DISABLE)
-	GUICtrlSetState($Button_New_PointsTable, $GUI_DISABLE)
+	;GUICtrlSetState($Button_Edit_PointsTable, $GUI_DISABLE)
+	;GUICtrlSetState($Button_New_PointsTable, $GUI_DISABLE)
 EndFunc
 
 Func _Set_RRP_Objects()
@@ -1992,10 +1994,6 @@ Func _Set_RRP_Objects()
 	GUICtrlSetData($Wert_Input_NR_Races, $Value_Input_NR_Races)
 	GUICtrlSetData($Wert_Current_NR_Races, $Value_Current_NR_Races)
 EndFunc
-
-
-
-
 
 Func _Enable_PP_EP_Objects()
 	GUICtrlSetState($Checkbox_Server_Penalties_1, $GUI_ENABLE)
@@ -2074,6 +2072,21 @@ Func _Disable_PP_EP_Objects()
 	GUICtrlSetState($idRadioSG6, $GUI_DISABLE)
 
 	GUICtrlSetState($Button_Set_SG_Groups, $GUI_DISABLE)
+EndFunc
+
+
+
+Func _StartUp_Update_All_Objects()
+	$Status_Checkbox_RRP_Continuous_record = IniRead($config_ini, "Race_Control", "Checkbox_RRP_Continuous_record", "")
+	If $Status_Checkbox_RRP_Continuous_record = "true" Then
+		_Disable_RRP_Objects_Continuous_record()
+		_Set_RRP_Objects()
+		IniWrite($config_ini, "Race_Control", "Checkbox_RRP_Continuous_record", "true")
+	Else
+		_Enable_RRP_Objects_Continuous_record()
+		_Set_RRP_Objects()
+		IniWrite($config_ini, "Race_Control", "Checkbox_RRP_Continuous_record", "false")
+	EndIf
 EndFunc
 
 
@@ -2208,7 +2221,6 @@ Func _Enable_Server_MSG_Objects()
 	GUICtrlSetState($Button_Set_AutomaticMessage_NR, $GUI_ENABLE)
 	GUICtrlSetState($Button_Delete_AutomaticMessage_NR, $GUI_ENABLE)
 EndFunc
-
 
 Func _Disable_Server_MSG_Objects()
 	GUICtrlSetState($Checkbox_SET_Lobby_1, $GUI_DISABLE)
@@ -4539,7 +4551,8 @@ Func _Button_Open_WebInterface_PCDSG()
 EndFunc
 
 Func _Button_Open_WebInterface_IBrowser()
-	ShellExecute("http://" & $Name_Password & $DS_Domain_or_IP & ":" & $Lesen_Auswahl_httpApiPort)
+	If $DS_Mode_Temp = "local" Then ShellExecute("http://" & $Lesen_Auswahl_httpApiInterface & ":" & $Lesen_Auswahl_httpApiPort)
+	If $DS_Mode_Temp = "remote" Then ShellExecute("http://" & $Name_Password & $DS_Domain_or_IP & ":" & $Lesen_Auswahl_httpApiPort)
 EndFunc
 
 
@@ -4596,7 +4609,7 @@ Func _Read_sms_rotate_config_json()
 				$Value_Temp = StringReplace($Value_Temp, '"', '')
 				$Value_Temp = StringReplace($Value_Temp, ',', '')
 				$StringInStr_Check_2 = StringInStr($Value_Temp, '//')
-				If $StringInStr_Check_2 = StringInStr($Value_Temp, '//') <> 0 Then $Value_Temp = StringLeft($Value_Temp, $StringInStr_Check_2 - 1)
+				If $StringInStr_Check_2 <> 0 Then $Value_Temp = StringLeft($Value_Temp, $StringInStr_Check_2 - 1)
 				If StringRight($Value_Temp, 1) = " " Then $Value_Temp = StringTrimRight($Value_Temp, 1)
 				;MsgBox(0, "RaceRollingStart", $Value_Temp)
 				IniWrite($RC_LUA_Settings_ini_File, "Settings", "VehicleClassId", $Value_Temp)
@@ -5319,9 +5332,9 @@ Func _Read_sms_rotate_config_json()
 				$Value_Temp = StringReplace($Wert_Line, '			// "MultiClassSlot1" : ', '')
 				$Value_Temp = StringReplace($Value_Temp, '"', '')
 				$Value_Temp = StringReplace($Value_Temp, ',', '')
-				$StringInStr_Check_2 = StringInStr($Wert_Line, '/')
-				If $StringInStr_Check_2 <> 0 Then $Value_Temp = StringLeft($Value_Temp, $StringInStr_Check_2)
-				If StringRight($Value_Temp, 1) = " " Then $Value_Temp = StringTrimRight($Value_Temp, 1)
+				;$StringInStr_Check_2 = StringInStr($Wert_Line, '/')
+				;If $StringInStr_Check_2 <> 0 Then $Value_Temp = StringLeft($Value_Temp, $StringInStr_Check_2)
+				;If StringRight($Value_Temp, 1) = " " Then $Value_Temp = StringTrimRight($Value_Temp, 1)
 				IniWrite($RC_LUA_Settings_ini_File, "Track_" & $Track_NR_Temp, "State_MultiClassSlot1", "false")
 				IniWrite($RC_LUA_Settings_ini_File, "Track_" & $Track_Name_ID, "State_MultiClassSlot1", "false")
 				IniWrite($RC_LUA_Settings_ini_File, "Track_" & $Track_NR_Temp, "MultiClassSlot1", $Value_Temp)
@@ -5349,9 +5362,9 @@ Func _Read_sms_rotate_config_json()
 				$Value_Temp = StringReplace($Wert_Line, '			// "MultiClassSlot2" : ', '')
 				$Value_Temp = StringReplace($Value_Temp, '"', '')
 				$Value_Temp = StringReplace($Value_Temp, ',', '')
-				$StringInStr_Check_2 = StringInStr($Wert_Line, '/')
-				If $StringInStr_Check_2 <> 0 Then $Value_Temp = StringLeft($Value_Temp, $StringInStr_Check_2)
-				If StringRight($Value_Temp, 1) = " " Then $Value_Temp = StringTrimRight($Value_Temp, 1)
+				;$StringInStr_Check_2 = StringInStr($Wert_Line, '/')
+				;If $StringInStr_Check_2 <> 0 Then $Value_Temp = StringLeft($Value_Temp, $StringInStr_Check_2)
+				;If StringRight($Value_Temp, 1) = " " Then $Value_Temp = StringTrimRight($Value_Temp, 1)
 				IniWrite($RC_LUA_Settings_ini_File, "Track_" & $Track_NR_Temp, "State_MultiClassSlot2", "false")
 				IniWrite($RC_LUA_Settings_ini_File, "Track_" & $Track_Name_ID, "State_MultiClassSlot2", "false")
 				IniWrite($RC_LUA_Settings_ini_File, "Track_" & $Track_NR_Temp, "MultiClassSlot2", $Value_Temp)
@@ -5379,9 +5392,9 @@ Func _Read_sms_rotate_config_json()
 				$Value_Temp = StringReplace($Wert_Line, '			// "MultiClassSlot3" : ', '')
 				$Value_Temp = StringReplace($Value_Temp, '"', '')
 				$Value_Temp = StringReplace($Value_Temp, ',', '')
-				$StringInStr_Check_2 = StringInStr($Wert_Line, '/')
-				If $StringInStr_Check_2 <> 0 Then $Value_Temp = StringLeft($Value_Temp, $StringInStr_Check_2)
-				If StringRight($Value_Temp, 1) = " " Then $Value_Temp = StringTrimRight($Value_Temp, 1)
+				;$StringInStr_Check_2 = StringInStr($Wert_Line, '/')
+				;If $StringInStr_Check_2 <> 0 Then $Value_Temp = StringLeft($Value_Temp, $StringInStr_Check_2)
+				;If StringRight($Value_Temp, 1) = " " Then $Value_Temp = StringTrimRight($Value_Temp, 1)
 				IniWrite($RC_LUA_Settings_ini_File, "Track_" & $Track_NR_Temp, "State_MultiClassSlot3", "false")
 				IniWrite($RC_LUA_Settings_ini_File, "Track_" & $Track_Name_ID, "State_MultiClassSlot3", "false")
 				IniWrite($RC_LUA_Settings_ini_File, "Track_" & $Track_NR_Temp, "MultiClassSlot3", $Value_Temp)
@@ -5735,13 +5748,43 @@ Func _Set_ServerControl_Objects()
 	Local $Value_MultiClassSlot2 = IniRead($RC_LUA_Settings_ini_File, "Track_" & $Value_NR_Tracks, "MultiClassSlot2", "")
 	Local $Value_MultiClassSlot3 = IniRead($RC_LUA_Settings_ini_File, "Track_" & $Value_NR_Tracks, "MultiClassSlot3", "")
 
-	;MsgBox(0, "", $Value_MultiClassSlot1 & @CRLF & $Value_MultiClassSlot2 & @CRLF & $Value_MultiClassSlot3)
 
 
-	Local $Value_Training_1 = IniRead($RC_LUA_Settings_ini_File, "Settings", "PracticeLength", "")
-	Local $Value_Qualify = IniRead($RC_LUA_Settings_ini_File, "Settings", "QualifyLength", "")
-	Local $Value_Race = IniRead($RC_LUA_Settings_ini_File, "Settings", "RaceLength", "")
-	Local $Value_RaceRollingStart = IniRead($RC_LUA_Settings_ini_File, "Settings", "RaceRollingStart", "")
+	;MsgBox($MB_SYSTEMMODAL, "", $Value_MultiClassSlot1 & @CRLF & @CRLF & StringTrimLeft($Value_VehicleClassId, 1))
+
+	If StringIsDigit(StringTrimLeft($Value_VehicleClassId, 1)) Then
+		IniWrite($config_ini, "TEMP", "Check_VehicleClassID", $Value_VehicleClassId)
+		;MsgBox($MB_SYSTEMMODAL, "", "The variable is a number")
+		_Get_Name_from_VehicleClassesList_TXT()
+		$Value_VehicleClassId = IniRead($config_ini, "TEMP", "Check_VehicleClassName", "")
+	EndIf
+
+	If StringIsDigit(StringTrimLeft($Value_MultiClassSlot1, 1)) Then
+		IniWrite($config_ini, "TEMP", "Check_VehicleClassID", $Value_MultiClassSlot1)
+		;MsgBox($MB_SYSTEMMODAL, "", "The variable is a number")
+		_Get_Name_from_VehicleClassesList_TXT()
+		$Value_MultiClassSlot1 = IniRead($config_ini, "TEMP", "Check_VehicleClassName", "")
+	EndIf
+
+	If StringIsDigit(StringTrimLeft($Value_MultiClassSlot2, 1)) Then
+		IniWrite($config_ini, "TEMP", "Check_VehicleClassID", $Value_MultiClassSlot2)
+		;MsgBox($MB_SYSTEMMODAL, "", "The variable is a number")
+		_Get_Name_from_VehicleClassesList_TXT()
+		$Value_MultiClassSlot2 = IniRead($config_ini, "TEMP", "Check_VehicleClassName", "")
+	EndIf
+
+	If StringIsDigit(StringTrimLeft($Value_MultiClassSlot3, 1)) Then
+		IniWrite($config_ini, "TEMP", "Check_VehicleClassID", $Value_MultiClassSlot3)
+		;MsgBox($MB_SYSTEMMODAL, "", "The variable is a number")
+		_Get_Name_from_VehicleClassesList_TXT()
+		$Value_MultiClassSlot3 = IniRead($config_ini, "TEMP", "Check_VehicleClassName", "")
+	EndIf
+
+
+	Local $Value_Training_1 = IniRead($RC_LUA_Settings_ini_File, "Track_" & $Value_NR_Tracks, "PracticeLength", "")
+	Local $Value_Qualify = IniRead($RC_LUA_Settings_ini_File, "Track_" & $Value_NR_Tracks, "QualifyLength", "")
+	Local $Value_Race = IniRead($RC_LUA_Settings_ini_File, "Track_" & $Value_NR_Tracks, "RaceLength", "")
+	Local $Value_RaceRollingStart = IniRead($RC_LUA_Settings_ini_File, "Track_" & $Value_NR_Tracks, "RaceRollingStart", "")
 	If $Value_RaceRollingStart <> "0" Then
 		$Value_RaceRollingStart = "true"
 	Else
@@ -6060,7 +6103,7 @@ EndFunc
 
 
 Func _DropDown_VehicleClassId()
-	$Anzahl_Zeilen_TrackList = _FileCountLines(@ScriptDir & "\VehicleClassesList.txt")
+	$Anzahl_Zeilen_TrackList = _FileCountLines($VehicleClassesList_TXT)
 
 	$Wert_Track = ""
 	$Werte_Tack = ""
@@ -6071,7 +6114,7 @@ Func _DropDown_VehicleClassId()
 	For $Schleife_TRACK_DropDown = 5 To $Anzahl_Zeilen_TrackList Step 4
 		$Durchgang_NR = $Schleife_TRACK_DropDown - 4
 
-		$Wert_Track = FileReadLine(@ScriptDir & "\VehicleClassesList.txt", $Schleife_TRACK_DropDown + 1)
+		$Wert_Track = FileReadLine($VehicleClassesList_TXT, $Schleife_TRACK_DropDown + 1)
 		$Wert_Track = StringReplace($Wert_Track, '      "name" : "', '')
 		$Wert_Track = StringReplace($Wert_Track, '"', '')
 		$Wert_Track = StringReplace($Wert_Track, ',', '')
@@ -6238,6 +6281,34 @@ Func _Wert_UpDpwn_Track_Nr()
 	EndIf
 
 
+	If StringIsDigit(StringTrimLeft($Value_VehicleClassId, 1)) Then
+		IniWrite($config_ini, "TEMP", "Check_VehicleClassID", $Value_VehicleClassId)
+		;MsgBox($MB_SYSTEMMODAL, "", "The variable is a number")
+		_Get_Name_from_VehicleClassesList_TXT()
+		$Value_VehicleClassId = IniRead($config_ini, "TEMP", "Check_VehicleClassName", "")
+	EndIf
+
+	If StringIsDigit(StringTrimLeft($Value_MultiClassSlot1, 1)) Then
+		IniWrite($config_ini, "TEMP", "Check_VehicleClassID", $Value_MultiClassSlot1)
+		;MsgBox($MB_SYSTEMMODAL, "", "The variable is a number")
+		_Get_Name_from_VehicleClassesList_TXT()
+		$Value_MultiClassSlot1 = IniRead($config_ini, "TEMP", "Check_VehicleClassName", "")
+	EndIf
+
+	If StringIsDigit(StringTrimLeft($Value_MultiClassSlot2, 1)) Then
+		IniWrite($config_ini, "TEMP", "Check_VehicleClassID", $Value_MultiClassSlot2)
+		;MsgBox($MB_SYSTEMMODAL, "", "The variable is a number")
+		_Get_Name_from_VehicleClassesList_TXT()
+		$Value_MultiClassSlot2 = IniRead($config_ini, "TEMP", "Check_VehicleClassName", "")
+	EndIf
+
+	If StringIsDigit(StringTrimLeft($Value_MultiClassSlot3, 1)) Then
+		IniWrite($config_ini, "TEMP", "Check_VehicleClassID", $Value_MultiClassSlot3)
+		;MsgBox($MB_SYSTEMMODAL, "", "The variable is a number")
+		_Get_Name_from_VehicleClassesList_TXT()
+		$Value_MultiClassSlot3 = IniRead($config_ini, "TEMP", "Check_VehicleClassName", "")
+	EndIf
+
 
 	GUICtrlSetData($Wert_Input_NR_Of_Tracks_TrackRotation, $Value_NR_Of_Tracks_TrackRotation)
 	GUICtrlSetData($Combo_VehicleClassId, $Value_VehicleClassId)
@@ -6393,6 +6464,7 @@ Func _Enable_ServerControl_Controls()
 	GUICtrlSetState($Checkbox_Flag_FILL_SESSION_WITH_AI, $GUI_ENABLE)
 	GUICtrlSetState($Button_ServerControl_MoreSettings, $GUI_ENABLE)
 	GUICtrlSetState($Checkbox_RCS_Activate_MultiClass, $GUI_ENABLE)
+	GUICtrlSetState($Wert_Opponent_Difficulty, $GUI_ENABLE)
 EndFunc
 
 Func _Disable_ServerControl_Controls()
@@ -6875,6 +6947,108 @@ Func _Button_ServerControl_Save_2()
 			Local $Value_MultiClassSlot2 = IniRead($RC_LUA_Settings_ini_File, "Track_" & $Schleife_3, "MultiClassSlot2", "")
 			Local $Value_MultiClassSlot3 = IniRead($RC_LUA_Settings_ini_File, "Track_" & $Schleife_3, "MultiClassSlot3", "")
 
+
+			Local $Known_Class_1 = "GT1"
+			Local $Known_Class_2 = "GT3"
+			Local $Known_Class_3 = "GT4"
+			Local $Known_Class_4 = "GTE"
+			Local $Known_Class_5 = "LMP1"
+			Local $Known_Class_6 = "LMP2"
+			Local $Known_Class_7 = "LMP3"
+			Local $Known_Class_8 = "LMP900"
+			Local $Known_Class_9 = "Touring Car"
+			Local $Known_Class_10 = "TC1"
+			Local $Known_Class_11 = "Group A"
+
+			Local $Known_Class_Exists_1 = ""
+			Local $Known_Class_Exists_2 = ""
+			Local $Known_Class_Exists_3 = ""
+			Local $Known_Class_Exists_4 = ""
+
+			If $Value_VehicleClassId = $Known_Class_1 Then $Known_Class_Exists_1 = "true"
+			If $Value_VehicleClassId = $Known_Class_2 Then $Known_Class_Exists_1 = "true"
+			If $Value_VehicleClassId = $Known_Class_3 Then $Known_Class_Exists_1 = "true"
+			If $Value_VehicleClassId = $Known_Class_4 Then $Known_Class_Exists_1 = "true"
+			If $Value_VehicleClassId = $Known_Class_5 Then $Known_Class_Exists_1 = "true"
+			If $Value_VehicleClassId = $Known_Class_6 Then $Known_Class_Exists_1 = "true"
+			If $Value_VehicleClassId = $Known_Class_7 Then $Known_Class_Exists_1 = "true"
+			If $Value_VehicleClassId = $Known_Class_8 Then $Known_Class_Exists_1 = "true"
+			If $Value_VehicleClassId = $Known_Class_9 Then $Known_Class_Exists_1 = "true"
+			If $Value_VehicleClassId = $Known_Class_10 Then $Known_Class_Exists_1 = "true"
+			If $Value_VehicleClassId = $Known_Class_11 Then $Known_Class_Exists_1 = "true"
+
+			If $Value_MultiClassSlot1 = $Known_Class_1 Then $Known_Class_Exists_2 = "true"
+			If $Value_MultiClassSlot1 = $Known_Class_2 Then $Known_Class_Exists_2 = "true"
+			If $Value_MultiClassSlot1 = $Known_Class_3 Then $Known_Class_Exists_2 = "true"
+			If $Value_MultiClassSlot1 = $Known_Class_4 Then $Known_Class_Exists_2 = "true"
+			If $Value_MultiClassSlot1 = $Known_Class_5 Then $Known_Class_Exists_2 = "true"
+			If $Value_MultiClassSlot1 = $Known_Class_6 Then $Known_Class_Exists_2 = "true"
+			If $Value_MultiClassSlot1 = $Known_Class_7 Then $Known_Class_Exists_2 = "true"
+			If $Value_MultiClassSlot1 = $Known_Class_8 Then $Known_Class_Exists_2 = "true"
+			If $Value_MultiClassSlot1 = $Known_Class_9 Then $Known_Class_Exists_2 = "true"
+			If $Value_MultiClassSlot1 = $Known_Class_10 Then $Known_Class_Exists_2 = "true"
+			If $Value_MultiClassSlot1 = $Known_Class_11 Then $Known_Class_Exists_2 = "true"
+
+
+			If $Value_MultiClassSlot2 = $Known_Class_1 Then $Known_Class_Exists_3 = "true"
+			If $Value_MultiClassSlot2 = $Known_Class_2 Then $Known_Class_Exists_3 = "true"
+			If $Value_MultiClassSlot2 = $Known_Class_3 Then $Known_Class_Exists_3 = "true"
+			If $Value_MultiClassSlot2 = $Known_Class_4 Then $Known_Class_Exists_3 = "true"
+			If $Value_MultiClassSlot2 = $Known_Class_5 Then $Known_Class_Exists_3 = "true"
+			If $Value_MultiClassSlot2 = $Known_Class_6 Then $Known_Class_Exists_3 = "true"
+			If $Value_MultiClassSlot2 = $Known_Class_7 Then $Known_Class_Exists_3 = "true"
+			If $Value_MultiClassSlot2 = $Known_Class_8 Then $Known_Class_Exists_3 = "true"
+			If $Value_MultiClassSlot2 = $Known_Class_9 Then $Known_Class_Exists_3 = "true"
+			If $Value_MultiClassSlot2 = $Known_Class_10 Then $Known_Class_Exists_3 = "true"
+			If $Value_MultiClassSlot2 = $Known_Class_11 Then $Known_Class_Exists_3 = "true"
+
+			If $Value_MultiClassSlot3 = $Known_Class_1 Then $Known_Class_Exists_4 = "true"
+			If $Value_MultiClassSlot3 = $Known_Class_2 Then $Known_Class_Exists_4 = "true"
+			If $Value_MultiClassSlot3 = $Known_Class_3 Then $Known_Class_Exists_4 = "true"
+			If $Value_MultiClassSlot3 = $Known_Class_4 Then $Known_Class_Exists_4 = "true"
+			If $Value_MultiClassSlot3 = $Known_Class_5 Then $Known_Class_Exists_4 = "true"
+			If $Value_MultiClassSlot3 = $Known_Class_6 Then $Known_Class_Exists_4 = "true"
+			If $Value_MultiClassSlot3 = $Known_Class_7 Then $Known_Class_Exists_4 = "true"
+			If $Value_MultiClassSlot3 = $Known_Class_8 Then $Known_Class_Exists_4 = "true"
+			If $Value_MultiClassSlot3 = $Known_Class_9 Then $Known_Class_Exists_4 = "true"
+			If $Value_MultiClassSlot3 = $Known_Class_10 Then $Known_Class_Exists_4 = "true"
+			If $Value_MultiClassSlot3 = $Known_Class_11 Then $Known_Class_Exists_4 = "true"
+
+
+			;MsgBox(0, "0", $Value_VehicleClassId & @CRLF & @CRLF & $Known_Class_1 & @CRLF & $Known_Class_2 & @CRLF & $Known_Class_3 & @CRLF & $Known_Class_4)
+
+			If Not StringIsDigit(StringTrimLeft($Value_VehicleClassId, 1)) Then
+				If $Known_Class_Exists_1 <> "true" Then
+					IniWrite($config_ini, "TEMP", "Check_VehicleClassName", $Value_VehicleClassId)
+					_Get_ID_from_VehicleClassesList_TXT()
+					$Value_VehicleClassId = IniRead($config_ini, "TEMP", "Check_VehicleClassID", "")
+				EndIf
+			EndIf
+
+			If Not StringIsDigit(StringTrimLeft($Value_MultiClassSlot1, 1)) Then
+				If $Known_Class_Exists_2 <> "true" Then
+					IniWrite($config_ini, "TEMP", "Check_VehicleClassName", $Value_MultiClassSlot1)
+					_Get_ID_from_VehicleClassesList_TXT()
+					$Value_MultiClassSlot1 = IniRead($config_ini, "TEMP", "Check_VehicleClassID", "")
+				EndIf
+			EndIf
+
+			If Not StringIsDigit(StringTrimLeft($Value_MultiClassSlot2, 1)) Then
+				If $Known_Class_Exists_3 <> "true" Then
+					IniWrite($config_ini, "TEMP", "Check_VehicleClassName", $Value_MultiClassSlot2)
+					_Get_ID_from_VehicleClassesList_TXT()
+					$Value_MultiClassSlot2 = IniRead($config_ini, "TEMP", "Check_VehicleClassID", "")
+				EndIf
+			EndIf
+
+			If Not StringIsDigit(StringTrimLeft($Value_MultiClassSlot3, 1)) Then
+				If $Known_Class_Exists_4 <> "true" Then
+					IniWrite($config_ini, "TEMP", "Check_VehicleClassName", $Value_MultiClassSlot3)
+					_Get_ID_from_VehicleClassesList_TXT()
+					$Value_MultiClassSlot3 = IniRead($config_ini, "TEMP", "Check_VehicleClassID", "")
+				EndIf
+			EndIf
+
 			Local $Value_Flags = IniRead($RC_LUA_Settings_ini_File, "Track_" & $Schleife_3, "Flags", "")
 			Local $Value_RemoveFlags = IniRead($RC_LUA_Settings_ini_File, "Track_" & $Schleife_3, "RemoveFlags", "")
 			Local $Value_ManualRollingStarts = IniRead($RC_LUA_Settings_ini_File, "Track_" & $Schleife_3, "ManualRollingStarts", "")
@@ -6919,17 +7093,25 @@ Func _Button_ServerControl_Save_2()
 			Local $TrackId_line = '			"TrackId" : ' & $Rotation_TrackId
 
 			If $Activate_MultiClass = "true" Then
-				Local $VehicleClassId_line = '			"VehicleClassId" : "' & $Value_VehicleClassId & '",'
+				If $Known_Class_Exists_1 = "true" Then Local $VehicleClassId_line = '			"VehicleClassId" : "' & $Value_VehicleClassId & '",'
+				If $Known_Class_Exists_1 <> "true" Then Local $VehicleClassId_line = '			"VehicleClassId" : ' & $Value_VehicleClassId & ','
 				Local $MultiClassSlots_line = '			"MultiClassSlots" : ' & $Value_MultiClassSlots & ','
-				Local $MultiClassSlot1_line = '			"MultiClassSlot1" : "' & $Value_MultiClassSlot1 & '",'
-				Local $MultiClassSlot2_line = '			"MultiClassSlot2" : "' & $Value_MultiClassSlot2 & '",'
-				Local $MultiClassSlot3_line = '			"MultiClassSlot3" : "' & $Value_MultiClassSlot3 & '",'
+				If $Known_Class_Exists_2 = "true" Then Local $MultiClassSlot1_line = '			"MultiClassSlot1" : "' & $Value_MultiClassSlot1 & '",'
+				If $Known_Class_Exists_2 <> "true" Then Local $MultiClassSlot1_line = '			"MultiClassSlot1" : ' & $Value_MultiClassSlot1 & ','
+				If $Known_Class_Exists_3 = "true" Then Local $MultiClassSlot2_line = '			"MultiClassSlot2" : "' & $Value_MultiClassSlot2 & '",'
+				If $Known_Class_Exists_3 <> "true" Then Local $MultiClassSlot2_line = '			"MultiClassSlot2" : ' & $Value_MultiClassSlot2 & ','
+				If $Known_Class_Exists_4 = "true" Then Local $MultiClassSlot3_line = '			"MultiClassSlot3" : "' & $Value_MultiClassSlot3 & '",'
+				If $Known_Class_Exists_4 <> "true" Then Local $MultiClassSlot3_line = '			"MultiClassSlot3" : ' & $Value_MultiClassSlot3 & ','
 			Else
-				Local $VehicleClassId_line = '			// "VehicleClassId" : "' & $Value_VehicleClassId & '",'
+				If $Known_Class_Exists_1 = "true" Then Local $VehicleClassId_line = '			// "VehicleClassId" : "' & $Value_VehicleClassId & '",'
+				If $Known_Class_Exists_1 <> "true" Then Local $VehicleClassId_line = '			// "VehicleClassId" : ' & $Value_VehicleClassId & ','
 				Local $MultiClassSlots_line = '			// "MultiClassSlots" : ' & $Value_MultiClassSlots & ','
-				Local $MultiClassSlot1_line = '			// "MultiClassSlot1" : "' & $Value_MultiClassSlot1 & '",'
-				Local $MultiClassSlot2_line = '			// "MultiClassSlot2" : "' & $Value_MultiClassSlot2 & '",'
-				Local $MultiClassSlot3_line = '			// "MultiClassSlot3" : "' & $Value_MultiClassSlot3 & '",'
+				If $Known_Class_Exists_2 = "true" Then Local $MultiClassSlot1_line = '			// "MultiClassSlot1" : "' & $Value_MultiClassSlot1 & '",'
+				If $Known_Class_Exists_2 <> "true" Then Local $MultiClassSlot1_line = '			// "MultiClassSlot1" : ' & $Value_MultiClassSlot1 & ','
+				If $Known_Class_Exists_3 = "true" Then Local $MultiClassSlot2_line = '			// "MultiClassSlot2" : "' & $Value_MultiClassSlot2 & '",'
+				If $Known_Class_Exists_3 <> "true" Then Local $MultiClassSlot2_line = '			// "MultiClassSlot2" : ' & $Value_MultiClassSlot2 & ','
+				If $Known_Class_Exists_4 = "true" Then Local $MultiClassSlot3_line = '			// "MultiClassSlot3" : "' & $Value_MultiClassSlot3 & '",'
+				If $Known_Class_Exists_4 <> "true" Then Local $MultiClassSlot3_line = '			// "MultiClassSlot3" : ' & $Value_MultiClassSlot3 & ','
 			EndIf
 
 			Local $Flags_line = '			"Flags" : "' & $Value_Flags & '",'
@@ -7008,6 +7190,11 @@ Func _Button_ServerControl_Save_2()
 			If $Rotation_TrackId <> "" Then
 				FileWriteLine($sms_rotate_config_json_File, $TrackRotation_Content)
 			EndIf
+
+			Local $Known_Class_Exists_1 = ""
+			Local $Known_Class_Exists_2 = ""
+			Local $Known_Class_Exists_3 = ""
+			Local $Known_Class_Exists_4 = ""
 		Next
 		FileWriteLine($sms_rotate_config_json_File, '	]' & @CRLF)
 		FileWriteLine($sms_rotate_config_json_File, '}')
@@ -8405,6 +8592,40 @@ Func _Combo_VehicleClassId()
 	Local $Value_Temp_Name = GUICtrlRead($Combo_TRACK_2)
 	Local $Value_Temp = GUICtrlRead($Combo_VehicleClassId)
 
+	Local $Known_Class_1 = "GT1"
+	Local $Known_Class_2 = "GT3"
+	Local $Known_Class_3 = "GT4"
+	Local $Known_Class_4 = "GTE"
+	Local $Known_Class_5 = "LMP1"
+	Local $Known_Class_6 = "LMP2"
+	Local $Known_Class_7 = "LMP3"
+	Local $Known_Class_8 = "LMP900"
+	Local $Known_Class_9 = "Touring Car"
+	Local $Known_Class_10 = "TC1"
+	Local $Known_Class_11 = "Group A"
+
+	Local $Known_Class_Exists_1 = ""
+
+	If $Value_Temp = $Known_Class_1 Then $Known_Class_Exists_1 = "true"
+	If $Value_Temp = $Known_Class_2 Then $Known_Class_Exists_1 = "true"
+	If $Value_Temp = $Known_Class_3 Then $Known_Class_Exists_1 = "true"
+	If $Value_Temp = $Known_Class_4 Then $Known_Class_Exists_1 = "true"
+	If $Value_Temp = $Known_Class_5 Then $Known_Class_Exists_1 = "true"
+	If $Value_Temp = $Known_Class_6 Then $Known_Class_Exists_1 = "true"
+	If $Value_Temp = $Known_Class_7 Then $Known_Class_Exists_1 = "true"
+	If $Value_Temp = $Known_Class_8 Then $Known_Class_Exists_1 = "true"
+	If $Value_Temp = $Known_Class_9 Then $Known_Class_Exists_1 = "true"
+	If $Value_Temp = $Known_Class_10 Then $Known_Class_Exists_1 = "true"
+	If $Value_Temp = $Known_Class_11 Then $Known_Class_Exists_1 = "true"
+
+	If $Known_Class_Exists_1 <> "true" Then
+		IniWrite($config_ini, "TEMP", "Check_VehicleClassName", $Value_Temp)
+		_Get_ID_from_VehicleClassesList_TXT()
+		$Value_Temp = IniRead($config_ini, "TEMP", "Check_VehicleClassID", "")
+	EndIf
+
+	;MsgBox(0, "$Value_Temp", $Value_Temp)
+
 	If $Value_Temp_Nr = 0 Then
 		IniWrite($RC_LUA_Settings_ini_File, "Settings", "VehicleClassId", $Value_Temp)
 	Else
@@ -8432,6 +8653,38 @@ Func _Combo_VehicleClassId_Slot_1()
 	Local $Value_Temp_Name = GUICtrlRead($Combo_TRACK_2)
 	Local $Value_Temp = GUICtrlRead($Combo_VehicleClassId_Slot_1)
 
+	Local $Known_Class_1 = "GT1"
+	Local $Known_Class_2 = "GT3"
+	Local $Known_Class_3 = "GT4"
+	Local $Known_Class_4 = "GTE"
+	Local $Known_Class_5 = "LMP1"
+	Local $Known_Class_6 = "LMP2"
+	Local $Known_Class_7 = "LMP3"
+	Local $Known_Class_8 = "LMP900"
+	Local $Known_Class_9 = "Touring Car"
+	Local $Known_Class_10 = "TC1"
+	Local $Known_Class_11 = "Group A"
+
+	Local $Known_Class_Exists_1 = ""
+
+	If $Value_Temp = $Known_Class_1 Then $Known_Class_Exists_1 = "true"
+	If $Value_Temp = $Known_Class_2 Then $Known_Class_Exists_1 = "true"
+	If $Value_Temp = $Known_Class_3 Then $Known_Class_Exists_1 = "true"
+	If $Value_Temp = $Known_Class_4 Then $Known_Class_Exists_1 = "true"
+	If $Value_Temp = $Known_Class_5 Then $Known_Class_Exists_1 = "true"
+	If $Value_Temp = $Known_Class_6 Then $Known_Class_Exists_1 = "true"
+	If $Value_Temp = $Known_Class_7 Then $Known_Class_Exists_1 = "true"
+	If $Value_Temp = $Known_Class_8 Then $Known_Class_Exists_1 = "true"
+	If $Value_Temp = $Known_Class_9 Then $Known_Class_Exists_1 = "true"
+	If $Value_Temp = $Known_Class_10 Then $Known_Class_Exists_1 = "true"
+	If $Value_Temp = $Known_Class_11 Then $Known_Class_Exists_1 = "true"
+
+	If $Known_Class_Exists_1 <> "true" Then
+		IniWrite($config_ini, "TEMP", "Check_VehicleClassName", $Value_Temp)
+		_Get_ID_from_VehicleClassesList_TXT()
+		$Value_Temp = IniRead($config_ini, "TEMP", "Check_VehicleClassID", "")
+	EndIf
+
 	If $Value_Temp_Nr = 0 Then
 		IniWrite($RC_LUA_Settings_ini_File, "Settings", "MultiClassSlot1", $Value_Temp)
 	Else
@@ -8445,6 +8698,38 @@ Func _Combo_VehicleClassId_Slot_2()
 	Local $Value_Temp_Name = GUICtrlRead($Combo_TRACK_2)
 	Local $Value_Temp = GUICtrlRead($Combo_VehicleClassId_Slot_2)
 
+	Local $Known_Class_1 = "GT1"
+	Local $Known_Class_2 = "GT3"
+	Local $Known_Class_3 = "GT4"
+	Local $Known_Class_4 = "GTE"
+	Local $Known_Class_5 = "LMP1"
+	Local $Known_Class_6 = "LMP2"
+	Local $Known_Class_7 = "LMP3"
+	Local $Known_Class_8 = "LMP900"
+	Local $Known_Class_9 = "Touring Car"
+	Local $Known_Class_10 = "TC1"
+	Local $Known_Class_11 = "Group A"
+
+	Local $Known_Class_Exists_1 = ""
+
+	If $Value_Temp = $Known_Class_1 Then $Known_Class_Exists_1 = "true"
+	If $Value_Temp = $Known_Class_2 Then $Known_Class_Exists_1 = "true"
+	If $Value_Temp = $Known_Class_3 Then $Known_Class_Exists_1 = "true"
+	If $Value_Temp = $Known_Class_4 Then $Known_Class_Exists_1 = "true"
+	If $Value_Temp = $Known_Class_5 Then $Known_Class_Exists_1 = "true"
+	If $Value_Temp = $Known_Class_6 Then $Known_Class_Exists_1 = "true"
+	If $Value_Temp = $Known_Class_7 Then $Known_Class_Exists_1 = "true"
+	If $Value_Temp = $Known_Class_8 Then $Known_Class_Exists_1 = "true"
+	If $Value_Temp = $Known_Class_9 Then $Known_Class_Exists_1 = "true"
+	If $Value_Temp = $Known_Class_10 Then $Known_Class_Exists_1 = "true"
+	If $Value_Temp = $Known_Class_11 Then $Known_Class_Exists_1 = "true"
+
+	If $Known_Class_Exists_1 <> "true" Then
+		IniWrite($config_ini, "TEMP", "Check_VehicleClassName", $Value_Temp)
+		_Get_ID_from_VehicleClassesList_TXT()
+		$Value_Temp = IniRead($config_ini, "TEMP", "Check_VehicleClassID", "")
+	EndIf
+
 	If $Value_Temp_Nr = 0 Then
 		IniWrite($RC_LUA_Settings_ini_File, "Settings", "MultiClassSlot2", $Value_Temp)
 	Else
@@ -8457,6 +8742,38 @@ Func _Combo_VehicleClassId_Slot_3()
 	Local $Value_Temp_Nr = GUICtrlRead($Wert_Track_Nr)
 	Local $Value_Temp_Name = GUICtrlRead($Combo_TRACK_2)
 	Local $Value_Temp = GUICtrlRead($Combo_VehicleClassId_Slot_3)
+
+	Local $Known_Class_1 = "GT1"
+	Local $Known_Class_2 = "GT3"
+	Local $Known_Class_3 = "GT4"
+	Local $Known_Class_4 = "GTE"
+	Local $Known_Class_5 = "LMP1"
+	Local $Known_Class_6 = "LMP2"
+	Local $Known_Class_7 = "LMP3"
+	Local $Known_Class_8 = "LMP900"
+	Local $Known_Class_9 = "Touring Car"
+	Local $Known_Class_10 = "TC1"
+	Local $Known_Class_11 = "Group A"
+
+	Local $Known_Class_Exists_1 = ""
+
+	If $Value_Temp = $Known_Class_1 Then $Known_Class_Exists_1 = "true"
+	If $Value_Temp = $Known_Class_2 Then $Known_Class_Exists_1 = "true"
+	If $Value_Temp = $Known_Class_3 Then $Known_Class_Exists_1 = "true"
+	If $Value_Temp = $Known_Class_4 Then $Known_Class_Exists_1 = "true"
+	If $Value_Temp = $Known_Class_5 Then $Known_Class_Exists_1 = "true"
+	If $Value_Temp = $Known_Class_6 Then $Known_Class_Exists_1 = "true"
+	If $Value_Temp = $Known_Class_7 Then $Known_Class_Exists_1 = "true"
+	If $Value_Temp = $Known_Class_8 Then $Known_Class_Exists_1 = "true"
+	If $Value_Temp = $Known_Class_9 Then $Known_Class_Exists_1 = "true"
+	If $Value_Temp = $Known_Class_10 Then $Known_Class_Exists_1 = "true"
+	If $Value_Temp = $Known_Class_11 Then $Known_Class_Exists_1 = "true"
+
+	If $Known_Class_Exists_1 <> "true" Then
+		IniWrite($config_ini, "TEMP", "Check_VehicleClassName", $Value_Temp)
+		_Get_ID_from_VehicleClassesList_TXT()
+		$Value_Temp = IniRead($config_ini, "TEMP", "Check_VehicleClassID", "")
+	EndIf
 
 	If $Value_Temp_Nr = 0 Then
 		IniWrite($RC_LUA_Settings_ini_File, "Settings", "MultiClassSlot3", $Value_Temp)
@@ -8913,6 +9230,71 @@ EndFunc
 Func _NotDoneYet()
 	MsgBox(0, "_NotDoneYet", "_NotDoneYet")
 EndFunc
+
+
+Func _Get_ID_from_VehicleClassesList_TXT()
+	Local $Check_VehicleClassName = IniRead($config_ini, "TEMP", "Check_VehicleClassName", "")
+	IniWrite($config_ini, "TEMP", "Check_VehicleClassID", "")
+
+	If $Check_VehicleClassName <> "" Then
+		Local $NR_Lines = _FileCountLines($VehicleClassesList_TXT)
+
+		For $Loop = 6 To $NR_Lines Step 4
+			$Value = FileReadLine($VehicleClassesList_TXT, $Loop)
+			$Value = StringReplace($Value, '      "name" : "', '')
+			$Value = StringReplace($Value, '"', '')
+			$Value = StringReplace($Value, ',', '')
+			$Value = StringReplace($Value, '}', '')
+			;MsgBox(0, "1", $Value)
+
+			If $Value = $Check_VehicleClassName Then
+				$Value = FileReadLine($VehicleClassesList_TXT, $Loop - 1)
+				$Value = StringReplace($Value, '      "value" : ', '')
+				$Value = StringReplace($Value, '"', '')
+				$Value = StringReplace($Value, ',', '')
+				$Value = StringReplace($Value, '}', '')
+				IniWrite($config_ini, "TEMP", "Check_VehicleClassID", $Value)
+				IniWrite($config_ini, "TEMP", "Check_VehicleClassName", "")
+				;MsgBox(0, "VehicleClass ID", $Value)
+				ExitLoop
+			EndIf
+		Next
+	EndIf
+EndFunc
+
+Func _Get_Name_from_VehicleClassesList_TXT()
+	Local $Check_VehicleClassName = IniRead($config_ini, "TEMP", "Check_VehicleClassID", "")
+	IniWrite($config_ini, "TEMP", "Check_VehicleClassName", "")
+
+	If $Check_VehicleClassName <> "" Then
+		Local $NR_Lines = _FileCountLines($VehicleClassesList_TXT)
+
+		For $Loop = 5 To $NR_Lines Step 4
+			$Value = FileReadLine($VehicleClassesList_TXT, $Loop)
+			$Value = StringReplace($Value, '      "value" : ', '')
+			$Value = StringReplace($Value, '"', '')
+			$Value = StringReplace($Value, ',', '')
+			$Value = StringReplace($Value, '}', '')
+			;MsgBox(0, "1", $Value)
+
+			If $Value = $Check_VehicleClassName Then
+				$Value = FileReadLine($VehicleClassesList_TXT, $Loop + 1)
+				$Value = StringReplace($Value, '      "name" : "', '')
+				$Value = StringReplace($Value, '"', '')
+				$Value = StringReplace($Value, ',', '')
+				$Value = StringReplace($Value, '}', '')
+				IniWrite($config_ini, "TEMP", "Check_VehicleClassName", $Value)
+				IniWrite($config_ini, "TEMP", "Check_VehicleClassID", "")
+				;MsgBox(0, "VehicleClass ID", $Value)
+				ExitLoop
+			EndIf
+		Next
+	EndIf
+EndFunc
+
+
+
+
 
 
 

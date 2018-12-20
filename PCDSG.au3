@@ -16,10 +16,13 @@
 #include <SQLite.au3>
 #include <SQLite.dll.au3>
 #include <Date.au3>
-;#include <base64.au3>
 #include <MsgBoxConstants.au3>
 #include <Process.au3>
-
+#include <GUIConstantsEx.au3>
+#include <StaticConstants.au3>
+#include <WindowsConstants.au3>
+#include <WinAPI.au3>
+#Include <WinAPIEx.au3>
 #include <ColorConstants.au3>
 #EndRegion Includes
 
@@ -76,9 +79,10 @@ Global $install_dir = IniRead($config_ini,"Einstellungen", "Installations_Verzei
 Global $Backup_dir = $install_dir & "Backup\"
 Global $System_Dir = $install_dir & "system\"
 Global $Sprachdatei = IniRead($config_ini,"Einstellungen", "Sprachdatei", "")
+Global $Sprachdatei_folder = $System_Dir & "language\"
 Global $Dedi_Installations_Verzeichnis = IniRead($config_ini, "Einstellungen", "Dedi_Installations_Verzeichnis", "")
 Global $Dedi_Verzeichnis = $Dedi_Installations_Verzeichnis
-Global $Dedi_configCFG_sample = $install_dir & "server_sample.cfg"
+Global $Dedi_configCFG_sample = $install_dir & "Templates\config\server.cfg"
 Global $PCDSG_LOG_ini = $System_Dir & "PCDSG_LOG.ini"
 Global $DB_path = $System_Dir & "Database.sqlite"
 Global $PCDSG_Network_Card_IP= IniRead($config_ini, "Einstellungen", "Network_Card_IP", "")
@@ -523,17 +527,27 @@ GUICtrlSetBkColor(-1, 0xB0C4DE)
 GUICtrlSetColor(-1, 0x00008B)
 GuiCtrlSetTip(-1, $Info_GUI_Button3_1 & @CRLF & $Info_GUI_Button3_2)
 
-$GUI_Button6 = GUICtrlCreateButton("Hide Windows", 430, 3, 85, 17, $BS_BITMAP)
+;$GUI_Button6 = GUICtrlCreateButton("Hide Windows", 430, 3, 85, 17, $BS_BITMAP)
+;GuiCtrlSetTip(-1, "Hides all current opened Windows.")
+
+;$GUI_Button7 = GUICtrlCreateButton("Show Windows", 430, 21, 85, 17, $BS_BITMAP)
+;GuiCtrlSetTip(-1, "Shows all current opened Windows.")
+
+$GUI_Button6 = GUICtrlCreateButton("Hide Windows", 424, 3, 95, 35, 0 + $BS_DEFPUSHBUTTON)
+_GUICtrlButton_SetImage($GUI_Button6, "shell32.dll", 247, False)
+;GUICtrlSetStyle(-1, $GUI_SS_DEFAULT_BUTTON)
+;GUICtrlSetBkColor(-1, 0xB0C4DE)
+;GUICtrlSetColor(-1, 0x00008B)
+;_GUICtrlButton_SetImage($GUI_Button6, $gfx & "Info.bmp")
 GuiCtrlSetTip(-1, "Hides all current opened Windows.")
 
-$GUI_Button7 = GUICtrlCreateButton("Show Windows", 430, 21, 85, 17, $BS_BITMAP)
-GuiCtrlSetTip(-1, "Shows all current opened Windows.")
 
-$GUI_Button8 = GUICtrlCreateButton($Label_GUI_Button4, 522, 3, 35, 35, $BS_BITMAP)
+
+$GUI_Button8 = GUICtrlCreateButton($Label_GUI_Button4, 562, 3, 35, 35, $BS_BITMAP)
 _GUICtrlButton_SetImage($GUI_Button8, $gfx & "Info.bmp")
 GuiCtrlSetTip(-1, "Infos")
 
-$GUI_Button9 = GUICtrlCreateButton($Label_GUI_Button5, 562, 3, 35, 35, $BS_BITMAP)
+$GUI_Button9 = GUICtrlCreateButton($Label_GUI_Button5, 522, 3, 35, 35, $BS_BITMAP)
 _GUICtrlButton_SetImage($GUI_Button9, "imageres.dll", 109, True)
 GuiCtrlSetTip(-1, $Info_GUI_Button5)
 
@@ -567,18 +581,18 @@ _GUICtrlButton_SetImage($TAB_1_Button1, $gfx & "Aktualisieren_Browser.bmp") ;
 GuiCtrlSetTip(-1, $Info_TAB_1_Button1)
 
 $TAB_1_Button2 = GUICtrlCreateButton("", 55, 10000, 36, 36, $BS_BITMAP)
-_GUICtrlButton_SetImage($TAB_1_Button2, $gfx & "STAT.bmp") ;
+_GUICtrlButton_SetImage($TAB_1_Button2, $gfx & "WebInterface.bmp") ;
 GuiCtrlSetTip(-1, $Info_TAB_1_Button2)
 
-$TAB_1_Button3 = GUICtrlCreateButton("", 95, 10000, 36, 36, $BS_BITMAP)
-_GUICtrlButton_SetImage($TAB_1_Button3, $gfx & "STAT_xls.bmp") ;
-GuiCtrlSetTip(-1, $Info_TAB_1_Button3)
+;$TAB_1_Button3 = GUICtrlCreateButton("", 95, 10000, 36, 36, $BS_BITMAP)
+;_GUICtrlButton_SetImage($TAB_1_Button3, $gfx & "STAT_xls.bmp") ;
+;GuiCtrlSetTip(-1, $Info_TAB_1_Button3)
 
-$TAB_1_Button4 = GUICtrlCreateButton("", 155, 10000, 36, 36, $BS_BITMAP)
+$TAB_1_Button4 = GUICtrlCreateButton("", 95, 10000, 36, 36, $BS_BITMAP)
 _GUICtrlButton_SetImage($TAB_1_Button4, $gfx & "STAT_table.bmp") ;
 GuiCtrlSetTip(-1, $Info_TAB_1_Button4)
 
-$TAB_1_Button5 = GUICtrlCreateButton("", 185, 387, 36, 36, $BS_BITMAP)
+$TAB_1_Button5 = GUICtrlCreateButton("", 135, 387, 36, 36, $BS_BITMAP)
 _GUICtrlButton_SetImage($TAB_1_Button5, $gfx & "TrackMap.bmp") ;
 GuiCtrlSetTip(-1, $Info_TAB_1_Button5)
 
@@ -810,11 +824,11 @@ GuiCtrlSetTip(-1, "Open 'sms_rotate_config.json' File")
 
 Global $TAB_2_Button5 = GUICtrlCreateButton("Restart_DS", 520, 387, 35, 35, $BS_BITMAP)
 _GUICtrlButton_SetImage($TAB_2_Button5, $gfx & "Restart_DS.bmp")
-GuiCtrlSetTip(-1, "Restart DS - Restarts Dedicated Server in local and remote Mode.")
+GuiCtrlSetTip(-1, "Restart DS - Restarts Dedicated Server.")
 
 Global $TAB_2_Button2 = GUICtrlCreateButton("FTP_Upload", 560, 387, 35, 35, $BS_BITMAP)
 _GUICtrlButton_SetImage($TAB_2_Button2, $gfx & "FTP_Upload.bmp")
-GuiCtrlSetTip(-1, "FTP Upload - Uploads server.cfg File to the DS remote folder")
+GuiCtrlSetTip(-1, "FTP Upload - Uploads the config Files depending on the settings to the defined Folder.")
 
 Global $TAB_2_Button3 = GUICtrlCreateButton("Speichern", 600, 387, 35, 35, $BS_BITMAP)
 _GUICtrlButton_SetImage($TAB_2_Button3, $gfx & "Speichern.bmp")
@@ -828,7 +842,7 @@ GuiCtrlSetTip(-1, $Info_TAB_2_Button3)
 #region GUI TAB 3
 $TAB_3 = GUICtrlCreateTabItem($Label_TAB_3)
 
-GUICtrlCreateGroup("", 3, 75, 424, 138)
+;GUICtrlCreateGroup("", 3, 75, 424, 138)
 
 $Tab3_NR_Buttons = IniRead($config_ini, "APPS", "NR", "")
 
@@ -840,7 +854,7 @@ $Tab3_Label_APP_5 = IniRead($config_ini, "APPS", "APP_5_name", "")
 
 $Tab3_path_APP_1 = IniRead($config_ini, "APPS", "APP_1_path", "")
 $Tab3_path_APP_2 = IniRead($config_ini, "APPS", "APP_2_path", "")
-$Tab3_path_APP_3 = IniRead($config_ini, "APPS", "APP_3_npath", "")
+$Tab3_path_APP_3 = IniRead($config_ini, "APPS", "APP_3_path", "")
 $Tab3_path_APP_4 = IniRead($config_ini, "APPS", "APP_4_path", "")
 $Tab3_path_APP_5 = IniRead($config_ini, "APPS", "APP_5_path", "")
 
@@ -1002,9 +1016,21 @@ EndIf
 
 _GUI_Button_Users()
 
-;GUICtrlSetState($TAB_1,$GUI_SHOW)
-GUICtrlSetState($TAB_2,$GUI_SHOW)
-;GUICtrlSetState($TAB_3,$GUI_SHOW)
+Local $TAB_Restart = IniRead($config_ini, "TEMP", "TAB_Restart", "TAB_2")
+
+If $TAB_Restart <> "" Then
+	If $TAB_Restart = "TAB_1" Then GUICtrlSetState($TAB_1, $GUI_SHOW)
+	If $TAB_Restart = "TAB_2" Then GUICtrlSetState($TAB_2, $GUI_SHOW)
+	If $TAB_Restart = "TAB_3" Then GUICtrlSetState($TAB_3, $GUI_SHOW)
+	If $TAB_Restart = "TAB_4" Then GUICtrlSetState($TAB_4, $GUI_SHOW)
+	If $TAB_Restart = "TAB_5" Then GUICtrlSetState($TAB_5, $GUI_SHOW)
+Else
+	;GUICtrlSetState($TAB_1,$GUI_SHOW)
+	GUICtrlSetState($TAB_2, $GUI_SHOW)
+	;GUICtrlSetState($TAB_3,$GUI_SHOW)
+EndIf
+
+IniWrite($config_ini, "TEMP", "TAB_Restart", "")
 
 Sleep(500)
 _StartUp_Autostart_Check()
@@ -1020,15 +1046,15 @@ GUICtrlSetOnEvent($GUI_Button1, "_PC_Server_Connect_DS")
 GUICtrlSetOnEvent($GUI_Button2, "_PC_Server_web_page")
 GUICtrlSetOnEvent($GUI_Button3, "_PC_Server_beenden")
 
-GUICtrlSetOnEvent($GUI_Button6, "_Hide_Windows")
-GUICtrlSetOnEvent($GUI_Button7, "_Show_Windows")
+GUICtrlSetOnEvent($GUI_Button6, "_Button_Hide_Windows")
+;GUICtrlSetOnEvent($GUI_Button7, "_Show_Windows")
 GUICtrlSetOnEvent($GUI_Button8, "_Info")
 GUICtrlSetOnEvent($GUI_Button9, "_PCDSG_Programm_Einstellungen")
 GUICtrlSetOnEvent($GUI_Button_Exit, "_Beenden")
 
 GUICtrlSetOnEvent($TAB_1_Button1, "_TAB_1_Button1")
 GUICtrlSetOnEvent($TAB_1_Button2, "_TAB_1_Button2")
-GUICtrlSetOnEvent($TAB_1_Button3, "_TAB_1_Button3")
+;GUICtrlSetOnEvent($TAB_1_Button3, "_TAB_1_Button3")
 GUICtrlSetOnEvent($TAB_1_Button4, "_TAB_1_Button4")
 GUICtrlSetOnEvent($TAB_1_Button5, "_TAB_1_Button5")
 GUICtrlSetOnEvent($TAB_1_Button8, "_TAB_1_Button8")
@@ -1172,8 +1198,8 @@ Func _Tab()
 
 			GUICtrlSetPos($TAB_1_Button1, 5, 387)
 			GUICtrlSetPos($TAB_1_Button2, 55, 387)
-			GUICtrlSetPos($TAB_1_Button3, 95, 387)
-			GUICtrlSetPos($TAB_1_Button4, 135, 387)
+			;GUICtrlSetPos($TAB_1_Button3, 95, 387)
+			GUICtrlSetPos($TAB_1_Button4, 95, 387)
 
 			GUICtrlSetPos($Linie_oben, 0, 41)
 			GUICtrlSetPos($Linie_unten, 0, 427)
@@ -1335,46 +1361,66 @@ EndFunc
 
 Func _PC_Server_Connect_DS()
 	;_Delete_DS_StartUp_Files()
-	IniWrite($config_ini, "PC_Server", "DS_Mode", "remote")
 
-	$PC_Server_Status = IniRead($config_ini, "PC_Server", "Status", "")
+	;$DS_Domain_or_IP = IniRead($config_ini, "PC_Server", "DS_Domain_or_IP", "")
+	$DS_Domain_or_IP = GUICtrlRead($Eingabe_DS_Domain_or_IP)
 
-	If $PC_Server_Status = "PC_Server_gestartet" Then
-		IniWrite($config_ini, "PC_Server", "Status", "PC_Server_beendet")
-		IniWrite($config_ini, "TEMP", "RestartCheck", "false")
-	EndIf
+	If $DS_Domain_or_IP <> "" Then
+		IniWrite($config_ini, "PC_Server", "DS_Mode", "remote")
 
-	_GUICtrlStatusBar_SetText($Statusbar, $Statusbar_welcome_msg_3)
-	IniWrite($config_ini, "PC_Server", "Status", "PC_Server_gestartet")
+		$PC_Server_Status = IniRead($config_ini, "PC_Server", "Status", "")
 
-	Sleep(2000)
-	_GUICtrlStatusBar_SetText($Statusbar, $Statusbar_welcome_msg_4 & @TAB & @TAB & $Statusbar_welcome_msg_5)
-	Sleep(2000)
-	GUICtrlSetState($TAB_1, $GUI_SHOW)
+		If $PC_Server_Status = "PC_Server_gestartet" Then
+			IniWrite($config_ini, "PC_Server", "Status", "PC_Server_beendet")
+			IniWrite($config_ini, "TEMP", "RestartCheck", "false")
+		EndIf
 
-	$PC_Server_Status = IniRead($config_ini, "PC_Server", "Status", "")
-	If $PC_Server_Status = "PC_Server_gestartet" Then $PC_Server_Status = "Online"
-	If $PC_Server_Status = "PC_Server_beendet" Then $PC_Server_Status = "Offline"
+		_GUICtrlStatusBar_SetText($Statusbar, $Statusbar_welcome_msg_3)
+		IniWrite($config_ini, "PC_Server", "Status", "PC_Server_gestartet")
 
-	Sleep(1000)
+		Sleep(2000)
+		_GUICtrlStatusBar_SetText($Statusbar, $Statusbar_welcome_msg_4 & @TAB & @TAB & $Statusbar_welcome_msg_5)
+		Sleep(2000)
+		GUICtrlSetState($TAB_1, $GUI_SHOW)
 
-	GUICtrlSetState($TAB_1,$GUI_SHOW)
+		$PC_Server_Status = IniRead($config_ini, "PC_Server", "Status", "")
+		If $PC_Server_Status = "PC_Server_gestartet" Then $PC_Server_Status = "Online"
+		If $PC_Server_Status = "PC_Server_beendet" Then $PC_Server_Status = "Offline"
 
-	_Start_PCDSG_Lapper()
-	Sleep(500)
-	_Tab()
-
-	$Update_TrackList_VehicleList = IniRead($config_ini, "PC_Server", "Checkbox_PCDSG_settings_10", "")
-	If $Update_TrackList_VehicleList = "true" Then
 		Sleep(1000)
-		_get_tracks_from_DS()
+
+		GUICtrlSetState($TAB_1,$GUI_SHOW)
+
+		_Start_PCDSG_Lapper()
 		Sleep(500)
-		_get_cars_from_DS()
+		_Tab()
+
+		$Update_TrackList_VehicleList = IniRead($config_ini, "PC_Server", "Checkbox_PCDSG_settings_10", "")
+		If $Update_TrackList_VehicleList = "true" Then
+			Sleep(1000)
+			_get_tracks_from_DS()
+			Sleep(500)
+			_get_cars_from_DS()
+		EndIf
+		FileWriteLine($PCDSG_LOG_ini, "PCDSG_Server_started_connected_" & $NowTime & "=" & "PCDSG Server started /  connected" & " | " & "Date - Time: " & $NowDate & " - " & $NowTime)
+	Else
+		FileWriteLine($PCDSG_LOG_ini, "PCDSG_Server_started_connected_" & $NowTime & "=" & "$DS_Domain_or_IP is empty, Enter $DS_Domain_or_IP first." & " | " & "Date - Time: " & $NowDate & " - " & $NowTime)
+		MsgBox($MB_OK + $MB_ICONWARNING,"DS Domain or Public IP empty", "DS Domain or Public IP is empty." & @CRLF & "Enter Domain name or Public IP first.")
+
+		$Eingabe_PublicIP = InputBox ( "Public IP", "Enter domain name or public IP.")
+		If $Eingabe_PublicIP <> "" Then
+			IniWrite($config_ini, "PC_Server", "DS_Domain_or_IP", $Eingabe_PublicIP)
+			IniWrite($config_ini,"PC_Server", "DS_PublicIP", $Eingabe_PublicIP)
+			MsgBox($MB_OK + $MB_ICONINFORMATION,"Domain name or Public IP saved", "Domain name or Public IP was saved." & @CRLF & "You can now Connect to the DS Server.")
+		Else
+			IniWrite($config_ini, "PC_Server", "DS_Domain_or_IP", "")
+			IniWrite($config_ini,"PC_Server", "DS_PublicIP", "")
+			MsgBox($MB_OK + $MB_ICONWARNING,"Domain name or Public IP empty", "Domain name or Public IP was NOT saved." & @CRLF & "You cannot Connect to the DS Server without Domain name or Public IP.")
+		EndIf
 	EndIf
-	FileWriteLine($PCDSG_LOG_ini, "PCDSG_Server_started_connected_" & $NowTime & "=" & "PCDSG Server started /  connected" & " | " & "Date - Time: " & $NowDate & " - " & $NowTime)
 EndFunc
 
-
+; www.annonymous-chiller.de
 Func _PC_Server_web_page()
 	ShellExecute($Web_Page)
 EndFunc
@@ -1440,49 +1486,22 @@ EndFunc
 Func _TAB_1_Button1()
 	$Server_Status = IniRead($config_ini,"PC_Server", "Status", "")
 
-	;$Lesen_Auswahl_httpApiInterface = GUICtrlRead($Eingabe_httpApiInterface)
-	;$Lesen_Auswahl_httpApiPort = GUICtrlRead($Auswaehlen_httpApiPort)
-
-	;If $Lesen_Auswahl_httpApiInterface = "" Then $Lesen_Auswahl_httpApiInterface = "127.0.0.1"
-	;If $Lesen_Auswahl_httpApiPort = "" Then $Lesen_Auswahl_httpApiPort = "9000"
-
-	$HTML_local_Verzeichnis = IniRead($config_ini,"Einstellungen", "HTML_local_Verzeichnis", "")
-	$HTML_web_Verzeichnis = IniRead($config_ini,"Einstellungen", "HTML_web_Verzeichnis", "")
-	$HTML_Status_web_page = IniRead($config_ini,"Einstellungen", "HTML_Status_web_page", "")
-
-
-	$IE_Adresse = $Lesen_Auswahl_httpApiInterface & ":" & $Lesen_Auswahl_httpApiPort
-
-	;If $Server_Status = "PC_Server_gestartet" Then $oIE.navigate("http://" & $IE_Adresse)
-	If $Server_Status = "PC_Server_gestartet" Then _Tab()
+	If $Server_Status = "PC_Server_gestartet" Then
+		GUICtrlDelete($oIE_GUI)
+		_Server_Status_anzeigen()
+	 EndIf
 EndFunc
 
 Func _TAB_1_Button2()
-	;$Lesen_Auswahl_httpApiInterface = GUICtrlRead($Eingabe_httpApiInterface)
-	;$Lesen_Auswahl_httpApiPort = GUICtrlRead($Auswaehlen_httpApiPort)
-
-	;If $Lesen_Auswahl_httpApiInterface = "" Then $Lesen_Auswahl_httpApiInterface = "127.0.0.1"
-	;If $Lesen_Auswahl_httpApiPort = "" Then $Lesen_Auswahl_httpApiPort = "9000"
-
-	ShellExecute("http://" & $Lesen_Auswahl_httpApiInterface & ":" & $Lesen_Auswahl_httpApiPort)
+	If FileExists($System_Dir & "WebInterface.exe") Then
+		ShellExecute($System_Dir & "WebInterface.exe")
+	Else
+		ShellExecute($System_Dir & "WebInterface.au3")
+	EndIf
 EndFunc
 
 Func _TAB_1_Button3()
-	$Server_Name = GUICtrlRead($Eingabe_name)
-	$Lesen_Auswahl_httpApiInterface = GUICtrlRead($Eingabe_httpApiInterface)
-	$Lesen_Auswahl_httpApiPort = GUICtrlRead($Auswaehlen_httpApiPort)
 
-	If $Lesen_Auswahl_httpApiInterface = "" Then $Lesen_Auswahl_httpApiInterface = "127.0.0.1"
-	If $Lesen_Auswahl_httpApiPort = "" Then $Lesen_Auswahl_httpApiPort = "9000"
-
-	$URL = "http://" & $Lesen_Auswahl_httpApiInterface & ":" & $Lesen_Auswahl_httpApiPort
-	$IE = _IECreate($URL, "", 0)
-	$HTML = _IEDocReadHTML($IE)
-
-	FileWrite("data\stat\" & $Server_Name & @YEAR & @MON & @MDAY & ".xls",$HTML)
-	_IEQuit($IE)
-
-	ShellExecute("data\stat\" & $Server_Name & @YEAR & @MON & @MDAY & ".xls")
 EndFunc
 
 Func _TAB_1_Button4()
@@ -1612,7 +1631,7 @@ EndFunc
 
 Func _TAB_2_Button4()
 	If FileExists($sms_rotate_config_json_File) Then
-		ShellExecute($sms_rotate_config_json_File)
+		Run("notepad.exe " & $sms_rotate_config_json_File, "")
 	EndIf
 EndFunc
 
@@ -1808,7 +1827,8 @@ Func _Tab3_APPS_NR()
 			IniWrite($config_ini, "APPS", "APP_5_name", "")
 			IniWrite($config_ini, "APPS", "APP_5_path", "")
 
-			IniWrite($config_ini, "APPS", "APP_2_name", "APP 2")
+			If IniRead($config_ini, "APPS", "APP_1_name", "") = "" Then IniWrite($config_ini, "APPS", "APP_1_name", "APP 1")
+			If IniRead($config_ini, "APPS", "APP_2_name", "") = "" Then IniWrite($config_ini, "APPS", "APP_2_name", "APP 2")
 		EndIf
 
 		If $Lesen_NR_APPS = 3 Then
@@ -1817,18 +1837,36 @@ Func _Tab3_APPS_NR()
 			IniWrite($config_ini, "APPS", "APP_5_name", "")
 			IniWrite($config_ini, "APPS", "APP_5_path", "")
 
-			IniWrite($config_ini, "APPS", "APP_3_name", "APP 3")
+			If IniRead($config_ini, "APPS", "APP_1_name", "") = "" Then IniWrite($config_ini, "APPS", "APP_1_name", "APP 1")
+			If IniRead($config_ini, "APPS", "APP_2_name", "") = "" Then IniWrite($config_ini, "APPS", "APP_2_name", "APP 2")
+			If IniRead($config_ini, "APPS", "APP_3_name", "") = "" Then IniWrite($config_ini, "APPS", "APP_3_name", "APP 3")
 		EndIf
 
 		If $Lesen_NR_APPS = 4 Then
 			IniWrite($config_ini, "APPS", "APP_5_name", "")
 			IniWrite($config_ini, "APPS", "APP_5_path", "")
 
-			IniWrite($config_ini, "APPS", "APP_4_name", "APP 4")
+			If IniRead($config_ini, "APPS", "APP_1_name", "") = "" Then IniWrite($config_ini, "APPS", "APP_1_name", "APP 1")
+			If IniRead($config_ini, "APPS", "APP_2_name", "") = "" Then IniWrite($config_ini, "APPS", "APP_2_name", "APP 2")
+			If IniRead($config_ini, "APPS", "APP_3_name", "") = "" Then IniWrite($config_ini, "APPS", "APP_3_name", "APP 3")
+			If IniRead($config_ini, "APPS", "APP_4_name", "") = "" Then IniWrite($config_ini, "APPS", "APP_4_name", "APP 4")
 		EndIf
 
 		If $Lesen_NR_APPS = 5 Then
+			If IniRead($config_ini, "APPS", "APP_1_name", "") = "" Then IniWrite($config_ini, "APPS", "APP_1_name", "APP 1")
+			If IniRead($config_ini, "APPS", "APP_2_name", "") = "" Then IniWrite($config_ini, "APPS", "APP_2_name", "APP 2")
+			If IniRead($config_ini, "APPS", "APP_3_name", "") = "" Then IniWrite($config_ini, "APPS", "APP_3_name", "APP 3")
+			If IniRead($config_ini, "APPS", "APP_4_name", "") = "" Then IniWrite($config_ini, "APPS", "APP_4_name", "APP 4")
 			IniWrite($config_ini, "APPS", "APP_5_name", "APP 5")
+		EndIf
+
+		$PC_Server_Status = IniRead($config_ini, "PC_Server", "Status", "")
+		If $PC_Server_Status <> "PC_Server_gestartet" Then
+			IniWrite($config_ini, "TEMP", "TAB_Restart", "TAB_3")
+			MsgBox($MB_OK + $MB_ICONINFORMATION, "Settings saved", "Settings will be taken over after a restart.")
+			_Restart_PCDSG()
+		Else
+			MsgBox($MB_OK + $MB_ICONINFORMATION, "Settings saved", "Settings will be taken over after a restart.")
 		EndIf
 	EndIf
 EndFunc
@@ -2136,14 +2174,25 @@ Func _TAB_5_Button2()
 EndFunc
 
 Func _TAB_5_Button3()
-	$Abfrage = MsgBox(4, "Blacklist.cfg Download", "Do you realy want to Donwload 'Blacklist.cfg' File?" & @CRLF & @CRLF & "File already contains known problematic users" & @CRLF & @CRLF & "Note that this will exclude users from your DS without that you have own experiences or confirmation with or for them." & @CRLF)
+	Local $Download_URL = "http://www.cogent.myds.me/PCDSG/Downloads/blacklist.cfg"
+	Local $Download_FilePath = $System_Dir & "temp\blacklist.cfg"
+	If FileExists($Download_FilePath) Then FileDelete($Download_FilePath)
+	$Abfrage = MsgBox($MB_OK + $MB_ICONQUESTION, "Blacklist.cfg Download", "Do you realy want to Donwload 'Blacklist.cfg' File?" & @CRLF & @CRLF & "File already contains known problematic users" & @CRLF & @CRLF & "Note that this will exclude users from your DS without that you have own experiences or confirmation with or for them." & @CRLF)
 
 	If $Abfrage = 6 Then
 		If FileExists($install_dir & "blacklist.cfg") Then FileCopy($install_dir & "blacklist.cfg", $install_dir & "blacklist.bak")
-		$download = InetGet("http://www.cogent.myds.me/PCDSG/Downloads/blacklist.cfg", $install_dir & "blacklist.cfg", 1, 1)
-		MsgBox(0, "Download", "Blacklist.cfg File successfully downloaded." & @CRLF & "OLD Blacklist.cfd File was saved as Backup 'Blacklist.bak'", 3)
-	EndIf
+		$download = InetGet($Download_URL, $System_Dir & "temp\blacklist.cfg", 1, 1)
 
+		For $Loop = 1 To 5
+			If Not FileExists($Download_FilePath) Then Sleep(500)
+		Next
+
+		If FileExists($Download_FilePath) Then
+			MsgBox($MB_OK + $MB_ICONINFORMATION, "Download Successfully", "Blacklist.cfg File successfully downloaded." & @CRLF & "OLD Blacklist.cfd File was saved as Backup 'Blacklist.bak'")
+		Else
+			MsgBox($MB_OK + $MB_ICONWARNING, "Download Failed", "Blacklist.cfg File downloaded failed.")
+		EndIf
+	EndIf
 	_Tab()
 EndFunc
 
@@ -2485,6 +2534,8 @@ Func _TAB_6_Button4()
 	FileWriteLine($Dedi_config_cfg_test_new, "")
 
 	MsgBox(0,"", $msgbox_12, 3)
+
+	IniWrite($config_ini, "TEMP", "TAB_Restart", "TAB_6")
 
 	_Restart_PCDSG()
 EndFunc
@@ -3980,24 +4031,18 @@ EndFunc
 Func StartUp_settings()
 	IniWrite($config_ini, "PC_Server", "Checkbox_PCDSG_settings_5", "false")
 
-    Local $hGUI = GUICreate("PCDSG Startup settings", 400, 245, -1, -1, $WS_EX_TOPMOST)
+    Local $hGUI = GUICreate("PCDSG Startup settings", 400, 190, -1, -1, $WS_EX_TOPMOST)
 	GUISetIcon(@AutoItExe, -2, $hGUI)
     GUISetState(@SW_SHOW, $hGUI)
 
+	MsgBox($MB_OK + $MB_ICONINFORMATION, "Steam Dedicated Server folder", "Choose the local folder where the Steam Dedicated Server app is installed.")
+
 	Global $font_StartUp_arial = "arial"
 
-	GUICtrlCreateLabel("How will you use your Steam Dedicated Server?", 5, 5, 395, 20)
+	GUICtrlCreateLabel("Choose Steam Dedicated Server folder.", 5, 5, 395, 20)
 		GUICtrlSetFont(-1, 12, 600, 6, $font_StartUp_arial)
 
-	Global $StartUp_Radio_1 = GUICtrlCreateCheckbox("Local DS, launching the server and run it on this PC", 5, 30, 385)
-		;GUICtrlSetOnEvent($StartUp_Radio_1, "_StartUp_Radio_1")
-	Global $StartUp_Radio_2 = GUICtrlCreateCheckbox("Remote DS, connecting to a server that is not running on this PC", 5, 50, 385)
-		;GUICtrlSetOnEvent($StartUp_Radio_2, "_StartUp_Radio_2")
-
-	Global $StartUp_Next_Button = GUICtrlCreateButton("Next", 5, 75, 385, 30)
-	GUICtrlSetFont(-1, 12, 600, 2, $font_StartUp_arial)
-	GUICtrlSetColor(-1, "0x006600")
-	GUICtrlSetOnEvent($StartUp_Next_Button, "_StartUp_Next_Button")
+	_StartUp_Radio_1()
 
     While 1
         Switch GUIGetMsg()
@@ -4012,30 +4057,7 @@ Func StartUp_settings()
     GUIDelete($hChild)
 EndFunc
 
-
-Func _StartUp_Next_Button()
-	If GUICtrlRead($StartUp_Radio_1) <> 1 And GUICtrlRead($StartUp_Radio_2) <> 1 Then
-		MsgBox(0, "Selection", "Select at least one of the options.")
-	Else
-		GUICtrlDelete($StartUp_Next_Button)
-	EndIf
-
-	If GUICtrlRead($StartUp_Radio_1) = 1 Then _StartUp_Radio_1()
-	Sleep(1000)
-	If GUICtrlRead($StartUp_Radio_2) = 1 Then
-		If GUICtrlRead($StartUp_Radio_1) <> 1 Then
-			_StartUp_Radio_2()
-		Else
-			_StartUp_Public_IP()
-		EndIf
-	EndIf
-EndFunc
-
-
-
 Func _StartUp_Radio_1()
-	MsgBox(0, "Steam DS folder", "Choose the local folder where the Steam DS app is installed.")
-
 	$Auswahl_Verzeichnis = FileSelectFolder("Choose Steam DS folder:", "")
 
 	If $Auswahl_Verzeichnis <> "" Then
@@ -4048,91 +4070,51 @@ Func _StartUp_Radio_1()
 		IniWrite($config_ini, "Server_Einstellungen", "httpApiInterface", "localhost") ; 127.0.0.1
 		IniWrite($config_ini, "Server_Einstellungen", "httpApiPort", "9000")
 
-		GUICtrlCreateLabel("Steam Dedicated Server folder:", 5, 75, 395, 20)
-			GUICtrlSetFont(-1, 12, 600, 6, $font_StartUp_arial)
-		GUICtrlCreateLabel($Auswahl_Verzeichnis & "\", 5, 95, 395, 40)
+		GUICtrlCreateLabel($Auswahl_Verzeichnis & "\", 5, 25, 395, 40)
 	EndIf
 
-	;MsgBox(0, "Steam DS folder:", $Auswahl_Verzeichnis & "\" & @CRLF & @CRLF & "This folder will be saved for use in PCDSG.")
-
 	Sleep(1000)
-
-	If GUICtrlRead($StartUp_Radio_2) <> 1 Then _Complete_StartUp_Button()
-
+	_StartUp_Radio_2()
 EndFunc
 
 Func _StartUp_Radio_2()
-	MsgBox(0, "Local server.cfg folder", "Choose the local folder for your server.cfg.")
-
-	$Auswahl_Verzeichnis = FileSelectFolder("Choose local server.cfg folder:", $install_dir)
-
-	If $Auswahl_Verzeichnis <> "" Then
-		IniWrite($config_ini, "PC_Server", "DS_Mode", "local")
-		IniWrite($config_ini, "Einstellungen", "Dedi_Installations_Verzeichnis", $Auswahl_Verzeichnis & "\")
-		GUICtrlCreateLabel("Local server.cfg folder:", 5, 75, 395, 20)
-			GUICtrlSetFont(-1, 12, 600, 6, $font_StartUp_arial)
-		GUICtrlCreateLabel($Auswahl_Verzeichnis & "\", 5, 95, 395, 40)
-	EndIf
-
-	;MsgBox(0, "Local server.cfg folder:", $Auswahl_Verzeichnis & "\" & @CRLF & @CRLF & "This folder will be saved for use in PCDSG.")
-
-	Sleep(1000)
-
-	_StartUp_Public_IP()
-EndFunc
-
-Func _StartUp_Public_IP()
-	GUICtrlCreateLabel("Domain Name or Public IP:", 5, 125, 395, 20)
+	GUICtrlCreateLabel("Language File:", 5, 60, 160, 20)
 	GUICtrlSetFont(-1, 12, 600, 6, $font_StartUp_arial)
+
+	Local $Wert_Auswahl_Sprachdatei = $Sprachdatei_folder & "EN - English.ini"
+	Local $Dateiname_Sprachdatei = StringMid($Wert_Auswahl_Sprachdatei, StringInStr($Wert_Auswahl_Sprachdatei, '\', 2, -1) + 1)
+	$Dateiname_Sprachdatei = StringTrimRight($Dateiname_Sprachdatei, 4 )
+	Global $Auswahl_Sprachdatei = GUICtrlCreateCombo("", 5, 85, 100, 25, $CBS_DROPDOWNLIST)
+	GUICtrlSetOnEvent($Auswahl_Sprachdatei, "_StartUp_Auswahl_Sprachdatei")
+
+	Local $aFileList = _FileListToArray($Sprachdatei_folder, "*")
+	Local $iRows = UBound($aFileList, $UBOUND_ROWS) - 1
+
+	$Sprachdatei_data = ""
+
+	For $language_loop = 1 To $iRows
+		$Language_Name = StringReplace($aFileList[$language_loop], ".ini", "")
+		$Sprachdatei_data = $Sprachdatei_data & $Language_Name & "|"
+	Next
+
+	GUICtrlSetData($Auswahl_Sprachdatei, $Sprachdatei_data, $Dateiname_Sprachdatei)
 	Sleep(1000)
-
-	MsgBox(0, "Public IP", "Enter domain name or public IP of the Dedicated Server you want to connect to.")
-
-	$Eingabe_PublicIP = InputBox ( "Public IP", "Enter domain name or public IP.")
-
-	If $Eingabe_PublicIP <> "" Then
-		IniWrite($config_ini, "PC_Server", "DS_PublicIP", $Eingabe_PublicIP)
-		IniWrite($config_ini, "Server_Einstellungen", "DS_Domain_or_IP", $Eingabe_PublicIP)
-		;IniWrite($config_ini, "Server_Einstellungen", "httpApiInterface", $Eingabe_PublicIP)
-		GUICtrlCreateLabel($Eingabe_PublicIP, 5, 145, 395, 20)
-	EndIf
-
-	;MsgBox(0, "Public IP", $Eingabe_PublicIP & @CRLF & @CRLF & "You will also need to enter this public IP into the server.cfg that is used by the remote DS." & @CRLF & @CRLF & "httpApiInterface : " & $Eingabe_PublicIP)
-
-	Sleep(1000)
-
-	;_StartUp_API_Port()
 	_Complete_StartUp_Button()
 EndFunc
-
-Func _StartUp_API_Port()
-	MsgBox(0, "DS HTTP API Port", "Enter the HTTP API Port that is used by the remote DS, it is needed for PCDSG to connect, receive and send data/informations to and from remote DS.")
-
-	$Eingabe_DS_API_Port = InputBox ( "DS HTTP API Port", "Enter the DS HTTP API Port that the remote DS is using.")
-
-	If $Eingabe_DS_API_Port <> "" Then
-		IniWrite($config_ini, "PC_Server", "DS_API_Port", $Eingabe_DS_API_Port)
-		IniWrite($config_ini, "Server_Einstellungen", "httpApiPort", $Eingabe_DS_API_Port)
-
-		GUICtrlCreateLabel("DS HTTP API Port:", 5, 135, 395, 20)
-			GUICtrlSetFont(-1, 12, 600, 6, $font_StartUp_arial)
-		GUICtrlCreateLabel($Eingabe_DS_API_Port, 5, 155, 395, 20)
-	EndIf
-
-	MsgBox(0, "DS HTTP API Port", $Eingabe_DS_API_Port & @CRLF & @CRLF & "You will also need to enter this DS HTTP API Port into the server.cfg (If that is not already done and is the same) that is used by the remote DS." & @CRLF & @CRLF & "httpApiPort : " & $Eingabe_DS_API_Port)
-
-	Sleep(2000)
-
-	_Complete_StartUp_Button()
-EndFunc
-
 
 Func _Complete_StartUp_Button()
-	Local $StartUp_Next_Button = GUICtrlCreateButton("Complete StartUp, Start PCDSG", 5, 175, 385, 30)
+	Local $StartUp_Next_Button = GUICtrlCreateButton("Complete StartUp, Start PCDSG", 5, 120, 385, 30)
 	GUICtrlSetFont(-1, 12, 600, 2, $font_StartUp_arial)
 	GUICtrlSetColor(-1, "0x006600")
 	GUICtrlSetOnEvent($StartUp_Next_Button, "_StartUp_New_ServerCFG")
 EndFunc
+
+Func _StartUp_Auswahl_Sprachdatei()
+	$Auswahl_Einstellung_Sprachdatei = GUICtrlRead($Auswahl_Sprachdatei)
+	$Auswahl_Einstellung_Sprachdatei = $Sprachdatei_folder & $Auswahl_Einstellung_Sprachdatei & ".ini"
+	IniWrite($config_ini, "Einstellungen", "Sprachdatei", $Auswahl_Einstellung_Sprachdatei)
+EndFunc
+
 
 
 Func _StartUp_New_ServerCFG()
@@ -4140,7 +4122,7 @@ Func _StartUp_New_ServerCFG()
 
 	If $Abfrage = 6 Then
 		$Dedi_Installations_Verzeichnis = IniRead($config_ini, "Einstellungen", "Dedi_Installations_Verzeichnis", "")
-		$Dedi_configCFG_sample = $install_dir & "server_sample.cfg"
+		$Dedi_configCFG_sample = $install_dir & "Templates\config\server.cfg"
 		FileCopy($Dedi_configCFG_sample, $Dedi_Installations_Verzeichnis & "server.cfg", $FC_OVERWRITE)
 		FileCopy($Dedi_configCFG_sample, $install_dir & "server.cfg", $FC_OVERWRITE)
 	EndIf
@@ -4515,6 +4497,14 @@ Func _Hide_Windows()
 	WinSetState("PCars: Dedicated Server Overview", "", @SW_MINIMIZE)
 	WinSetState("PCDSG " & $Aktuelle_Version, "", @SW_HIDE)
 	WinSetState($Dedi_Installations_Verzeichnis & "DedicatedServerCmd.exe", "", @SW_HIDE)
+EndFunc
+
+Func _Button_Hide_Windows()
+	If FileExists($System_Dir & "Hide_Show.exe") Then
+		ShellExecute($System_Dir & "Hide_Show.exe")
+	Else
+		ShellExecute($System_Dir & "Hide_Show.au3")
+	EndIf
 EndFunc
 
 Func _Show_Windows()

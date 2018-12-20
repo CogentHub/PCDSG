@@ -1,4 +1,3 @@
-
 #include <GuiConstantsEx.au3>
 #include <GuiComboBox.au3>
 #include <GuiButton.au3>
@@ -134,8 +133,8 @@ Func _Settings()
 	$Sprachdatei_data = ""
 
 	For $language_loop = 1 To $iRows
-	$Language_Name = StringReplace($aFileList[$language_loop], ".ini", "")
-	$Sprachdatei_data = $Sprachdatei_data & $Language_Name & "|"
+		$Language_Name = StringReplace($aFileList[$language_loop], ".ini", "")
+		$Sprachdatei_data = $Sprachdatei_data & $Language_Name & "|"
 	Next
 
 	GUICtrlSetData(-1, $Sprachdatei_data, $Dateiname_Sprachdatei)
@@ -257,7 +256,7 @@ Func _Settings()
 	If $Status_Checkbox_PCDSG_settings_4 = "true" Then GUICtrlSetState(-1, $GUI_CHECKED)
 
 	$Status_Checkbox_PCDSG_settings_5 = IniRead($config_ini,"PC_Server", "Checkbox_PCDSG_settings_5", "")
-	$Checkbox_PCDSG_settings_5 = GUICtrlCreateCheckbox(" Start 'local / remote mode' guide next start", 526, 237, 220, 20)
+	$Checkbox_PCDSG_settings_5 = GUICtrlCreateCheckbox(" Show 'First Start' Guide on next start", 526, 237, 220, 20)
 	If $Status_Checkbox_PCDSG_settings_5 = "true" Then GUICtrlSetState(-1, $GUI_CHECKED)
 
 	$Status_Checkbox_PCDSG_settings_6 = IniRead($config_ini,"Einstellungen", "Auto_Change_BC", "")
@@ -387,14 +386,24 @@ Func _Settings()
 					If $Exce_2010_Exist <> "" Then $Installierte_Excel_Version = "Excel 2010"
 					If $Exce_2013_Exist <> "" Then $Installierte_Excel_Version = "Excel 2013"
 					If $Exce_2016_Exist <> "" Then $Installierte_Excel_Version = "Excel 2016"
-					If $Installierte_Excel_Version = "" Then MsgBox(4144, "", "Could not found MS Excel Installation." & @CRLF & @CRLF & "Because of that the functions of the program are limited.")
+					;If $Installierte_Excel_Version = "" Then MsgBox(4144, "", "Could not found MS Excel Installation." & @CRLF & @CRLF & "Because of that the functions of the program are limited.")
 
 					IniWrite($config_ini, "Einstellungen", "Excel_version", $Installierte_Excel_Version)
 
-					If $Installierte_Excel_Version <> "" Then $Data_Checkbox = "true"
-					If $Installierte_Excel_Version = "" Then $Data_Checkbox = "false"
-					If $Installierte_Excel_Version = "" Then GUICtrlSetState($Checkbox_Results_File_Format_HTM, "4")
-					If $Installierte_Excel_Version = "" Then MsgBox(4144, "", "Could not found MS Excel Installation." & @CRLF & @CRLF & "MS Excel needs to be installed to be able to use this function.")
+					If $Installierte_Excel_Version <> "" Then
+						$Data_Checkbox = "true"
+
+						$Abfrage = MsgBox($MB_YESNO + $MB_ICONINFORMATION, "MS Excel Installation available", "Do you prefer MS Excel for the HTM File creation?")
+
+						If $Abfrage = 6 Then
+							IniWrite($config_ini, "PC_Server", "Results_Prefer_Excel_HTM_File", "true")
+						Else
+							IniWrite($config_ini, "PC_Server", "Results_Prefer_Excel_HTM_File", "false")
+						EndIf
+					Else
+						$Data_Checkbox = "true"
+						;MsgBox(4144, "", "Could not found MS Excel Installation." & @CRLF & @CRLF & "MS Excel needs to be installed to be able to use this function.")
+					EndIf
 				EndIf
 				If $Data_Checkbox = "4" Then $Data_Checkbox = "false"
 				IniWrite($config_ini, "PC_Server", "Checkbox_Results_FileFormat_HTM", $Data_Checkbox)

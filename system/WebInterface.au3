@@ -1,5 +1,3 @@
-
-
 #include <GUIConstantsEx.au3>
 #include <WindowsConstants.au3>
 
@@ -65,15 +63,17 @@ If $DS_Mode_Temp = "local" Then
 		Global $Lesen_Auswahl_httpApiInterface = $Name_Password & IniRead($config_ini, "Server_Einstellungen", "httpApiInterface", "")
 		Global $Lesen_Auswahl_httpApiPort = IniRead($config_ini, "Server_Einstellungen", "httpApiPort", "")
 
-		If IniRead($config_ini, "Server_Einstellungen", "httpApiInterface", "") = "" Then Global $Lesen_Auswahl_httpApiInterface = $Name_Password & "localhost" ; "127.0.0.1"
+		If IniRead($config_ini, "Server_Einstellungen", "httpApiInterface", "") = "" Then Global $Lesen_Auswahl_httpApiInterface = $Name_Password & "127.0.0.1" ; "127.0.0.1"
 		If $Lesen_Auswahl_httpApiPort = "" Then Global $Lesen_Auswahl_httpApiPort = "9000"
+
 	Else
 		Global $Lesen_Auswahl_httpApiInterface = IniRead($config_ini, "Server_Einstellungen", "httpApiInterface", "")
 		Global $Lesen_Auswahl_httpApiPort = IniRead($config_ini, "Server_Einstellungen", "httpApiPort", "")
 
-		If IniRead($config_ini, "Server_Einstellungen", "httpApiInterface", "") = "" Then Global $Lesen_Auswahl_httpApiInterface = "localhost" ; "127.0.0.1"
+		If IniRead($config_ini, "Server_Einstellungen", "httpApiInterface", "") = "" Then Global $Lesen_Auswahl_httpApiInterface = "127.0.0.1" ; "127.0.0.1"
 		If $Lesen_Auswahl_httpApiPort = "" Then Global $Lesen_Auswahl_httpApiPort = "9000"
 	EndIf
+
 EndIf
 If $DS_Mode_Temp = "remote" Then
 	If $Name_User <> "" And $Password_User <> "" Then
@@ -158,7 +158,10 @@ Func Browser_Func()
 	Local $IE_aPos = WinGetPos($IE_Object)
 
 	;$oIE.navigate($EventBrowser_page)
-	$oIE.navigate("http://" & $Name_Password & $DS_Domain_or_IP & ":" & $Lesen_Auswahl_httpApiPort)
+	If $DS_Mode_Temp = "local" Then $oIE.navigate("http://" & $Lesen_Auswahl_httpApiInterface & ":" & $Lesen_Auswahl_httpApiPort)
+	If $DS_Mode_Temp = "remote" Then $oIE.navigate("http://" & $Name_Password & $DS_Domain_or_IP & ":" & $Lesen_Auswahl_httpApiPort)
+
+
 
 	While 1
 		$msg = GUIGetMsg()

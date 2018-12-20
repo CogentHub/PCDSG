@@ -1,7 +1,3 @@
-#Region ;**** Directives created by AutoIt3Wrapper_GUI ****
-#AutoIt3Wrapper_Icon=..\ICONS\DataUpdate.ico
-#EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
-
 
 #include <InetConstants.au3>
 #include <MsgBoxConstants.au3>
@@ -11,8 +7,9 @@
 #include <SQLite.au3>
 #include <SQLite.dll.au3>
 #include <Excel.au3>
-;#include "E:\coding\PCDSG_1.5\PCDSG.au3"
 #include <Inet.au3>
+#include <String.au3>
+#include <Array.au3>
 
 #Region Declare Variables/Const
 Global $config_ini = @ScriptDir & "\config.ini"
@@ -2128,31 +2125,24 @@ Func _Server_Events_LOG()
 					If $Status_Checkbox_Race_Results_Points = "true" Then _Write_Race_Result_Points_File_INI()
 					Sleep(100)
 
+					Local $Results_Prefer_Excel_HTM_File = IniRead($config_ini, "PC_Server", "Results_Prefer_Excel_HTM_File", "")
 
-					If $Check_Excel_Version <> "" Then
-						If $Status_Checkbox_Results_File_Format_XLS = "true" Or $Status_Checkbox_Results_File_Format_HTM = "true" Then _Write_Results_File_XLS_HTM()
-						Sleep(200)
-						;If $Status_Checkbox_Results_File_Format_HTM = "true" Then _Write_Results_File_HTM_only()
-						;Sleep(200)
+					If $Results_Prefer_Excel_HTM_File = "true" Then
+						If $Check_Excel_Version <> "" Then
+							If $Status_Checkbox_Results_File_Format_XLS = "true" Or $Status_Checkbox_Results_File_Format_HTM = "true" Then _Write_Results_File_XLS_HTM()
+							Sleep(200)
 
-						Global $Check_Checkbox_PCDSG_Stats_path = IniRead($config_ini, "Einstellungen", "Checkbox_PCDSG_Stats_path", "")
-						If $Check_Checkbox_PCDSG_Stats_path = "true" Then
-							_SyncFiles_Start()
-							IniWrite($config_ini, "TEMP", "Results_saved_TrackName", "")
+							Global $Check_Checkbox_PCDSG_Stats_path = IniRead($config_ini, "Einstellungen", "Checkbox_PCDSG_Stats_path", "")
+							If $Check_Checkbox_PCDSG_Stats_path = "true" Then
+								_SyncFiles_Start()
+								IniWrite($config_ini, "TEMP", "Results_saved_TrackName", "")
+								Sleep(200)
+							EndIf
+						Else
+							_Write_Results_File_HTM_only()
 							Sleep(200)
 						EndIf
 					Else
-						;If $Status_Checkbox_Results_File_Format_HTM = "true" Then _Write_Results_File_HTM_only()
-						;Sleep(200)
-						;Global $Check_Checkbox_PCDSG_Stats_path = IniRead($config_ini, "Einstellungen", "Checkbox_PCDSG_Stats_path", "")
-						;If $Check_Checkbox_PCDSG_Stats_path = "true" Then
-							;_SyncFiles_Start()
-							;IniWrite($config_ini, "TEMP", "Results_saved_TrackName", "")
-							;Sleep(200)
-						;EndIf
-					EndIf
-
-					If $HTML_TEST = "true" Then
 						_Write_Results_File_HTM_only()
 						Sleep(200)
 					EndIf
@@ -2162,7 +2152,6 @@ Func _Server_Events_LOG()
 
 				IniWrite($config_ini, "TEMP", "ResultsSaved", "")
 				IniWrite($config_ini, "TEMP", "ResultsIndexNR", "")
-
 			EndIf
 #EndRegion
 
@@ -4349,10 +4338,23 @@ Func _Write_Results_File_HTM_only() ; No Excel
 				$Results_File_Content = StringReplace($Results_File_Content, "DistanceTravelled_" & $Schleife_Results_1, $Check_DistanceTravelled_Value, 1, 0)
 				$Results_File_Content = StringReplace($Results_File_Content, "SafetyGroup_" & $Schleife_Results_1, $Check_SafetyGroup_Value, 1, 0)
 				$Results_File_Content = StringReplace($Results_File_Content, "Vehicle_" & $Schleife_Results_1, $Check_VehicleIName_Value, 1, 0)
+			Else
+				$Results_File_Content = StringReplace($Results_File_Content, "RacePosition_" & $Schleife_Results_1, "", 1, 0)
+				$Results_File_Content = StringReplace($Results_File_Content, "Name_" & $Schleife_Results_1, "", 1, 0)
+				$Results_File_Content = StringReplace($Results_File_Content, "TotalTime_" & $Schleife_Results_1, "", 1, 0)
+				$Results_File_Content = StringReplace($Results_File_Content, "FastestLapTime_" & $Schleife_Results_1, "", 1, 0)
+				$Results_File_Content = StringReplace($Results_File_Content, "State_" & $Schleife_Results_1, "", 1, 0)
+				$Results_File_Content = StringReplace($Results_File_Content, "PitStops_" & $Schleife_Results_1, "", 1, 0)
+				$Results_File_Content = StringReplace($Results_File_Content, "PenaltyPoints_" & $Schleife_Results_1, "", 1, 0)
+				$Results_File_Content = StringReplace($Results_File_Content, "ExperiencePoints_" & $Schleife_Results_1, "", 1, 0)
+				$Results_File_Content = StringReplace($Results_File_Content, "DistanceTravelled_" & $Schleife_Results_1, "", 1, 0)
+				$Results_File_Content = StringReplace($Results_File_Content, "SafetyGroup_" & $Schleife_Results_1, "", 1, 0)
+				$Results_File_Content = StringReplace($Results_File_Content, "Vehicle_" & $Schleife_Results_1, "", 1, 0)
 			EndIf
 
+
 			Local $Delete_File_Content = FileOpen($Results_File_Template_Sheet001, 2)
-			FileClose($Results_File_Template_Sheet001)
+			FileClose($Delete_File_Content)
 			FileWrite($Results_File_Template_Sheet001, $Results_File_Content)
 
 		Else
@@ -4362,26 +4364,26 @@ Func _Write_Results_File_HTM_only() ; No Excel
 	Next
 
 
-	For $Schleife_Results_1_1 = 1 To 32
+	For $Schleife_Results_1_1 = 1 To 32 ; 1 To 32
 		;Leeren
-		Local $Results_File_Content = StringReplace(FileRead($Results_File_Template_Sheet001), "RacePosition_" & $Schleife_Results_1_1, "")
-		$Results_File_Content = StringReplace($Results_File_Content, "Name_" & $Schleife_Results_1_1, "")
-		$Results_File_Content = StringReplace($Results_File_Content, "TotalTime_" & $Schleife_Results_1_1, "")
-		$Results_File_Content = StringReplace($Results_File_Content, "FastestLapTime_" & $Schleife_Results_1_1, "")
-		$Results_File_Content = StringReplace($Results_File_Content, "State_" & $Schleife_Results_1_1, "")
-		$Results_File_Content = StringReplace($Results_File_Content, "PitStops_" & $Schleife_Results_1_1, "")
-		$Results_File_Content = StringReplace($Results_File_Content, "PenaltyPoints_" & $Schleife_Results_1_1, "")
-		$Results_File_Content = StringReplace($Results_File_Content, "ExperiencePoints_" & $Schleife_Results_1_1, "")
-		$Results_File_Content = StringReplace($Results_File_Content, "DistanceTravelled_" & $Schleife_Results_1_1, "")
-		$Results_File_Content = StringReplace($Results_File_Content, "SafetyGroup_" & $Schleife_Results_1_1, "")
-		$Results_File_Content = StringReplace($Results_File_Content, "Vehicle_" & $Schleife_Results_1_1, "")
+		Local $Results_File_Content = StringReplace(FileRead($Results_File_Template_Sheet001), "RacePosition_" & $Schleife_Results_1_1, "", 1, 0)
+		$Results_File_Content = StringReplace($Results_File_Content, "Name_" & $Schleife_Results_1_1, "", 1, 0)
+		$Results_File_Content = StringReplace($Results_File_Content, "TotalTime_" & $Schleife_Results_1_1, "", 1, 0)
+		$Results_File_Content = StringReplace($Results_File_Content, "FastestLapTime_" & $Schleife_Results_1_1, "", 1, 0)
+		$Results_File_Content = StringReplace($Results_File_Content, "State_" & $Schleife_Results_1_1, "", 1, 0)
+		$Results_File_Content = StringReplace($Results_File_Content, "PitStops_" & $Schleife_Results_1_1, "", 1, 0)
+		$Results_File_Content = StringReplace($Results_File_Content, "PenaltyPoints_" & $Schleife_Results_1_1, "", 1, 0)
+		$Results_File_Content = StringReplace($Results_File_Content, "ExperiencePoints_" & $Schleife_Results_1_1, "", 1, 0)
+		$Results_File_Content = StringReplace($Results_File_Content, "DistanceTravelled_" & $Schleife_Results_1_1, "", 1, 0)
+		$Results_File_Content = StringReplace($Results_File_Content, "SafetyGroup_" & $Schleife_Results_1_1, "", 1, 0)
+		$Results_File_Content = StringReplace($Results_File_Content, "Vehicle_" & $Schleife_Results_1_1, "", 1, 0)
 
 		Local $Delete_File_Content = FileOpen($Results_File_Template_Sheet001, 2)
-		FileClose($Results_File_Template_Sheet001)
+		FileClose($Delete_File_Content)
 		FileWrite($Results_File_Template_Sheet001, $Results_File_Content)
 	Next
 
-
+	_Clean_HTML_File_sheet001()
 
 ;;;;;;;;;;;;;
 ;;;;;;;;;;;;;
@@ -4431,6 +4433,47 @@ Func _Write_Results_File_HTM_only() ; No Excel
 
 #EndRegion Save XLS/HTML
 
+EndFunc
+
+
+Func _Clean_HTML_File_sheet001()
+	Local $HTML_File = $install_dir & "\Templates\HTM\Session-Dateien\sheet001.htm"
+
+	Local $FileCountLines = _FileCountLines($HTML_File) - 1
+	Local $HTML_LastLine = $FileCountLines
+	Local $HTML_LastLine_End = $FileCountLines - 35
+
+	Global $HTML_Array[1] = [""]
+
+	For $Loop = 1 To $FileCountLines
+		Local $FileRead = FileReadLine($HTML_File, $Loop)
+
+		Local $StringInStr = StringInStr($FileRead, "<td class=xl71 style='border-left:none'>")
+		If $StringInStr <> "" Then
+			Local $StringReplace_1 = StringReplace($FileRead, "<td class=xl71 style='border-left:none'>", '')
+			Local $StringReplace_2 = StringReplace($StringReplace_1, "</td>", '')
+			If StringLeft($StringReplace_2, 1) = " " Then $StringReplace_2 = StringTrimLeft($StringReplace_2, 1)
+			If StringLeft($StringReplace_2, 1) = " " Then $StringReplace_2 = StringTrimLeft($StringReplace_2, 1)
+			If StringLeft($StringReplace_2, 1) = " " Then $StringReplace_2 = StringTrimLeft($StringReplace_2, 1)
+
+			If StringLeft($StringReplace_2, 1) <> "" And StringLeft($StringReplace_2, 1) <> "0" Then
+				Local $HTML_LastLine = $Loop + 10 ; 11
+			EndIf
+		EndIf
+
+		If 	$Loop < $HTML_LastLine Then
+			_ArrayAdd($HTML_Array, $FileRead)
+		EndIf
+
+		If 	$Loop > $HTML_LastLine_End Then
+			_ArrayAdd($HTML_Array, $FileRead)
+		EndIf
+	Next
+
+	Local $Delete_File_Content = FileOpen($HTML_File, 2)
+	FileClose($Delete_File_Content)
+	;_ArrayDisplay($HTML_Array, "1D - Single")
+	_FileWriteFromArray($HTML_File, $HTML_Array, 1)
 EndFunc
 
 
